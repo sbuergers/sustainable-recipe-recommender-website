@@ -1,7 +1,7 @@
 # inspired by
 # https://rapidapi.com/blog/build-food-website/
 # https://github.com/sandeepsudhakaran/rchat-app
-# https://www.youtube.com/watch?v=w25ea_I89iM&t=286s
+# https://www.youtherokuube.com/watch?v=w25ea_I89iM&t=286s
 
 # Get environment variables (API key)
 import os
@@ -38,7 +38,7 @@ debug = False
 
 # Configure app
 app = Flask(__name__)
-csrf = CsrfProtect(app) # cross site request forgery protection
+#csrf = CsrfProtect(app) # cross site request forgery protection
 app.secret_key = os.environ.get('SECRET')
 app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 
