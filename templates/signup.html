@@ -1,0 +1,24 @@
+{% from 'field-macro.html' import displayField %}
+{% extends 'base.html' %}
+{% block title %} Recipes searcher {% endblock %}
+{% block body %}
+<center>
+    <br>
+    <br>
+    <br>
+    <h2>Create a new account</h2>
+    <div id="container" style="width:660px;">
+        <form action="{{ url_for('signup') }}", method="POST">
+            {{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}
+            {{ displayField(form.password, 'Password') }}
+            {{ displayField(form.confirm_pswd, 'Retype Password') }}
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-warning">
+            </div>
+            {{ form.csrf_token }} 
+        </form> 
+    </div>
+    <hr>
+    <p>Already registered? <a href={{ url_for('login') }}>Login here</a>.</p>
+</center>
+{% endblock %}        

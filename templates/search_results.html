@@ -1,0 +1,121 @@
+{% from 'field-macro.html' import displayField %}
+{% extends 'base.html' %}
+{% block title %} Recommended recipes {% endblock %}
+{% block body %}
+
+<!-- Load JS for bokeh component plotting -->
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.2.min.js"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.2.min.js"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.2.min.js"
+    crossorigin="anonymous"></script>
+
+<center>
+    <br>
+    <!-- search bar -->
+    <form action="{{ url_for('search_results') }}", method="POST">
+        {{ displayField(search_form.search, 'Search') }}
+        {{ search_form.csrf_token }}
+    </form>
+
+    {% for recipeID, df in results.iterrows() %}
+    <br>
+    <div class="row">
+        <!-- Left white padding -->
+        <div class="col col-1">
+
+        </div>
+        
+        <!-- Central column to show search results and figures -->
+        <div class="col col-10">
+            <div class="row">
+                <div class="col col-6">
+                <!-- Recipes list / search results column -->
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <h5>{{ df['title'] }}</h5> 
+                                <a href={{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}} 
+                                    target="_blank">
+                                    Visit recipe
+                                </a>
+                                 | 
+                                <a href={{ url_for('compare_recipes', recipe_url=df['url']) }}>
+                                    Suggest similar
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col col-4 img">
+                            <a href={{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}} 
+                                target="_blank">
+                                <img alt="Image from epicurious.com" src={{ df['image_url'] }}>
+                            </a>
+                            </div>
+                            <div class="col">
+                                <div id="summary" class="ellipsis">
+                                Ingredients <br>
+                                {% for line in df['ingredients'].split(';') %}
+                                    <li class="ingredient_list">{{ line }}</li><br>
+                                {% endfor %}
+                                </div>
+                                <div>
+                                <span class="rating">Rating: 
+                                    {{'%0.2f'| format(df['rating']|float)}}/5
+                                </span> | 
+                                <span class="emissions">Emissions: 
+                                    {{'%0.2f'| format(df['ghg']|float)}} kg CO2/kg product
+                                </span> 
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="row nutrition servings">
+                            <span class="col 6 nutrition">
+                                Cal.: {{ df['calories'] }} | 
+                                Sod.: {{ df['sodium'] }} |
+                                Fat.: {{ df['fat'] }} | 
+                                Pro.: {{ df['protein'] }}
+                            </span>
+                            <span class="col 6 servings">
+                                {% if not df['servings'] == nan %}
+                                    | Servings: {{ df['servings'] }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emissions figure -->
+                <div class="col col-3" id="emissions-histogram">
+                    {{ df['div_hist'] | safe }}
+                    {{ df['plot_hist'] | safe }}
+                </div>
+
+                <!-- Rating figure -->
+                <div class="col col-3" id="rating-histogram">
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right white padding -->
+        <div class="col col-1">
+            
+        </div>
+    </div>
+    <div class="row">
+
+    </div>
+
+    {% endfor %}
+    <br>
+    <div class="row">
+        <a href={{ url_for('search_results', pv=pv) }}>
+            next page
+        </a>
+    </div>
+
+</center>
+{% endblock %}
