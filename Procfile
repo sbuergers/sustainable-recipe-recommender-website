@@ -1,1 +1,1 @@
-web: gunicorn sustainable-recipe-recommender:app
+web: gunicorn app:app
