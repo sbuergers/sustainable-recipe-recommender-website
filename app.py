@@ -31,13 +31,14 @@ import helper_functions as hf
 # figure functions
 import altair_plots as ap
 
-# debug mode
-debug = True
+
+# debug mode (set to True for development, False for deployment)
+debug = False
 
 
 # Configure app
 app = Flask(__name__)
-# csrf = CsrfProtect(app)  # why did I not have this?
+csrf = CsrfProtect(app) # cross site request forgery protection
 app.secret_key = os.environ.get('SECRET')
 app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 
