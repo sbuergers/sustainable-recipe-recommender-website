@@ -115,8 +115,11 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Sort by similarity, sustainability or rating
     results = hf.sort_search_results(results, sort_by)
+
+    # Single variables are more conventient in HTML
     ratings = results['ratings']
     emissions = results['emissions']
+    similarity = results['similarity']
 
     # make figures
     bp = ap.bar_compare_emissions(reference_recipe, results, sort_by=sort_by)
