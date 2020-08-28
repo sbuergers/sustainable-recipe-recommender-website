@@ -1,8 +1,3 @@
-import pandas as pd
-import numpy as np
-from hist_emissions import make_histogram
-
-
 def sort_search_results(results, sort_by):
     '''
     DESCRIPTION:

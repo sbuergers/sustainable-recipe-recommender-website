@@ -9,9 +9,10 @@ def content_based_search(search_term, cur):
         in <search term> based on cosine similarity in the "categories"
         space of the epicurious dataset.
     INPUT:
-    search_term (str)
-        url identifier for recipe (in recipes['url'])
+    search_term (str): url identifier for recipe (in recipes['url'])
+
     cur (psycopg2 connection)
+
     OUTPUT:
     results (dataframe)
         Recipe dataframe similar to recipes, but
@@ -41,10 +42,11 @@ def content_based_search(search_term, cur):
     # Finally, select similar recipes themselves
     # Get only those columns I actually use to speed things up
     col_sel = [
-            'recipesID', 'title', 'ingredients', 'rating', 'calories', 'sodium', 
-            'fat', 'protein', 'ghg', 'prop_ing', 'ghg_log10', 'url', 'servings', 
-            'index'
-            ]
+        'recipesID', 'title', 'ingredients', 'rating', 'calories',
+        'sodium', 'fat', 'protein', 'ghg', 'prop_ing', 'ghg_log10',
+        'url', 'servings', 'index', 'image_url', 'perc_rating',
+        'perc_sustainability'
+               ]
 
     # I am aware there is a discrepancy between the column names in SQL
     # and python, which is rather ugly. It is on my todo list to fix
@@ -52,8 +54,9 @@ def content_based_search(search_term, cur):
     cur.execute(sql.SQL("""
                 SELECT "recipesID", "title", "ingredients",
                     "rating", "calories", "sodium", "fat",
-                    "protein", "emissions", "prop_ingredients", 
-                    "emissions_log10", "url", "servings", "recipe_rawid"
+                    "protein", "emissions", "prop_ingredients",
+                    "emissions_log10", "url", "servings", "recipe_rawid",
+                    "image_url", "perc_rating", "perc_sustainability"
                 FROM public.recipes
                 WHERE "recipesID" IN %s
                 """).format(), [CS_ids])
