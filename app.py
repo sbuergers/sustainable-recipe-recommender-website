@@ -91,9 +91,6 @@ def search_results(page=0):
 
     search_form = SearchForm()
     search_term = search_form.search.data
-
-    if not exact_recipe_match(search_term, cur):
-        return redirect('/')
     return redirect((url_for('compare_recipes', search_term=search_term,
                      page=page)))
 
@@ -105,7 +102,7 @@ def compare_recipes(search_term, page=0, Np=20):
     sort_by = request.args.get('sort_by')
     page = int(request.args.get('page'))
 
-    if not exact_recipe_match(search_term, cur):
+    if exact_recipe_match(search_term, cur) is False:
         return redirect('/')
 
     # Get top 199 most similar recipes (of this page)
@@ -120,10 +117,11 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Sort by similarity, sustainability or rating
     results = hf.sort_search_results(results, sort_by)
-
+    print(results.columns)
+    
     # Single variables are more conventient in HTML
-    ratings = results['ratings']
-    emissions = results['emissions']
+    ratings = results['perc_rating']
+    emissions = results['perc_sustainability']
     similarity = results['similarity']
 
     # make figures

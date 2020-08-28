@@ -93,7 +93,7 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
         # TODO option for plotting absolute emission scores
         pass
 
-    # Save .json of chart to file
+    # Return .json of chart
     return bars.to_json()
 
 # eof

@@ -27,7 +27,7 @@ def content_based_search(search_term, cur):
                     WHERE url = %s)
                 """).format(), [search_term])
     CS_ids = cur.fetchall()[0][1::]
-    CS_ids = tuple([abs(CSid) for CSid in CS_ids])
+    CS_ids = tuple([abs(int(CSid)) for CSid in CS_ids])
 
     # Also select the actual similarity scores
     cur.execute(sql.SQL("""
@@ -37,7 +37,7 @@ def content_based_search(search_term, cur):
                     WHERE url = %s)
                 """).format(), [search_term])
     CS = cur.fetchall()[0][1::]
-    CS = tuple([float(abs(s)) for s in CS])
+    CS = tuple([abs(float(s)) for s in CS])
 
     # Finally, select similar recipes themselves
     # Get only those columns I actually use to speed things up
@@ -65,6 +65,18 @@ def content_based_search(search_term, cur):
     # Obtain a dataframe for further processing
     results = pd.DataFrame(recipes_sql, columns=col_sel)
     results['similarity'] = CS
+
+    # Assign data types (sql output might be decimal, should
+    # be float!)
+    numerics = ['recipesID', 'rating', 'calories', 'sodium',
+                'fat', 'protein', 'ghg', 'prop_ing', 'ghg_log10',
+                'index', 'perc_rating', 'perc_sustainability',
+                'similarity']
+    strings = ['title', 'ingredients', 'url', 'servings', 'image_url']
+    for num in numerics:
+        results[num] = pd.to_numeric(results[num])
+    for s in strings:
+        results[s] = results[s].astype('str')
 
     return results
 
