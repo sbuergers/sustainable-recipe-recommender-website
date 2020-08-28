@@ -5,6 +5,7 @@
 
 # Get environment variables (API key)
 import os
+from dotenv import load_dotenv
 
 # Import flask tools
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -25,6 +26,7 @@ from wtform_fields import invalid_credentials, SearchForm
 from sql_tables import User
 
 # functions for connecting to AWS RDS postgres DB
+import psycopg2 as ps
 from sql_queries import postgresConnect, exact_recipe_match
 
 # functions for recommending and parsing recipe data
@@ -35,8 +37,11 @@ import helper_functions as hf
 import altair_plots as ap
 
 
+load_dotenv('.env')
+
+
 # debug mode (set to True for development, False for deployment)
-debug = False
+debug = True
 
 
 # Configure app

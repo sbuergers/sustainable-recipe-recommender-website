@@ -1,9 +1,9 @@
 # Ready to cook more sustainably?
-Identifying ways to make one's diet more sustainable can be challenging. Often information is not readily available and implementing drastic changes such as going vegetarian or vegan can seem daunting.
+Identifying ways to make one's diet more sustainable can be challenging. Often information is not readily available and implementing drastic changes such as fully switching to a vegetarian or vegan diet can seem daunting.
 
 Sustainable recipe recommender is a tool to help people adopt more sustainable cooking habits by
 1. estimating the environmental impact of recipes based on [scientific data](https://science.sciencemag.org/content/360/6392/987), and
-2. suggesting sustainable recipes similar to the ones you already like.
+2. recommending sustainable recipes similar to the ones you already like.
 
 To get started, simply type a recipe idea in the search bar. Or, if you already have a recipe in mind, copy-paste the recipe-specific url or the recipe title in the search bar to immediately get recommendations. All recipes are taken from www.epicurious.com and for full recipe instructions you are directed to the original post. 
 
