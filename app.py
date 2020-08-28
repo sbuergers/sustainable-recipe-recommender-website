@@ -24,6 +24,9 @@ from wtform_fields import RegistrationForm, LoginForm
 from wtform_fields import invalid_credentials, SearchForm
 from sql_tables import User
 
+# functions for connecting to AWS RDS postgres DB
+from sql_queries import postgresConnect, exact_recipe_match
+
 # functions for recommending and parsing recipe data
 from recommend import content_based_search
 import helper_functions as hf
@@ -54,31 +57,8 @@ login = LoginManager(app)
 login.init_app(app)
 
 
-# Load recipe dataframe
-# Load recipe data review data
-recipes = pd.read_csv(r'./data/recipes_sql.csv', index_col=0,
-                      dtype={
-                        'title': str,
-                        'ingredients': str,
-                        'directions': str,
-                        'categories': str,
-                        'date': str,              # should probably be datetime
-                        'desc': str,
-                        'rating': np.float64,
-                        'calories': np.float64,
-                        'sodium': np.float64,
-                        'fat': np.float64,
-                        'protein': np.float64,
-                        'ghg': np.float64,
-                        'prop_ing': np.float64,
-                        'ghg_log10': np.float64,
-                        'url': str,
-                        'servings': str,
-                        'index': np.int64,
-                        'image_url': str,
-                        'rating_count': np.int64
-                      })
-reviews = pd.read_csv(r'./data/reviews_sql.csv', index_col=0)
+# Connect to postgres AWS RDS DB
+cur = postgresConnect()
 
 
 @login.user_loader
@@ -107,7 +87,7 @@ def search_results(page=0):
     search_form = SearchForm()
     search_term = search_form.search.data
 
-    if search_term not in list(recipes['url']):
+    if not exact_recipe_match(search_term, cur):
         return redirect('/')
     return redirect((url_for('compare_recipes', search_term=search_term,
                      page=page)))
@@ -120,13 +100,11 @@ def compare_recipes(search_term, page=0, Np=20):
     sort_by = request.args.get('sort_by')
     page = int(request.args.get('page'))
 
-    results = []
-
-    if search_term not in list(recipes['url']):
+    if not exact_recipe_match(search_term, cur):
         return redirect('/')
 
     # Get top 199 most similar recipes (of this page)
-    results = content_based_search(search_term)
+    results = content_based_search(search_term, cur)
 
     # Disentangle reference recipe and similar recipes
     reference_recipe = results.iloc[0]
@@ -137,15 +115,6 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Sort by similarity, sustainability or rating
     results = hf.sort_search_results(results, sort_by)
-
-    # convert ratings to percentage list
-    ratings = hf.rating_to_percentage(results, reference_recipe)
-
-    # convert ghg emissions to percentage list (use actual percentiles)
-    emissions = hf.emissions_to_percentage(results, reference_recipe)
-
-    # convert similarity to percentage list
-    similarity = hf.similarity_to_percentage(results, reference_recipe)
 
     # make figures
     bp = ap.bar_compare_emissions(reference_recipe, results, sort_by=sort_by)
@@ -168,10 +137,9 @@ def about():
     search_term = search_form.search.data
 
     if search_term:
-        if search_term not in list(recipes['url']):
+        if not exact_recipe_match(search_term, cur):
             return redirect('about.html', search_form=search_form)
-        return redirect((url_for('compare_recipes', search_term=search_term,
-                        page=page)))
+        return redirect((url_for('compare_recipes', search_term=search_term)))
     return render_template('about.html', search_form=search_form)
 
 
