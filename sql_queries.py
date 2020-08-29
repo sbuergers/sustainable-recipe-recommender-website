@@ -129,6 +129,3 @@ def content_based_search(search_term, cur):
 
 
 # eof
-
-
-# eof

@@ -27,10 +27,10 @@ from sql_tables import User
 
 # functions for connecting to AWS RDS postgres DB
 import psycopg2 as ps
-from sql_queries import postgresConnect, exact_recipe_match
+from sql_queries import postgresConnect, exact_recipe_match, \
+                        content_based_search
 
 # functions for recommending and parsing recipe data
-from recommend import content_based_search
 import helper_functions as hf
 
 # figure functions
