@@ -41,7 +41,7 @@ load_dotenv('.env')
 
 
 # debug mode (set to True for development, False for deployment)
-debug = True
+debug = False
 
 
 # Configure app
@@ -101,6 +101,10 @@ def compare_recipes(search_term, page=0, Np=20):
     search_form = SearchForm()
     sort_by = request.args.get('sort_by')
     page = request.args.get('page')
+    if page:
+        page = int(page)
+    else:
+        page = 0
 
     if exact_recipe_match(search_term, cur) is False:
         return redirect('/')
@@ -118,10 +122,13 @@ def compare_recipes(search_term, page=0, Np=20):
     # Sort by similarity, sustainability or rating
     results = hf.sort_search_results(results, sort_by)
 
-    # Single variables are more conventient in HTML
+    # Pass ratings & emissions jointly for ref recipe and results
+    # TODO this is very ugly, do this more succinctly earlier on!
     ratings = list(results['perc_rating'].values)
-    emissions = list(results['perc_sustainability'].values)
-    similarity = list(results['similarity'].values)
+    ratings = [reference_recipe['perc_rating']] + ratings
+    emissions = [100-v for v in results['perc_sustainability'].values]
+    emissions = [reference_recipe['perc_sustainability']] + emissions
+    similarity = [round(v*100) for v in results['similarity'].values]
 
     # make figures
     bp = ap.bar_compare_emissions(reference_recipe, results, sort_by=sort_by)
