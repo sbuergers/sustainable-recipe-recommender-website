@@ -100,7 +100,7 @@ def compare_recipes(search_term, page=0, Np=20):
 
     search_form = SearchForm()
     sort_by = request.args.get('sort_by')
-    page = int(request.args.get('page'))
+    page = request.args.get('page')
 
     if exact_recipe_match(search_term, cur) is False:
         return redirect('/')
@@ -117,12 +117,11 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Sort by similarity, sustainability or rating
     results = hf.sort_search_results(results, sort_by)
-    print(results.columns)
-    
+
     # Single variables are more conventient in HTML
-    ratings = results['perc_rating']
-    emissions = results['perc_sustainability']
-    similarity = results['similarity']
+    ratings = list(results['perc_rating'].values)
+    emissions = list(results['perc_sustainability'].values)
+    similarity = list(results['similarity'].values)
 
     # make figures
     bp = ap.bar_compare_emissions(reference_recipe, results, sort_by=sort_by)

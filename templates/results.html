@@ -55,9 +55,9 @@
     document.addEventListener("DOMContentLoaded", function(event) { 
 
         // RATING SCALES
-        var ratings = {{ ratings|safe }};
-        var emissions = {{ emissions|safe }};
-        var similarity = {{ similarity|safe }};
+        var ratings = {{ ratings | safe }};
+        var emissions = {{ emissions | safe }};
+        var similarity = {{ similarity | safe }};
         
         // Render Rating
         setRating(perc_ratings=ratings, 
@@ -123,7 +123,7 @@
             </tr>
         </div>
 
-        <!-- Similarity -->
+        <!-- Sustainability -->
         <div>
             <tr class="emissions">
                 <td></td>
@@ -174,16 +174,6 @@
     <!-- Figure 1: Bar chart of relative emission scores -->
     <div class="figure1 col-12 col-sm-6 col-lg-4 col-xl-4 left-padded" id='bar-compare-emissions'></div>
 
-    <!-- DIRECTIONS (probably not needed here)
-    <div class="col">
-        <div>
-        <h5>Directions</h5>
-        {% for line in reference_recipe['directions'].split(';') %}
-            <li class="directions-list">{{ line }}</li><br>
-        {% endfor %}
-        </div>
-    </div>
-    -->
 </div>  
 
 <!-- NUTRITIONAL INFORMATION & SERVINGS
