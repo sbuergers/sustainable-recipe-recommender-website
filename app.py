@@ -13,10 +13,6 @@ from flask import session
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 
-# Data handling
-import pandas as pd
-import numpy as np
-
 # hash function for encrypting passwords
 from passlib.hash import pbkdf2_sha512
 
@@ -26,9 +22,8 @@ from wtform_fields import invalid_credentials, SearchForm
 from sql_tables import User
 
 # functions for connecting to AWS RDS postgres DB
-import psycopg2 as ps
 from sql_queries import postgresConnect, exact_recipe_match, \
-                        content_based_search
+                        content_based_search, search_recipes
 
 # functions for recommending and parsing recipe data
 import helper_functions as hf
@@ -41,7 +36,7 @@ load_dotenv('.env')
 
 
 # debug mode (set to True for development, False for deployment)
-debug = False
+debug = True
 
 
 # Configure app
@@ -88,16 +83,34 @@ def home():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search_results(page=0):
-
     search_form = SearchForm()
     search_term = search_form.search.data
-    return redirect((url_for('compare_recipes', search_term=search_term,
-                     page=page)))
+
+    # fuzzy search
+    results = search_recipes(cur, 'chicken')
+
+    # Three scenarios
+    # a: no match, b: exact match, c: multiple fuzzy matches
+    # a) no match
+    return redirect('/')
+
+    # b) exact match
+    if len(results) > 0:
+        return redirect(url_for('compare_recipes', search_term=search_term,
+                        page=page))
+
+    # c) multiple fuzzy matches
+    return redirect(url_for('select_recipe', results=results))
+
+
+@app.route('/search/explore', methods=['GET'])
+def select_recipe(results):
+    return render_template('explore.html',
+                           results=results)
 
 
 @app.route('/search/<search_term>', methods=['GET'])
 def compare_recipes(search_term, page=0, Np=20):
-
     search_form = SearchForm()
     sort_by = request.args.get('sort_by')
     page = request.args.get('page')
@@ -106,11 +119,11 @@ def compare_recipes(search_term, page=0, Np=20):
     else:
         page = 0
 
-    if exact_recipe_match(search_term, cur) is False:
-        return redirect('/')
+    if exact_recipe_match(cur, search_term) is False:
+        return redirect(url_for('search_results'))
 
     # Get top 199 most similar recipes (of this page)
-    results = content_based_search(search_term, cur)
+    results = content_based_search(cur, search_term)
 
     # Disentangle reference recipe and similar recipes
     reference_recipe = results.iloc[0]
