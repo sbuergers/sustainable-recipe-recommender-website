@@ -238,8 +238,22 @@ class postgresConnection():
         col_names = ["recipesID", "title", "url", "perc_rating",
                      "perc_sustainability", "review_count", "image_url",
                      "ghg", "prop_ingredients", "edit_dist"]
-        # TODO sort by edit_dist
-        return pd.DataFrame(outp, columns=col_names)
+
+        results = pd.DataFrame(outp, columns=col_names)
+
+        # Assign data types (sql output might be decimal, should
+        # be float!)
+        numerics = ['recipesID', 'perc_rating', 'ghg', 'prop_ingredients',
+                    'perc_rating', 'perc_sustainability', 'review_count']
+        strings = ['title', 'url', 'image_url']
+        for num in numerics:
+            results[num] = pd.to_numeric(results[num])
+        for s in strings:
+            results[s] = results[s].astype('str')
+
+        # Order results by edit_dist
+        results = results.sort_values(by='edit_dist', ascending=False)
+        return results
 
 
 # eof

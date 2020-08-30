@@ -93,8 +93,11 @@ def search_results(page=0):
     results = pg.search_recipes(search_term)
 
     if len(results) > 0:
+
+        # ratings and emissions need to be passed separately for JS
         ratings = list(results['perc_rating'].values)
         emissions = [100-v for v in results['perc_sustainability'].values]
+
         return render_template('explore.html',
                                search_form=search_form,
                                results=results,
