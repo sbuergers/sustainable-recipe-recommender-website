@@ -269,7 +269,7 @@ class postgresConnection():
             results[s] = results[s].astype('str')
 
         # Order results by edit_dist
-        results = results.sort_values(by='edit_dist', ascending=False)
+        results = results.sort_values(by='edit_dist', ascending=True)
         return results
 
 
