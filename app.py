@@ -86,7 +86,7 @@ def search_results(page=0):
     search_term = search_form.search.data
 
     # exact match? Suggest alternatives!
-    if pg.exact_recipe_match(search_term) is False:
+    if pg.exact_recipe_match(search_term):
         return redirect(url_for('compare_recipes',
                                 search_term=search_term,
                                 page=page))
@@ -94,8 +94,8 @@ def search_results(page=0):
     results = pg.search_recipes(search_term)
 
     if len(results) > 0:
-        return redirect(url_for('select_recipe', search_form=search_form,
-                                results=results))
+        return render_template('explore.html', search_form=search_form,
+                               results=results)
     return redirect('/')
 
 
