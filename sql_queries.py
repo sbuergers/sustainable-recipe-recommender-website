@@ -46,8 +46,10 @@ class postgresConnection():
             search_term (str): String to look for in search_column
             search_column (str): Column to search (default="url")
         OUTPUT:
-            fuzzyMatches (list): Database output (list of lists - rows x cols)
+            fuzzyMatches (list): DB output (list of lists - rows x columns)
         """
+        # Most similar urls by edit distance that actually contain the
+        # search_term
         self.cur.execute(sql.SQL(
                     """
                     SELECT "recipesID", "title", "url", "perc_rating",
@@ -57,11 +59,26 @@ class postgresConnection():
                     FROM public.recipes
                     WHERE {} LIKE %s
                     ORDER BY "edit_dist" ASC
-                    LIMIT 120
+                    LIMIT 50
                     """).format(sql.Identifier(search_column),
                                 sql.Identifier(search_column)),
-                    [search_term, search_term])
+                    [search_term, '%'+search_term+'%'])
         fuzzyMatches = self.cur.fetchall()
+
+        # If no results contain the search_term
+        if not fuzzyMatches:
+            self.cur.execute(sql.SQL(
+                        """
+                        SELECT "recipesID", "title", "url", "perc_rating",
+                            "perc_sustainability", "review_count", "image_url",
+                            "emissions", "prop_ingredients",
+                            LEVENSHTEIN({}, %s) AS "edit_dist"
+                        FROM public.recipes
+                        ORDER BY "edit_dist" ASC
+                        LIMIT 50
+                        """).format(sql.Identifier(search_column)),
+                        [search_term])
+            fuzzyMatches = self.cur.fetchall()
         return fuzzyMatches
 
     @_dbsrr_query
@@ -229,7 +246,7 @@ class postgresConnection():
         OUTPUT:
             df (pd.DataFrame): DataFrame with recipes as rows
         """
-        outp = self.fuzzy_search('%'+search_term+'%')
+        outp = self.fuzzy_search(search_term)
 
         if outp:
             if outp[0][2] == search_term:
