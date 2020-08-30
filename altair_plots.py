@@ -3,7 +3,7 @@ import numpy as np
 
 
 def bar_compare_emissions(reference_recipe, search_results, relative=True,
-                          base_url='http://127.0.0.1:5000/search/',
+                          base_url='https://sustainable-recipe-recommender.herokuapp.com/search/',
                           sort_by='Similarity', scale='lin'):
     '''
     DESCRIPTION:
