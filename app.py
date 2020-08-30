@@ -35,7 +35,7 @@ load_dotenv('.env')
 
 
 # debug mode (set to True for development, False for deployment)
-debug = True
+debug = False
 
 
 # Configure app
