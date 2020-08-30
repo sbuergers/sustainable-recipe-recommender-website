@@ -8,10 +8,6 @@ Sustainable recipe recommender is a tool to help people adopt more sustainable c
 1. estimating the environmental impact of recipes based on [scientific data](https://science.sciencemag.org/content/360/6392/987), and
 2. recommending sustainable recipes similar to the ones you already like.
 
-To get started, simply type a recipe idea in the search bar. Or, if you already have a recipe in mind, copy-paste the recipe-specific url or the recipe title in the search bar to immediately get recommendations. All recipes are taken from www.epicurious.com and for full recipe instructions you are directed to the original post. 
-
-Currently, sustainable recipe recommender is in its alpha version, and I plan to add additional functionality such as creating one's own cookbook and improving recommendations based on personal preferences. 
-
 # Estimating greenhouse gas emissions of recipes
 The idea for sustainable recipe recommender is heavily inspired by an excellent article on [ourworldindata.org](https://ourworldindata.org/environmental-impacts-of-food), by Hannah Ritchie and Max Roser. The article summarizes and reviews the implications of the findings from a 2018 paper published in Science that assesses the life-cycle environmental impact of approximately 90% of the world's food production (Poore & Nemecek, 2018). Both the [paper](https://science.sciencemag.org/content/360/6392/987) and [data](https://science.sciencemag.org/content/360/6392/987/tab-figures-data) are freely available online. 
 
@@ -20,10 +16,10 @@ To assess a recipe's sustainability score, ingredient labels were manually mappe
 ![Greenhouse gas emissions of basic food categories (from Poore & Nemecek, 2018)](../static/basic_category_emissions.png)
 
 # Dive deeper
-If you are curious about exploring the environmental impact of recipes and different food categories further, want to know more about how ingredient labels and quantities were parsed from text data, or are interested in how the recipe recommendation system works, have a look at the blog. 
+If you are curious about exploring the environmental impact of recipes and different food categories further, want to know more about how ingredient labels and quantities were parsed from text data, or are interested in how the recipe recommendation system works, have a look at [the blog](https://sustainable-recipe-recommender.herokuapp.com/blog). 
 
 # Give feedback
-I am happy to receive feedback on how to improve sustainable recipe recommender, both in terms of user experience and anything related to data sources and processing. Just drop me an [email](mailto:sbuergers@gmail.com) at sbuergers at gmail dot com.
+I am happy to receive feedback on how to improve sustainable recipe recommender, both in terms of user experience and anything related to data sources and processing. Just drop me an [email](mailto:sbuergers@gmail.com) at sbuergers at gmail dot com or message me on github.
 
 # References
 1. Hannah Ritchie (2020) - "Environmental impacts of food production". Published online at OurWorldInData.org. Retrieved from: 'https://ourworldindata.org/environmental-impacts-of-food' [Online Resource]
