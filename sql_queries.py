@@ -57,7 +57,7 @@ class postgresConnection():
                     FROM public.recipes
                     WHERE {} LIKE %s
                     ORDER BY "edit_dist" ASC
-                    LIMIT 50
+                    LIMIT 120
                     """).format(sql.Identifier(search_column),
                                 sql.Identifier(search_column)),
                     [search_term, search_term])
@@ -237,7 +237,8 @@ class postgresConnection():
 
         col_names = ["recipesID", "title", "url", "perc_rating",
                      "perc_sustainability", "review_count", "image_url",
-                     "emissions", "prop_ingredients", "edit_dist"]
+                     "ghg", "prop_ingredients", "edit_dist"]
+        # TODO sort by edit_dist
         return pd.DataFrame(outp, columns=col_names)
 
 

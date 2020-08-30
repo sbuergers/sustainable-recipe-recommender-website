@@ -40,7 +40,6 @@ debug = True
 
 # Configure app
 app = Flask(__name__)
-#csrf = CsrfProtect(app) # cross site request forgery protection
 app.secret_key = os.environ.get('SECRET')
 app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 
@@ -94,14 +93,14 @@ def search_results(page=0):
     results = pg.search_recipes(search_term)
 
     if len(results) > 0:
-        return render_template('explore.html', search_form=search_form,
-                               results=results)
+        ratings = list(results['perc_rating'].values)
+        emissions = [100-v for v in results['perc_sustainability'].values]
+        return render_template('explore.html',
+                               search_form=search_form,
+                               results=results,
+                               ratings=ratings,
+                               emissions=emissions)
     return redirect('/')
-
-
-@app.route('/search/explore', methods=['GET'])
-def select_recipe(results):
-    return render_template('explore.html', results=results)
 
 
 @app.route('/search/<search_term>', methods=['GET'])
