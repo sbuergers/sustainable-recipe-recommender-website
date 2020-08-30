@@ -134,11 +134,9 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Pass ratings & emissions jointly for ref recipe and results
     # TODO this is very ugly, do this more succinctly earlier on!
-    # TODO something happends in content based search that makes
-    # perc_sustainability flip - change that!
     ratings = list(results['perc_rating'].values)
     ratings = [reference_recipe['perc_rating']] + ratings
-    emissions = [100-v for v in results['perc_sustainability'].values]
+    emissions = [v for v in results['perc_sustainability'].values]
     emissions = [reference_recipe['perc_sustainability']] + emissions
     similarity = [round(v*100) for v in results['similarity'].values]
 
