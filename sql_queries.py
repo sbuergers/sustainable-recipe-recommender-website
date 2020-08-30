@@ -36,15 +36,17 @@ class postgresConnection():
         return func_wrapper
 
     @_dbsrr_query
-    def fuzzy_search(self, search_term, search_column="url"):
+    def fuzzy_search(self, search_term, search_column="url", N=160):
         """
         DESCRIPTION:
             Searches in recipes table column url for strings that include the
-            search_term
+            search_term. If none do, returns the top N results ordered
+            by edit distance in ascending order.
         INPUT:
             cur: psycopg2 cursor object
             search_term (str): String to look for in search_column
             search_column (str): Column to search (default="url")
+            N (int): Max number of results to return
         OUTPUT:
             fuzzyMatches (list): DB output (list of lists - rows x columns)
         """
@@ -59,10 +61,10 @@ class postgresConnection():
                     FROM public.recipes
                     WHERE {} LIKE %s
                     ORDER BY "edit_dist" ASC
-                    LIMIT 50
+                    LIMIT %s
                     """).format(sql.Identifier(search_column),
                                 sql.Identifier(search_column)),
-                    [search_term, '%'+search_term+'%'])
+                    [search_term, '%'+search_term+'%', N])
         fuzzyMatches = self.cur.fetchall()
 
         # If no results contain the search_term
@@ -75,9 +77,9 @@ class postgresConnection():
                             LEVENSHTEIN({}, %s) AS "edit_dist"
                         FROM public.recipes
                         ORDER BY "edit_dist" ASC
-                        LIMIT 50
+                        LIMIT %s
                         """).format(sql.Identifier(search_column)),
-                        [search_term])
+                        [search_term, N])
             fuzzyMatches = self.cur.fetchall()
         return fuzzyMatches
 

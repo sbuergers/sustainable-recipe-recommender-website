@@ -31,18 +31,21 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-success"> <!-- sticky-top -->
             <div class="container  container-main">
             <a class="navbar-brand" href={{ url_for('home') }}>
-                <img src="../static/logo_white.png" width="40" height="40" alt="Sustainable Recipe Recommender">
+                <img src="../static/logo_white.png" width="30" height="30" alt="Sustainable Recipe Recommender">
             </a>          
               <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
                     <a class="nav-item nav-link" href={{ url_for('about') }}>About</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-item nav-link" href={{ url_for('blog') }}>Blog</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-item nav-link" href="https://github.com/sbuergers/sustainable-recipe-recommender", target="_blank">Github</a>
                 </li>
                 {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-item nav-link" href={{ url_for('profile') }}>My Menu</a>
+                        <a class="nav-item nav-link" href={{ url_for('profile') }}>Cookbook</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-item nav-link" href={{ url_for('logout') }}>Logout</a>

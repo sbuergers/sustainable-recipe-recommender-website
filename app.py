@@ -96,7 +96,7 @@ def search_results(page=0):
 
         # ratings and emissions need to be passed separately for JS
         ratings = list(results['perc_rating'].values)
-        emissions = [100-v for v in results['perc_sustainability'].values]
+        emissions = [v for v in results['perc_sustainability'].values]
 
         return render_template('explore.html',
                                search_form=search_form,
@@ -134,6 +134,8 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Pass ratings & emissions jointly for ref recipe and results
     # TODO this is very ugly, do this more succinctly earlier on!
+    # TODO something happends in content based search that makes
+    # perc_sustainability flip - change that!
     ratings = list(results['perc_rating'].values)
     ratings = [reference_recipe['perc_rating']] + ratings
     emissions = [100-v for v in results['perc_sustainability'].values]
@@ -163,6 +165,16 @@ def about():
         redirect(url_for('search_results'))
 
     return render_template('about.html', search_form=search_form)
+
+
+@app.route('/blog', methods=['GET', 'POST'])
+def blog():
+    search_form = SearchForm()
+    search_term = search_form.search.data
+    if search_term:
+        redirect(url_for('search_results'))
+
+    return render_template('blog.html', search_form=search_form)
 
 
 @app.route('/profile')
