@@ -22,8 +22,7 @@ from wtform_fields import invalid_credentials, SearchForm
 from sql_tables import User
 
 # functions for connecting to AWS RDS postgres DB
-from sql_queries import postgresConnect, exact_recipe_match, \
-                        content_based_search, search_recipes
+from sql_queries import postgresConnection
 
 # functions for recommending and parsing recipe data
 import helper_functions as hf
@@ -58,7 +57,7 @@ login.init_app(app)
 
 
 # Connect to postgres AWS RDS DB
-cur = postgresConnect()
+pg = postgresConnection()
 
 
 @login.user_loader
@@ -86,27 +85,23 @@ def search_results(page=0):
     search_form = SearchForm()
     search_term = search_form.search.data
 
+    # exact match? Suggest alternatives!
+    if pg.exact_recipe_match(search_term) is False:
+        return redirect(url_for('compare_recipes',
+                                search_term=search_term,
+                                page=page))
     # fuzzy search
-    results = search_recipes(cur, 'chicken')
+    results = pg.search_recipes(search_term)
 
-    # Three scenarios
-    # a: no match, b: exact match, c: multiple fuzzy matches
-    # a) no match
-    return redirect('/')
-
-    # b) exact match
     if len(results) > 0:
-        return redirect(url_for('compare_recipes', search_term=search_term,
-                        page=page))
-
-    # c) multiple fuzzy matches
-    return redirect(url_for('select_recipe', results=results))
+        return redirect(url_for('select_recipe', search_form=search_form,
+                                results=results))
+    return redirect('/')
 
 
 @app.route('/search/explore', methods=['GET'])
 def select_recipe(results):
-    return render_template('explore.html',
-                           results=results)
+    return render_template('explore.html', results=results)
 
 
 @app.route('/search/<search_term>', methods=['GET'])
@@ -119,11 +114,11 @@ def compare_recipes(search_term, page=0, Np=20):
     else:
         page = 0
 
-    if exact_recipe_match(cur, search_term) is False:
+    if pg.exact_recipe_match(search_term) is False:
         return redirect(url_for('search_results'))
 
     # Get top 199 most similar recipes (of this page)
-    results = content_based_search(cur, search_term)
+    results = pg.content_based_search(search_term)
 
     # Disentangle reference recipe and similar recipes
     reference_recipe = results.iloc[0]
@@ -162,11 +157,9 @@ def compare_recipes(search_term, page=0, Np=20):
 def about():
     search_form = SearchForm()
     search_term = search_form.search.data
-
     if search_term:
-        if not exact_recipe_match(search_term, cur):
-            return redirect('about.html', search_form=search_form)
-        return redirect((url_for('compare_recipes', search_term=search_term)))
+        redirect(url_for('search_results'))
+
     return render_template('about.html', search_form=search_form)
 
 

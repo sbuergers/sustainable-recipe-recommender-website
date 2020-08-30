@@ -142,6 +142,22 @@ class postgresConnection():
         recipes_sql = self.cur.fetchall()
         return recipes_sql
 
+    @_dbsrr_query
+    def exact_recipe_match(self, search_term):
+        '''
+        DESCRIPTION:
+            Return True if search_term is in recipes table of
+            cur database, False otherwise.
+        '''
+        self.cur.execute(sql.SQL("""
+                    SELECT * FROM public.recipes
+                    WHERE "url" = %s
+                    """).format(), [search_term])
+        if self.cur.fetchall():
+            return True
+        else:
+            return False
+
     def content_based_search(self, search_term):
         '''
         DESCRIPTION:
