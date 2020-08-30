@@ -1,4 +1,4 @@
-# sustainable-recipe-recommender
+# Sustainable-recipe-recommender
 A recipe recommendation engine suggesting similar recipes that are more sustainable. This is the repository for the website. If you are interested in fetching and preprocessing of the data have a look at [this repo](https://github.com/sbuergers/sustainable-recipe-recommender). 
 
 # Ready to cook more sustainably?
