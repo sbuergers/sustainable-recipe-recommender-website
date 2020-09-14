@@ -21,7 +21,7 @@ load_dotenv('.env')
 # I cannot simply define an __init__ method - pytest does
 # not treat TestSqlQueries as an actual class, it's more of
 # a way to group test functions together. Instead I can
-# create a fixture pg doing the same thing.
+# create a fixture "pg" doing the same thing.
 @pytest.fixture
 def pg():
     pg = sql_queries.postgresConnection()

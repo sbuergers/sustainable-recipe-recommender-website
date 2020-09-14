@@ -36,7 +36,8 @@ import helper_functions as hf
 import altair_plots as ap
 
 
-def create_app(test_config=None, debug=True):
+def create_app(testing=False, debug=True):
+
     load_dotenv('.env')
 
     # Configure app
@@ -48,6 +49,13 @@ def create_app(test_config=None, debug=True):
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db = SQLAlchemy(app)
+
+    # Testing and debugging
+    if testing:
+        app.config['TESTING'] = True
+        app.config['BCRYPT_LOG_ROUNDS'] = 4
+        app.config['WTF_CSRF_ENABLED'] = False
+    app.debug = debug
 
     # Initialize login manager
     login = LoginManager(app)
@@ -93,10 +101,10 @@ def create_app(test_config=None, debug=True):
             emissions = [v for v in results['perc_sustainability'].values]
 
             return render_template('explore.html',
-                                search_form=search_form,
-                                results=results,
-                                ratings=ratings,
-                                emissions=emissions)
+                                   search_form=search_form,
+                                   results=results,
+                                   ratings=ratings,
+                                   emissions=emissions)
         return redirect('/')
 
     @app.route('/search/<search_term>', methods=['GET'])
@@ -219,7 +227,7 @@ def create_app(test_config=None, debug=True):
 
 
 if __name__ == '__main__':
-    app = create_app(debug=True)
+    app = create_app(testing=False, debug=False)
     app.run()
 
 # eof
