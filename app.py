@@ -36,7 +36,11 @@ import helper_functions as hf
 import altair_plots as ap
 
 
+# TODO consider modularizing DB
+# TODO add config file for deployment or testing as param
+# See Application factories in Flask docs
 def create_app(testing=False, debug=True):
+    """ App factory """
 
     load_dotenv('.env')
 
@@ -48,7 +52,7 @@ def create_app(testing=False, debug=True):
     # Configure database
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db = SQLAlchemy(app)
+    db = SQLAlchemy(app)  # TODO modularize (see Application factories)
 
     # Testing and debugging
     if testing:
