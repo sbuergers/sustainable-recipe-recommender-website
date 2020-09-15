@@ -55,6 +55,7 @@ def create_app(testing=False, debug=True):
     db = SQLAlchemy(app)  # TODO modularize (see Application factories)
 
     # Testing and debugging
+    # TODO put settings in config file
     if testing:
         app.config['TESTING'] = True
         app.config['BCRYPT_LOG_ROUNDS'] = 4
