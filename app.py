@@ -161,6 +161,7 @@ def create_app(testing=False, debug=True):
                                page=page,
                                bp=bp)
 
+    # TODO is GET needed here? I think not
     @app.route('/about', methods=['GET', 'POST'])
     def about():
         search_form = SearchForm()
