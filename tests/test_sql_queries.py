@@ -63,6 +63,7 @@ class TestSqlQueries:
         assert result.iloc[1]['similarity'] > 0.45
 
     def test_search_recipes(self, pg):
+        # TODO what is being tested here?
         pg.content_based_search(pg.search_term)
         pg.fuzzy_search(pg.fuzzy_search_term)
 
