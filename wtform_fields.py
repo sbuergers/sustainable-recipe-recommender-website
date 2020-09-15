@@ -56,6 +56,7 @@ class LoginForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     search = StringField('search')
-    submit = SubmitField('Search', render_kw={'class': 'btn btn-success btn-block'})
+    submit = SubmitField('Search',
+                         render_kw={'class': 'btn btn-success btn-block'})
 
 # eof
