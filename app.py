@@ -58,7 +58,6 @@ def create_app(testing=False, debug=True):
     # TODO put settings in config file
     if testing:
         app.config['TESTING'] = True
-        app.config['BCRYPT_LOG_ROUNDS'] = 4
         app.config['WTF_CSRF_ENABLED'] = False
     app.debug = debug
 
