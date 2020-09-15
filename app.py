@@ -117,6 +117,7 @@ def create_app(testing=False, debug=True):
         search_form = SearchForm()
         sort_by = request.args.get('sort_by')
         page = request.args.get('page')
+        # TODO is this needed?
         if page:
             page = int(page)
         else:
