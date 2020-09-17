@@ -37,18 +37,17 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
     # determine scale
     if scale == 'log':
         voi = 'ghg_log10'
-        xlabel = 'log10(kg CO2)'
+        xlabel = 'log10(kg CO2 eq)'
     else:
         voi = 'ghg'
-        xlabel = 'kg CO2'
+        xlabel = 'kg CO2 eq'
 
     if relative:
         # compute emissions relative to reference
         source = search_results.copy()
-        source['emission change'] = -np.ceil(100*(
-                                        search_results[voi].values -
-                                        reference_recipe[voi]
-                                                  ))/100
+        source['emission change'] = np.ceil(100*(
+                                       search_results[voi].values -
+                                       reference_recipe[voi]))/100
         source['emission_change'] = source['emission change']
 
         # create bar chart
@@ -69,8 +68,8 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
             href='link:N',
             color=alt.condition(
                 alt.datum.emission_change > 0,
-                alt.value("palegreen"),  # The positive color
-                alt.value("palevioletred")  # The negative color
+                alt.value("palevioletred"),  # The positive color
+                alt.value("palegreen")  # The negative color
             )
         ).properties(
             width=250,
