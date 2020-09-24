@@ -84,6 +84,35 @@ class postgresConnection():
         return fuzzyMatches
 
     @_dbsrr_query
+    def phrase_search_title(self, search_term, N=160):
+        """
+        DESCRIPTION:
+            Searches in table recipes in title_tsv column using tsquery.
+        INPUT:
+            cur: psycopg2 cursor object
+            search_term (str)
+            N (int): Max number of results to return
+        OUTPUT:
+            matches (list): DB output (list of lists - rows x columns)
+        NOTES:
+            See https://www.postgresql.org/docs/12/textsearch-controls.html
+            for details on postgres' search functionalities.
+        """
+        self.cur.execute(sql.SQL(
+            """
+            SELECT "recipesID", "title", "url", "perc_rating",
+                "perc_sustainability", "review_count", "image_url",
+                "emissions", "prop_ingredients",
+                ts_rank_cd(title_tsv, query) AS rank
+            FROM public.recipes, websearch_to_tsquery('simple', %s) query
+            WHERE query @@ title_tsv
+            ORDER BY rank ASC
+            LIMIT %s
+            """).format(), [search_term, N])
+        matches = self.cur.fetchall()
+        return matches
+
+    @_dbsrr_query
     def query_content_similarity_ids(self, search_term, search_column="url"):
         """
         DESCRIPTION:
