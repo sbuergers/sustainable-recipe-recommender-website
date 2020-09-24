@@ -42,8 +42,7 @@ import altair_plots as ap
 def create_app(testing=False, debug=True):
     """ App factory """
 
-    if testing:
-        load_dotenv('.env')
+    load_dotenv('.env')
 
     # Configure app
     app = Flask(__name__)
