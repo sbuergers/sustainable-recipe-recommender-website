@@ -94,9 +94,6 @@ class postgresConnection():
             N (int): Max number of results to return
         OUTPUT:
             matches (list): DB output (list of lists - rows x columns)
-        NOTES:
-            See https://www.postgresql.org/docs/12/textsearch-controls.html
-            for details on postgres' search functionalities.
         """
         self.cur.execute(sql.SQL(
             """
@@ -110,6 +107,32 @@ class postgresConnection():
             LIMIT %s
             """).format(), [search_term, N])
         matches = self.cur.fetchall()
+        return matches
+
+    @_dbsrr_query
+    def free_search(self, search_term, N=160):
+        """
+        DESCRIPTION:
+            Parent function for searching recipes freely (any search
+            term). For the moment it only calls phrase_search_title,
+            and if fewer than N recipes are found, fills in the rest
+            with fuzzy_search.
+
+            TODO This should be extended to incorporate searching in
+            categories and description columns.
+        INPUT:
+            cur: psycopg2 cursor object
+            search_term (str)
+            N (int): Max number of results to return
+        OUTPUT:
+            matches (list): DB output (list of lists - rows x columns)
+        NOTES:
+            See https://www.postgresql.org/docs/12/textsearch-controls.html
+            for details on postgres' search functionalities.
+        """
+        matches = self.phrase_search_title(search_term, N=N)
+        if len(matches) < N:
+            matches = self.fuzzy_search(search_term, N=N-len(matches))
         return matches
 
     @_dbsrr_query
