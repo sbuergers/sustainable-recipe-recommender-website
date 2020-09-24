@@ -47,8 +47,8 @@ class TestSqlQueries:
         assert len(result) == 2
 
     def test_free_search(self, pg):
-        result = pg.free_search(pg.phrase_search_term, N=20)
-        assert len(result) == 20
+        result = pg.free_search(pg.phrase_search_term, N=2)
+        assert len(result) >= 2
 
     def test_query_content_similarity_ids(self, pg):
         result = pg.query_content_similarity_ids(pg.search_term)
