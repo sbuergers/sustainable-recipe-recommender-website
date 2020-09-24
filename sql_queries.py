@@ -132,7 +132,7 @@ class postgresConnection():
         """
         matches = self.phrase_search_title(search_term, N=N)
         if len(matches) < N:
-            matches = self.fuzzy_search(search_term, N=N-len(matches))
+            matches = self.fuzzy_search(search_term, N=N-len(matches)+2)
         return matches
 
     @_dbsrr_query
