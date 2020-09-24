@@ -27,6 +27,7 @@ def pg():
     pg = sql_queries.postgresConnection()
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
     pg.fuzzy_search_term = 'chicken'
+    pg.phrase_search_term = 'vegan cookies'
     return pg
 
 
@@ -40,6 +41,10 @@ class TestSqlQueries:
         assert len(result) == 2
         assert pg.fuzzy_search_term in result[0][2]
         assert pg.fuzzy_search_term in result[1][2]
+
+    def test_phrase_search_title(self, pg):
+        result = pg.phrase_search_title(pg.phrase_search_term, N=2)
+        assert len(result) == 2
 
     def test_query_content_similarity_ids(self, pg):
         result = pg.query_content_similarity_ids(pg.search_term)
