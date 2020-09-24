@@ -57,10 +57,10 @@ class postgresConnection():
                     SELECT "recipesID", "title", "url", "perc_rating",
                         "perc_sustainability", "review_count", "image_url",
                         "emissions", "prop_ingredients",
-                        LEVENSHTEIN({}, %s) AS "edit_dist"
+                        LEVENSHTEIN({}, %s) AS "rank"
                     FROM public.recipes
                     WHERE {} LIKE %s
-                    ORDER BY "edit_dist" ASC
+                    ORDER BY "rank" ASC
                     LIMIT %s
                     """).format(sql.Identifier(search_column),
                                 sql.Identifier(search_column)),
@@ -74,14 +74,65 @@ class postgresConnection():
                         SELECT "recipesID", "title", "url", "perc_rating",
                             "perc_sustainability", "review_count", "image_url",
                             "emissions", "prop_ingredients",
-                            LEVENSHTEIN({}, %s) AS "edit_dist"
+                            LEVENSHTEIN({}, %s) AS "rank"
                         FROM public.recipes
-                        ORDER BY "edit_dist" ASC
+                        ORDER BY "rank" ASC
                         LIMIT %s
                         """).format(sql.Identifier(search_column)),
                         [search_term, N])
             fuzzyMatches = self.cur.fetchall()
         return fuzzyMatches
+
+    @_dbsrr_query
+    def phrase_search_title(self, search_term, N=160):
+        """
+        DESCRIPTION:
+            Searches in table recipes in title_tsv column using tsquery.
+        INPUT:
+            cur: psycopg2 cursor object
+            search_term (str)
+            N (int): Max number of results to return
+        OUTPUT:
+            matches (list): DB output (list of lists - rows x columns)
+        """
+        self.cur.execute(sql.SQL(
+            """
+            SELECT "recipesID", "title", "url", "perc_rating",
+                "perc_sustainability", "review_count", "image_url",
+                "emissions", "prop_ingredients",
+                ts_rank_cd(title_tsv, query) AS rank
+            FROM public.recipes, websearch_to_tsquery('simple', %s) query
+            WHERE query @@ title_tsv
+            ORDER BY rank ASC
+            LIMIT %s
+            """).format(), [search_term, N])
+        matches = self.cur.fetchall()
+        return matches
+
+    @_dbsrr_query
+    def free_search(self, search_term, N=160):
+        """
+        DESCRIPTION:
+            Parent function for searching recipes freely (any search
+            term). For the moment it only calls phrase_search_title,
+            and if no recipes are found uses fuzzy_search instead.
+
+            TODO This should be extended to incorporate searching in
+            categories and description columns.
+        INPUT:
+            cur: psycopg2 cursor object
+            search_term (str)
+            N (int): Max number of results to return
+        OUTPUT:
+            matches (list): DB output (list of lists - rows x columns)
+        NOTES:
+            See https://www.postgresql.org/docs/12/textsearch-controls.html
+            for details on postgres' search functionalities.
+        """
+        matches = self.phrase_search_title(search_term, N=N)
+        if not matches:
+            matches = self.fuzzy_search(search_term, N=N-len(matches))
+        return matches
 
     @_dbsrr_query
     def query_content_similarity_ids(self, search_term, search_column="url"):
@@ -235,28 +286,27 @@ class postgresConnection():
 
         return results
 
-    def search_recipes(self, search_term):
+    def search_recipes(self, search_term, N=160):
         """
         DESCRIPTION:
-            Does a fuzzy search for recipes based on user's search term. If an
+            Does a free search for recipes based on user's search term. If an
             exact match exists, does a content based search and returns the
-            resulting DataFrame. If no exact match exists, return a DataFrame
-            with the fuzzily matched search results.
+            resulting DataFrame.
         INPUT:
             cur: psycopg2 cursor object
             search_term (str): Search term input by user into search bar
+            N (int): Max number of results to return
         OUTPUT:
             df (pd.DataFrame): DataFrame with recipes as rows
         """
-        outp = self.fuzzy_search(search_term)
+        outp = self.free_search(search_term, N)
 
-        if outp:
-            if outp[0][2] == search_term:
-                return self.content_based_search(search_term)
+        if outp[0][2] == search_term:
+            return self.content_based_search(search_term)
 
         col_names = ["recipesID", "title", "url", "perc_rating",
                      "perc_sustainability", "review_count", "image_url",
-                     "ghg", "prop_ingredients", "edit_dist"]
+                     "ghg", "prop_ingredients", "rank"]
 
         results = pd.DataFrame(outp, columns=col_names)
 
@@ -270,8 +320,8 @@ class postgresConnection():
         for s in strings:
             results[s] = results[s].astype('str')
 
-        # Order results by edit_dist
-        results = results.sort_values(by='edit_dist', ascending=True)
+        # Order results by rank / edit_dist
+        results = results.sort_values(by='rank', ascending=True)
         return results
 
 
