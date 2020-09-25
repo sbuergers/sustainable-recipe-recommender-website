@@ -84,28 +84,33 @@ class postgresConnection():
         return fuzzyMatches
 
     @_dbsrr_query
-    def phrase_search_title(self, search_term, N=160):
+    def phrase_search(self, search_column, search_term, N=160):
         """
         DESCRIPTION:
-            Searches in table recipes in title_tsv column using tsquery.
+            Searches in table recipes in combined_tsv column using tsquery
+            - a tsvector column in DB table recipes combining title and
+            categories.
         INPUT:
             cur: psycopg2 cursor object
-            search_term (str)
+            search_column (str): Name of table column to search
+            search_term (str): Search term
             N (int): Max number of results to return
         OUTPUT:
-            matches (list): DB output (list of lists - rows x columns)
+            matches (list[list]): DB query result
         """
         self.cur.execute(sql.SQL(
             """
             SELECT "recipesID", "title", "url", "perc_rating",
                 "perc_sustainability", "review_count", "image_url",
                 "emissions", "prop_ingredients",
-                ts_rank_cd(title_tsv, query) AS rank
+                ts_rank_cd({}, query) AS rank
             FROM public.recipes, websearch_to_tsquery('simple', %s) query
-            WHERE query @@ title_tsv
-            ORDER BY rank ASC
+            WHERE query @@ {}
+            ORDER BY rank DESC
             LIMIT %s
-            """).format(), [search_term, N])
+            """).format(sql.Identifier(search_column),
+                        sql.Identifier(search_column)),
+                        [search_term, N])
         matches = self.cur.fetchall()
         return matches
 
@@ -113,12 +118,9 @@ class postgresConnection():
     def free_search(self, search_term, N=160):
         """
         DESCRIPTION:
-            Parent function for searching recipes freely (any search
-            term). For the moment it only calls phrase_search_title,
-            and if no recipes are found uses fuzzy_search instead.
-
-            TODO This should be extended to incorporate searching in
-            categories and description columns.
+            Parent function for searching recipes freely. At the moment
+            it only calls phrase_search. But having this function makes
+            it easier to extend in the future.
         INPUT:
             cur: psycopg2 cursor object
             search_term (str)
@@ -129,7 +131,7 @@ class postgresConnection():
             See https://www.postgresql.org/docs/12/textsearch-controls.html
             for details on postgres' search functionalities.
         """
-        matches = self.phrase_search_title(search_term, N=N)
+        matches = self.phrase_search('combined_tsv', search_term, N=N)
         if not matches:
             matches = self.fuzzy_search(search_term, N=N-len(matches))
         return matches
@@ -321,7 +323,7 @@ class postgresConnection():
             results[s] = results[s].astype('str')
 
         # Order results by rank / edit_dist
-        results = results.sort_values(by='rank', ascending=True)
+        results = results.sort_values(by='rank', ascending=False)
         return results
 
 

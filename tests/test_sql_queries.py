@@ -28,6 +28,7 @@ def pg():
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
     pg.fuzzy_search_term = 'chicken'
     pg.phrase_search_term = 'vegan cookies'
+    pg.search_column = 'combined_tsv'
     return pg
 
 
@@ -42,8 +43,8 @@ class TestSqlQueries:
         assert pg.fuzzy_search_term in result[0][2]
         assert pg.fuzzy_search_term in result[1][2]
 
-    def test_phrase_search_title(self, pg):
-        result = pg.phrase_search_title(pg.phrase_search_term, N=2)
+    def test_phrase_search(self, pg):
+        result = pg.phrase_search(pg.search_column, pg.phrase_search_term, N=2)
         assert len(result) == 2
 
     def test_free_search(self, pg):
