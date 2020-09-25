@@ -323,7 +323,7 @@ class postgresConnection():
             results[s] = results[s].astype('str')
 
         # Order results by rank / edit_dist
-        results = results.sort_values(by='rank', ascending=True)
+        results = results.sort_values(by='rank', ascending=False)
         return results
 
 
