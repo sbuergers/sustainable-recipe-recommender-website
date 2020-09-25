@@ -87,7 +87,9 @@ class postgresConnection():
     def phrase_search(self, search_column, search_term, N=160):
         """
         DESCRIPTION:
-            Searches in table recipes in title_tsv column using tsquery.
+            Searches in table recipes in combined_tsv column using tsquery
+            - a tsvector column in DB table recipes combining title and
+            categories.
         INPUT:
             cur: psycopg2 cursor object
             search_column (str): Name of table column to search
@@ -104,7 +106,7 @@ class postgresConnection():
                 ts_rank_cd({}, query) AS rank
             FROM public.recipes, websearch_to_tsquery('simple', %s) query
             WHERE query @@ {}
-            ORDER BY rank ASC
+            ORDER BY rank DESC
             LIMIT %s
             """).format(sql.Identifier(search_column),
                         sql.Identifier(search_column)),
@@ -116,9 +118,9 @@ class postgresConnection():
     def free_search(self, search_term, N=160):
         """
         DESCRIPTION:
-            Parent function for searching recipes freely (any search
-            term). For the moment it only calls phrase_search_title,
-            and if no recipes are found uses fuzzy_search instead.
+            Parent function for searching recipes freely. At the moment
+            it only calls phrase_search. But having this function makes
+            it easier to extend in the future.
         INPUT:
             cur: psycopg2 cursor object
             search_term (str)
