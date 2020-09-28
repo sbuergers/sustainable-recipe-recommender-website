@@ -53,33 +53,41 @@ class postgresConnection():
         # Most similar urls by edit distance that actually contain the
         # search_term
         self.cur.execute(sql.SQL(
-                    """
-                    SELECT "recipesID", "title", "url", "perc_rating",
-                        "perc_sustainability", "review_count", "image_url",
-                        "emissions", "prop_ingredients",
-                        LEVENSHTEIN({}, %s) AS "rank"
-                    FROM public.recipes
-                    WHERE {} LIKE %s
-                    ORDER BY "rank" ASC
-                    LIMIT %s
-                    """).format(sql.Identifier(search_column),
-                                sql.Identifier(search_column)),
-                    [search_term, '%'+search_term+'%', N])
+            """
+            SELECT "recipesID", "title", "url", "perc_rating",
+                "perc_sustainability", "review_count", "image_url",
+                "emissions", "prop_ingredients",
+                LEVENSHTEIN({search_column}, {search_term}) AS "rank"
+            FROM public.recipes
+            WHERE {search_column} LIKE {search_term_like}
+            ORDER BY "rank" ASC
+            LIMIT {N}
+            """).format(
+                search_column=sql.Identifier(search_column),
+                search_term=sql.Literal(search_term),
+                search_term_like=sql.Literal('%'+search_term+'%'),
+                N=sql.Literal(N)
+            )
+        )
         fuzzyMatches = self.cur.fetchall()
 
         # If no results contain the search_term
         if not fuzzyMatches:
             self.cur.execute(sql.SQL(
-                        """
-                        SELECT "recipesID", "title", "url", "perc_rating",
-                            "perc_sustainability", "review_count", "image_url",
-                            "emissions", "prop_ingredients",
-                            LEVENSHTEIN({}, %s) AS "rank"
-                        FROM public.recipes
-                        ORDER BY "rank" ASC
-                        LIMIT %s
-                        """).format(sql.Identifier(search_column)),
-                        [search_term, N])
+                """
+                SELECT "recipesID", "title", "url", "perc_rating",
+                    "perc_sustainability", "review_count", "image_url",
+                    "emissions", "prop_ingredients",
+                    LEVENSHTEIN({search_column}, {search_term}) AS "rank"
+                FROM public.recipes
+                ORDER BY "rank" ASC
+                LIMIT {N}
+                """).format(
+                        search_column=sql.Identifier(search_column),
+                        search_term=sql.Literal(search_term),
+                        N=sql.Literal(N)
+                )
+            )
             fuzzyMatches = self.cur.fetchall()
         return fuzzyMatches
 
@@ -103,14 +111,18 @@ class postgresConnection():
             SELECT "recipesID", "title", "url", "perc_rating",
                 "perc_sustainability", "review_count", "image_url",
                 "emissions", "prop_ingredients",
-                ts_rank_cd({}, query) AS rank
-            FROM public.recipes, websearch_to_tsquery('simple', %s) query
-            WHERE query @@ {}
+                ts_rank_cd({search_column}, query) AS rank
+            FROM public.recipes,
+                websearch_to_tsquery('simple', {search_term}) query
+            WHERE query @@ {search_column}
             ORDER BY rank DESC
-            LIMIT %s
-            """).format(sql.Identifier(search_column),
-                        sql.Identifier(search_column)),
-                        [search_term, N])
+            LIMIT {N}
+            """).format(
+                search_column=sql.Identifier(search_column),
+                search_term=sql.Literal(search_term),
+                N=sql.Literal(N)
+            )
+        )
         matches = self.cur.fetchall()
         return matches
 
@@ -152,13 +164,16 @@ class postgresConnection():
                 similarity in descending order
         """
         self.cur.execute(sql.SQL(
-                    """
-                    SELECT * FROM public.content_similarity200_ids
-                    WHERE "recipeID" = (
-                        SELECT "recipesID" FROM public.recipes
-                        WHERE {} = %s)
-                    """).format(sql.Identifier(search_column)),
-                    [search_term])
+            """
+            SELECT * FROM public.content_similarity200_ids
+            WHERE "recipeID" = (
+                SELECT "recipesID" FROM public.recipes
+                WHERE {search_column} = {search_term})
+            """).format(
+                search_column=sql.Identifier(search_column),
+                search_term=sql.Literal(search_term)
+            )
+        )
         CS_ids = self.cur.fetchall()[0][1::]
         CS_ids = tuple([abs(int(CSid)) for CSid in CS_ids])
         return CS_ids
@@ -178,12 +193,13 @@ class postgresConnection():
                 similarity in descending order
         """
         self.cur.execute(sql.SQL(
-                    """
-                    SELECT * FROM public.content_similarity200
-                    WHERE "recipeID" = (
-                        SELECT "recipesID" FROM public.recipes
-                        WHERE url = %s)
-                    """).format(), [search_term])
+            """
+            SELECT * FROM public.content_similarity200
+            WHERE "recipeID" = (
+                SELECT "recipesID" FROM public.recipes
+                WHERE url = {search_term})
+            """).format(search_term=sql.Literal(search_term))
+        )
         CS = self.cur.fetchall()[0][1::]
         CS = tuple([abs(float(s)) for s in CS])
         return CS
@@ -201,16 +217,17 @@ class postgresConnection():
             recipes_sql (list): List of lists (row x col)
         """
         self.cur.execute(sql.SQL(
-                    """
-                    SELECT "recipesID", "title", "ingredients",
-                        "rating", "calories", "sodium", "fat",
-                        "protein", "emissions", "prop_ingredients",
-                        "emissions_log10", "url", "servings", "recipe_rawid",
-                        "image_url", "perc_rating", "perc_sustainability",
-                        "review_count"
-                    FROM public.recipes
-                    WHERE "recipesID" IN %s
-                    """).format(), [CS_ids])
+            """
+            SELECT "recipesID", "title", "ingredients",
+                "rating", "calories", "sodium", "fat",
+                "protein", "emissions", "prop_ingredients",
+                "emissions_log10", "url", "servings", "recipe_rawid",
+                "image_url", "perc_rating", "perc_sustainability",
+                "review_count"
+            FROM public.recipes
+            WHERE "recipesID" IN {CS_ids}
+            """).format(CS_ids=sql.Literal(CS_ids))
+        )
         recipes_sql = self.cur.fetchall()
         return recipes_sql
 
@@ -222,9 +239,10 @@ class postgresConnection():
             cur database, False otherwise.
         '''
         self.cur.execute(sql.SQL("""
-                    SELECT * FROM public.recipes
-                    WHERE "url" = %s
-                    """).format(), [search_term])
+            SELECT * FROM public.recipes
+            WHERE "url" = {search_term}
+            """).format(search_term=sql.Literal(search_term))
+        )
         if self.cur.fetchall():
             return True
         else:
