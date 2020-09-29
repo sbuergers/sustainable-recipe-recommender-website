@@ -17,6 +17,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
+from flask_talisman import Talisman
 
 # hash function for encrypting passwords
 from passlib.hash import pbkdf2_sha512
@@ -48,6 +49,7 @@ def create_app(testing=False, debug=True):
     app = Flask(__name__)
     app.secret_key = os.environ.get('SECRET')
     app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
+    Talisman(app)  # security headers
 
     # Configure database
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
