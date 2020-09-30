@@ -49,7 +49,6 @@ def create_app(testing=False, debug=True):
     app = Flask(__name__)
     app.secret_key = os.environ.get('SECRET')
     app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
-    Talisman(app)  # security headers
 
     # Configure database
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
@@ -62,6 +61,10 @@ def create_app(testing=False, debug=True):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
     app.debug = debug
+
+    # Use security headers (HTTPS) in staging and production only
+    if not testing and not debug:
+        Talisman(app)
 
     # Initialize login manager
     login = LoginManager(app)
