@@ -18,11 +18,11 @@
 
     <!-- search bar -->
     <form action="{{ url_for('search_results') }}", method="POST">
-        {{ displayField(search_form.search, 'Search') }}
+        "{{ displayField(search_form.search, 'Search') }}"
         <div class="form-group">
             <input type="submit" value="search" class="btn btn-warning">
         </div>
-        {{ search_form.csrf_token }}
+        "{{ search_form.csrf_token }}"
     </form>
 
     <!-- disclaimer -->

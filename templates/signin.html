@@ -11,16 +11,16 @@
     <p></p>
     <div id="container" style="width:660px;">
         <form action="{{ url_for('login') }}", method="POST">
-            {{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}
-            {{ displayField(form.password, 'Password') }}
+            "{{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}"
+            "{{ displayField(form.password, 'Password') }}"
             <div class="form-group">
                 <input type="submit" value="Login" class="btn btn-warning">
             </div>
-            {{ form.csrf_token }} 
+           "{{ form.csrf_token }}"
         </form>
     </div>
 
     <hr>
-    <p>Not registered? <a href={{ url_for('signup') }}>Register here</a>.</p>
+    <p>Not registered? <a href="{{ url_for('signup') }}">Register here</a>.</p>
 </center>
 {% endblock %}

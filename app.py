@@ -17,6 +17,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
+from flask_talisman import Talisman
 
 # hash function for encrypting passwords
 from passlib.hash import pbkdf2_sha512
@@ -60,6 +61,10 @@ def create_app(testing=False, debug=True):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
     app.debug = debug
+
+    # Use security headers (HTTPS) in staging and production only
+    if not testing and not debug:
+        Talisman(app)
 
     # Initialize login manager
     login = LoginManager(app)
