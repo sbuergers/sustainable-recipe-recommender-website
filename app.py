@@ -68,12 +68,22 @@ def create_app(testing=False, debug=True):
             'default-src': [
                 '\'self\'',
                 'code.jquery.com',
-                'use.fontawesome.com',
                 'cdnjs.cloudflare.com',
                 'stackpath.bootstrapcdn.com',
                 'cdn.jsdelivr.net'
             ],
-            'script-src': '\'self\'',
+            'style-src': [
+                '\'self\'',
+                'use.fontawesome.com',
+                'stackpath.bootstrapcdn.com'
+            ],
+            'script-src': [
+                '\'self\'',
+                'code.jquery.com',
+                'cdnjs.cloudflare.com',
+                'stackpath.bootstrapcdn.com',
+                'cdn.jsdelivr.net'
+            ],
             'img-src': '*'
         }
         Talisman(app,
