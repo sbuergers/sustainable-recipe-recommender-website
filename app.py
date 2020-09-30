@@ -67,9 +67,9 @@ def create_app(testing=False, debug=True):
         csp = {
             'default-src': [
                 '\'self\'',
-                r'code.jquery.com',
-                r"cdnjs.cloudflare.com",
-                r"stackpath.bootstrapcdn.com",
+                'https://code.jquery.com',
+                'https://cdnjs.cloudflare.com',
+                'https://stackpath.bootstrapcdn.com',
             ]
         }
         Talisman(app, content_security_policy=csp)
