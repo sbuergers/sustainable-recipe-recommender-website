@@ -64,7 +64,15 @@ def create_app(testing=False, debug=True):
 
     # Use security headers (HTTPS) in staging and production only
     if not testing and not debug:
-        Talisman(app)
+        csp = {
+            'default-src': [
+                '\'self\'',
+                r'code.jquery.com',
+                r"cdnjs.cloudflare.com",
+                r"stackpath.bootstrapcdn.com",
+            ]
+        }
+        Talisman(app, content_security_policy=csp)
 
     # Initialize login manager
     login = LoginManager(app)
