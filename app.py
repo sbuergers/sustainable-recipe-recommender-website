@@ -67,12 +67,17 @@ def create_app(testing=False, debug=True):
         csp = {
             'default-src': [
                 '\'self\'',
-                'https://code.jquery.com',
-                'https://cdnjs.cloudflare.com',
-                'https://stackpath.bootstrapcdn.com',
-            ]
+                r'https://code.jquery.com',
+                r'https://use.fontawesome.com',
+                r'https://cdnjs.cloudflare.com',
+                r'https://stackpath.bootstrapcdn.com',
+                r'https://cdn.jsdelivr.net'
+            ],
+            'script-src': '\'self\'',
         }
-        Talisman(app, content_security_policy=csp)
+        Talisman(app,
+                 content_security_policy=csp,
+                 content_security_policy_nonce_in=['script-src'])
 
     # Initialize login manager
     login = LoginManager(app)
