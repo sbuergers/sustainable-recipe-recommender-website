@@ -66,14 +66,15 @@ def create_app(testing=False, debug=True):
     if not testing and not debug:
         csp = {
             'default-src': [
-                '\'self/*\'',
-                r'https://code.jquery.com',
-                r'https://use.fontawesome.com',
-                r'https://cdnjs.cloudflare.com',
-                r'https://stackpath.bootstrapcdn.com',
-                r'https://cdn.jsdelivr.net'
+                '\'self\'',
+                'code.jquery.com',
+                'use.fontawesome.com',
+                'cdnjs.cloudflare.com',
+                'stackpath.bootstrapcdn.com',
+                'cdn.jsdelivr.net'
             ],
-            'script-src': '\'self/*\'',
+            'script-src': '\'self\'',
+            'img-src': '*'
         }
         Talisman(app,
                  content_security_policy=csp,
