@@ -67,6 +67,8 @@ def create_app(testing=False, debug=True):
         csp = {
             'default-src': [
                 '\'self\'',
+                '*srr-staging.herokuapp.com',
+                '*sustainable-recipe-recommender.herokuapp.com',
                 'code.jquery.com',
                 'cdnjs.cloudflare.com',
                 'stackpath.bootstrapcdn.com',
@@ -74,11 +76,15 @@ def create_app(testing=False, debug=True):
             ],
             'style-src': [
                 '\'self\'',
+                '*srr-staging.herokuapp.com',
+                '*sustainable-recipe-recommender.herokuapp.com',
                 'use.fontawesome.com',
                 'stackpath.bootstrapcdn.com'
             ],
             'script-src': [
                 '\'self\'',
+                '*srr-staging.herokuapp.com',
+                '*sustainable-recipe-recommender.herokuapp.com',
                 'code.jquery.com',
                 'cdnjs.cloudflare.com',
                 'stackpath.bootstrapcdn.com',
