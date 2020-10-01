@@ -74,6 +74,7 @@ def create_app(testing=False, debug=True):
                 '\'self\'',
                 'https://use.fontawesome.com',
                 'https://stackpath.bootstrapcdn.com'
+                'https://cdn.jsdelivr.net'
             ],
             'script-src': [
                 '\'self\'',
