@@ -9,7 +9,7 @@
     <h2>Sign in</h2>
     <p>Signing in will improve recipe recommendations based on previous activity.</p>
     <p></p>
-    <div id="container" style="width:660px;">
+    <div id="container">
         <form action="{{ url_for('login') }}", method="POST">
             "{{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}"
             "{{ displayField(form.password, 'Password') }}"

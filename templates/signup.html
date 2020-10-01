@@ -7,7 +7,7 @@
     <br>
     <br>
     <h2>Create a new account</h2>
-    <div id="container" style="width:660px;">
+    <div id="container">
         <form action="{{ url_for('signup') }}", method="POST">
             "{{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}"
             "{{ displayField(form.password, 'Password') }}"

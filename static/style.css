@@ -197,3 +197,15 @@
     text-align: center;
     background-color: rgba(0,0,0,0.3);
 }
+
+#blog_iframe {
+  overflow: hidden;
+  height: 86vh;
+  width: 100%;
+  display:block;
+}
+
+#logo_startpage {
+  width: 75px;
+  height: 75px;
+}
