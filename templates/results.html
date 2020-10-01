@@ -31,7 +31,7 @@
 <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
 <!-- JS actions -->
-<script>
+<script nonce="{{ csp_nonce() }}">
     // RATING SCALES 
     function setRating(perc_ratings, class_selector, icon_selector='') {
 
