@@ -10,8 +10,8 @@
 
 {% block navsearch %}
     <form class="form-inline my-2 my-lg-0" action="{{ url_for('search_results') }}" method="POST">
-        "{{ search_form.search(class_='form-control', placeholder='Search') }}"
-        "{{ search_form.csrf_token }}"
+        {{ search_form.search(class_='form-control', placeholder='Search') }}
+        {{ search_form.csrf_token }}
     </form>
 {% endblock %}
 

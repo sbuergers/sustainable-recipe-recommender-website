@@ -2,7 +2,7 @@
 {% macro displayField(field, fieldName) %}
     <div class="form-group">
         <div class="input-group mb-3">
-            "{{ field(class_='form-control', placeholder=fieldName, **kwargs) }}"
+            {{ field(class_='form-control', placeholder=fieldName, **kwargs) }}
             <!-- Error messages -->
             <ul class="formError">
                 {% for error in field.errors %}

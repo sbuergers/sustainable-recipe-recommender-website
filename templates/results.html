@@ -7,8 +7,8 @@
 
 {% block navsearch %}
     <form class="form-inline my-2 my-lg-0" action="{{ url_for('search_results') }}" method="POST">
-        "{{ search_form.search(class_='form-control', placeholder='Search') }}"
-        "{{ search_form.csrf_token }}"
+        {{ search_form.search(class_='form-control', placeholder='Search') }}
+        {{ search_form.csrf_token }}
     </form>
 {% endblock %}
 
@@ -55,9 +55,9 @@
     document.addEventListener("DOMContentLoaded", function(event) { 
 
         // RATING SCALES
-        var ratings = "{{ ratings | safe }}";
-        var emissions = "{{ emissions | safe }}";
-        var similarity = "{{ similarity | safe }}";
+        var ratings = {{ ratings | safe }};
+        var emissions = {{ emissions | safe }};
+        var similarity = {{ similarity | safe }};
         
         // Render Rating
         setRating(perc_ratings=ratings, 
@@ -75,7 +75,7 @@
                   icon_selector=".similarity-inner")
 
         // ALTAIR FIGURES
-        var bpjson = JSON.parse("{{ bp | tojson | safe}}");
+        var bpjson = JSON.parse({{ bp | tojson | safe}});
         vegaEmbed("#bar-compare-emissions", bpjson);
     });
 
@@ -92,7 +92,7 @@
 <div class="row">
     <div class="col col-6">
         <!-- Title -->
-        <h3>"{{ reference_recipe['title'] }}"</h3> 
+        <h3>{{ reference_recipe['title'] }}</h3> 
         <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + reference_recipe['url']}}" 
             target="_blank">
             Visit recipe
@@ -118,7 +118,7 @@
                     <div class="rating stars-inner" title="Average user rating"></div>
                 </div>
                 <span class="rating number-rating"></span>
-                ("{{'%i' | format(reference_recipe['review_count']|int) }}" votes)
+                ({{'%i' | format(reference_recipe['review_count']|int) }} votes)
                 </td>
             </tr>
         </div>
@@ -133,7 +133,7 @@
                     <div class="emissions sustainability-inner" title="Relative green house gas emissions"></div>
                 </div>
                 <span class="emissions number-rating"></span>
-                <span title="Estimated amount of CO2 emissions in kg">("{{'%0.2f'| format(reference_recipe['ghg']|float)}}" kg)</span>
+                <span title="Estimated amount of CO2 emissions in kg">({{'%0.2f'| format(reference_recipe['ghg']|float)}} kg)</span>
                 </td>
             </tr>
         </div>
@@ -162,7 +162,7 @@
         <h4>Ingredients</h4>
         {% for line in reference_recipe['ingredients'].split(';') %}
         <ul class="ingredient-list">
-            <li>"{{ line }}"</li>
+            <li>{{ line }}</li>
         </ul>    
         {% endfor %}
         </div>
@@ -179,20 +179,20 @@
 <!-- NUTRITIONAL INFORMATION & SERVINGS
 <div class="col col-4">
     <div class='row'>
-        Rating: "{{'%0.2f'| format(reference_recipe['rating']|float)}}"/5
+        Rating: {{'%0.2f'| format(reference_recipe['rating']|float)}}/5
     </div>
     <div class='row'>
-        Emissions: "{{'%0.2f'| format(reference_recipe['ghg']|float)}}" kg CO2
+        Emissions: {{'%0.2f'| format(reference_recipe['ghg']|float)}} kg CO2
     </div>
     <div class='row'>
-        Cal.: "{{ reference_recipe['calories'] }}" | 
-        Sod.: "{{ reference_recipe['sodium'] }}" |
-        Fat.: "{{ reference_recipe['fat'] }}" | 
-        Pro.: "{{ reference_recipe['protein'] }}"
+        Cal.: {{ reference_recipe['calories'] }} | 
+        Sod.: {{ reference_recipe['sodium'] }} |
+        Fat.: {{ reference_recipe['fat'] }} | 
+        Pro.: {{ reference_recipe['protein'] }}
     </div>
     <div class='row'>
         {% if not reference_recipe['servings'] == nan %}
-            Servings: "{{ reference_recipe['servings'] }}"
+            Servings: {{ reference_recipe['servings'] }}
         {% endif %}
     </div>
 </div>
@@ -232,7 +232,7 @@
             
             <!-- Title -->
             <div class="search-title"> 
-                "{{ df['title'] }}"
+                {{ df['title'] }}
             </div>
 
             <!-- Ratings and Similarity -->
@@ -245,7 +245,7 @@
                         <div class="rating stars-inner" title="Average user rating"></div>
                         </div>
                         <span class="rating number-rating"></span>
-                        ("{{'%i' | format(df['review_count']|int) }}" votes)
+                        ({{'%i' | format(df['review_count']|int) }} votes)
                     </td>
                 </tr>
             </div>
@@ -275,11 +275,11 @@
                         <!-- Show absolute CO2 emissions relative to reference recipe -->
                         {% if reference_recipe['ghg'] - df['ghg'] < 0 %}
                             (<span  title="Estimated amount of CO2 emissions in kg" class="text-danger">
-                                +"{{'%0.2f'| format(df['ghg']-reference_recipe['ghg']|float) }}"
+                                +{{'%0.2f'| format(df['ghg']-reference_recipe['ghg']|float) }}
                             </span> kg)
                         {% else %}
                             (<span  title="Estimated amount of CO2 emissions in kg" class="text-success">
-                                "{{'%0.2f'| format(df['ghg']-reference_recipe['ghg']|float) }}"
+                                {{'%0.2f'| format(df['ghg']-reference_recipe['ghg']|float) }}
                             </span> kg)
                         {% endif %}
                     </td>
@@ -326,7 +326,7 @@
         </li>
         {% for i in range(0,10) %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('compare_recipes', search_term=search_term, page=i) }}">"{{ i }}"</a>
+            <a class="page-link" href="{{ url_for('compare_recipes', search_term=search_term, page=i) }}">{{ i }}</a>
         </li>
         {% endfor %}
         <li class="page-item">
