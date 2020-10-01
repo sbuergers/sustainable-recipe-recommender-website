@@ -77,6 +77,8 @@
         // ALTAIR FIGURES
         var bpjson = JSON.parse({{ bp | tojson | safe}});
         vegaEmbed("#bar-compare-emissions", bpjson);
+
+        console.log("this should run!!")
     });
 
 </script>
