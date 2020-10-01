@@ -71,14 +71,14 @@ def create_app(testing=False, debug=True):
                 'https://*sustainable-recipe-recommender.herokuapp.com',
             ],
             'style-src': [
-                'https://*use.fontawesome.com',
-                'https://*stackpath.bootstrapcdn.com'
+                'https://use.fontawesome.com',
+                'https://stackpath.bootstrapcdn.com'
             ],
             'script-src': [
-                'https://*code.jquery.com',
-                'https://*cdnjs.cloudflare.com',
-                'https://*stackpath.bootstrapcdn.com',
-                'https://*cdn.jsdelivr.net'
+                'https://code.jquery.com',
+                'https://cdnjs.cloudflare.com',
+                'https://stackpath.bootstrapcdn.com',
+                'https://cdn.jsdelivr.net'
             ],
             'img-src': '*'
         }
