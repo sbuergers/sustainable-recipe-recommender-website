@@ -90,7 +90,7 @@ def create_app(testing=False, debug=True):
         }
         Talisman(app,
                  content_security_policy=csp,
-                 content_security_policy_nonce_in=['script-src'])
+                 content_security_policy_nonce_in=['script-src', 'style-src'])
 
     # Initialize login manager
     login = LoginManager(app)
