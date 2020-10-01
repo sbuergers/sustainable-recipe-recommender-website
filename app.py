@@ -268,7 +268,7 @@ def create_app(testing=False, debug=True):
 
 
 if __name__ == '__main__':
-    app = create_app(testing=False, debug=True)
+    app = create_app(testing=False, debug=False)
     app.run()
 
 # eof
