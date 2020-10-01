@@ -82,6 +82,10 @@ def create_app(testing=False, debug=True):
                 'https://stackpath.bootstrapcdn.com',
                 'https://cdn.jsdelivr.net'
             ],
+            'font-src': [
+                '\'self\'',
+                'https://use.fontawesome.com'
+            ]
             'img-src': '*'
         }
         Talisman(app,
