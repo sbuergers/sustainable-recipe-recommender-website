@@ -23,12 +23,12 @@
 <!---------------------------------------------------->
 
 <!-- Get JQuery -->
-<script src="http://code.jquery.com/jquery-1.11.3.min.js" charset="utf-8"></script>
+<script src="http://code.jquery.com/jquery-1.11.3.min.js" charset="utf-8" nonce="{{ csp_nonce() }}"></script>
 
 <!-- Get Vega for importing Altair plots -->
-<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-lite@4"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega@5" nonce="{{ csp_nonce() }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4" nonce="{{ csp_nonce() }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6" nonce="{{ csp_nonce() }}"></script>
 
 <!-- JS actions -->
 <script nonce="{{ csp_nonce() }}">
