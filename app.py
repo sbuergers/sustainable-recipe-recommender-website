@@ -62,13 +62,13 @@ def create_app(testing=False, debug=True):
         app.config['WTF_CSRF_ENABLED'] = False
     app.debug = debug
 
-    # Use security headers (HTTPS) in staging and production only
+    # Use security headers in staging and production only
     if not testing and not debug:
         csp = {
             'default-src': [
                 '\'self\'',
-                'https://*srr-staging.herokuapp.com',
-                'https://*sustainable-recipe-recommender.herokuapp.com',
+                'https://srr-staging.herokuapp.com',
+                'https://sustainable-recipe-recommender.herokuapp.com',
             ],
             'style-src': [
                 'https://use.fontawesome.com',
