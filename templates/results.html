@@ -23,10 +23,10 @@
 <!---------------------------------------------------->
 
 <!-- Get Vega for importing Altair plots -->
-<script src="https://cdn.jsdelivr.net/npm/vega@5""></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-interpreter@1""></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-lite@4""></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-embed@6""></script>
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-interpreter@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
 <!-- JS actions -->
 <!-- TODO: Ideally, JS should be in a separate file altogether.
@@ -86,7 +86,13 @@
             }
         );
 
-        console.log("this should run!!")
+    });
+
+    // ONCHANGE EVENTS
+    // sort_by dropdown menu
+    const selectElement = document.querySelector('.sort_by');
+    selectElement.addEventListener('change', (event) => {
+        document.forms['sort_by_form'].submit();
     });
 
 </script>
@@ -220,9 +226,9 @@
 
     <!-- Sort by dropdown menu -->
     <div class="col sort_by">
-        <form action="{{ url_for('compare_recipes', search_term=search_term, page=page) }}" method="GET">
+        <form name="sort_by_form" action="{{ url_for('compare_recipes', search_term=search_term, page=page) }}" method="GET">
             <label for="sort_by">Sort by </label>
-            <select id="sort_by" name="sort_by" onchange="this.form.submit();">
+            <select id="sort_by" name="sort_by">
                 <option value=sort_by></option>
                 <option value="Similarity">Similarity </option>
                 <option value="Sustainability">Sustainability </option>
