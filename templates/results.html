@@ -75,8 +75,11 @@
                   icon_selector=".similarity-inner")
 
         // ALTAIR FIGURES
-        var bpjson = JSON.parse({{ bp | tojson | safe}});
-        vegaEmbed("#bar-compare-emissions", bpjson, {ast: true});
+        vegaEmbed(
+            "#bar-compare-emissions", 
+            JSON.parse({{ bp | tojson | safe}}),
+            {renderer: 'svg', ast: true}
+        );
 
         console.log("this should run!!")
     });
