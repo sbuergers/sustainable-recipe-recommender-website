@@ -73,7 +73,7 @@ def create_app(testing=False, debug=True):
             'style-src': [
                 '\'self\'',
                 'https://use.fontawesome.com',
-                'https://stackpath.bootstrapcdn.com'
+                'https://stackpath.bootstrapcdn.com',
                 'https://cdn.jsdelivr.net'
             ],
             'style-src-elem': [
