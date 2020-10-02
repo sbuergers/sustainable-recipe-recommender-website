@@ -76,6 +76,9 @@ def create_app(testing=False, debug=True):
                 'https://stackpath.bootstrapcdn.com'
                 'https://cdn.jsdelivr.net'
             ],
+            'style-src-elem': [
+                'https://use.fontawesome.com'
+            ],
             'script-src': [
                 '\'self\'',
                 'https://ajax.googleapis.com',
