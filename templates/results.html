@@ -115,7 +115,7 @@
         <!-- Recipe image -->
         <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + reference_recipe['url']}}"
             target="_blank">
-            <img src="{{ reference_recipe['image_url'] }}" onerror="this.onerror=null; this.src='../static/image_placeholder_logo.png'" alt="">
+            <img src="{{ reference_recipe['image_url'] }}">
         </a>
 
         <!-- Rating -->
@@ -304,7 +304,7 @@
             <div class="row">
                 <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
                     target="_blank">
-                    <img src="{{ df['image_url'] }}" onerror="this.onerror=null; this.src='../static/image_placeholder_logo.png'" alt="">
+                    <img src="{{ df['image_url'] }}" alt="">
                 </a>
             </div>
 
