@@ -78,7 +78,7 @@ def create_app(testing=False, debug=True):
             ],
             'script-src': [
                 '\'self\'',
-                'https://code.jquery.com',
+                'https://ajax.googleapis.com',
                 'https://cdnjs.cloudflare.com',
                 'https://stackpath.bootstrapcdn.com',
                 'https://cdn.jsdelivr.net'
