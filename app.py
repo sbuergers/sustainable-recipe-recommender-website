@@ -67,8 +67,6 @@ def create_app(testing=False, debug=True):
         csp = {
             'default-src': [
                 '\'self\'',
-                'https://srr-staging.herokuapp.com',
-                'https://sustainable-recipe-recommender.herokuapp.com',
             ],
             'style-src': [
                 '\'self\'',
@@ -78,7 +76,8 @@ def create_app(testing=False, debug=True):
             ],
             'style-src-elem': [
                 '\'self\'',
-                'https://use.fontawesome.com'
+                'https://use.fontawesome.com',
+                'https://stackpath.bootstrapcdn.com'
             ],
             'script-src': [
                 '\'self\'',
