@@ -85,7 +85,8 @@ def create_app(testing=False, debug=True):
             ],
             'font-src': [
                 '\'self\'',
-                'https://use.fontawesome.com'
+                'https://use.fontawesome.com',
+                'https://stackpath.bootstrapcdn.com'
             ],
             'img-src': '*'
         }
