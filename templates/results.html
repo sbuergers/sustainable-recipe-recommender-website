@@ -78,7 +78,7 @@
         vegaEmbed(
             "#bar-compare-emissions", 
             JSON.parse({{ bp | tojson | safe}}),
-            {renderer: 'svg', ast: true}
+            {renderer: 'svg', ast: true, hover: true}
         );
 
         console.log("this should run!!")
