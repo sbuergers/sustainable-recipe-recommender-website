@@ -77,11 +77,12 @@ def create_app(testing=False, debug=True):
                 'https://cdn.jsdelivr.net'
             ],
             'style-src-elem': [
+                '\'self\'',
                 'https://use.fontawesome.com'
             ],
             'script-src': [
                 '\'self\'',
-                'https://ajax.googleapis.com',
+                'https://code.jquery.com',
                 'https://cdnjs.cloudflare.com',
                 'https://stackpath.bootstrapcdn.com',
                 'https://cdn.jsdelivr.net'
