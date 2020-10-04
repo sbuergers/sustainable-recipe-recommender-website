@@ -66,13 +66,13 @@ def create_app(testing=False, debug=True):
     if not testing and not debug:
         csp = {
             'default-src': [
-                '\'self\'',
+                '\'self\''
             ],
             'style-src': [
                 '\'self\'',
                 'https://use.fontawesome.com',
                 'https://stackpath.bootstrapcdn.com',
-                'https://cdn.jsdelivr.net',
+                'https://cdn.jsdelivr.net'
             ],
             'style-src-elem': [
                 '\'self\'',
@@ -85,7 +85,7 @@ def create_app(testing=False, debug=True):
                 'https://code.jquery.com',
                 'https://cdnjs.cloudflare.com',
                 'https://stackpath.bootstrapcdn.com',
-                'https://cdn.jsdelivr.net',
+                'https://cdn.jsdelivr.net'
             ],
             'font-src': [
                 '\'self\'',
