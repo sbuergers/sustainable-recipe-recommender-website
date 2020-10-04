@@ -223,7 +223,7 @@
 
     <!-- Sort by dropdown menu -->
     <div class="col sort_by">
-        <form id="sort_by_form" action="{{ url_for('compare_recipes', search_term=search_term, page=page) }}" method="GET">
+        <form id="sort_by_form" action="{{ url_for('compare_recipes', search_term=search_term, page=page, sort_by=sort_by) }}" method="GET">
             <label for="sort_by">Sort by </label>
             <select id="sort_by" name="sort_by">
                 <option value=sort_by></option>
