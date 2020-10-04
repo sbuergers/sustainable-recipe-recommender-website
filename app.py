@@ -99,7 +99,7 @@ def create_app(testing=False, debug=True):
             'frame-src': [
                 '\'self\'',
                 'unsafe-inline'
-            ]
+            ],
             'img-src': '*'
         }
         Talisman(app,
