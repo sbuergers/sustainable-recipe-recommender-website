@@ -96,6 +96,10 @@ def create_app(testing=False, debug=True):
                 '\'self\'',
                 'https://cdn.jsdelivr.net'
             ],
+            'frame-src': [
+                '\'self\'',
+                'unsafe-inline'
+            ]
             'img-src': '*'
         }
         Talisman(app,
