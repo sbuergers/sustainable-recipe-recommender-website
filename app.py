@@ -99,8 +99,7 @@ def create_app(testing=False, debug=True):
                 'https://cdn.jsdelivr.net'
             ],
             'frame-src': [
-                SELF,
-                'https://github.com/sbuergers/'
+                SELF
             ],
             'frame-ancestors': [
                 SELF
@@ -227,7 +226,6 @@ def create_app(testing=False, debug=True):
         return render_template('about.html', search_form=search_form)
 
     # insecure, avoid user input!
-    @talisman(content_security_policy=csp_insecure)
     @app.route('/blog', methods=['GET', 'POST'])
     def blog():
         search_form = SearchForm()
