@@ -18,6 +18,7 @@ from flask import session
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_talisman import Talisman
+from flask_wtf.csrf import CsrfProtect
 
 # hash function for encrypting passwords
 from passlib.hash import pbkdf2_sha512
@@ -37,6 +38,9 @@ import helper_functions as hf
 import altair_plots as ap
 
 
+csrf = CsrfProtect()
+
+
 # TODO consider modularizing DB
 # TODO add config file for deployment or testing as param
 # See Application factories in Flask docs
@@ -47,6 +51,7 @@ def create_app(testing=False, debug=True):
 
     # Configure app
     app = Flask(__name__)
+    csrf.init_app(app)
     app.secret_key = os.environ.get('SECRET')
     app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 
@@ -263,7 +268,7 @@ def create_app(testing=False, debug=True):
             flash('Registered successfully. Please login.', 'success')
             return redirect(url_for('login'))
 
-        return render_template('signup.html', form=reg_form)
+        return render_template('signup.html', reg_form=reg_form)
 
     @app.route("/signin", methods=['GET', 'POST'])
     def login():
@@ -277,7 +282,7 @@ def create_app(testing=False, debug=True):
             login_user(user_object)
             return redirect(url_for('home'))
 
-        return render_template('signin.html', form=login_form)
+        return render_template('signin.html', login_form=login_form)
 
     @app.route("/logout", methods=['GET'])
     def logout():

@@ -9,13 +9,13 @@
             <h2>Create a new account</h2><br>
             <div id="container">
                 <form action="{{ url_for('signup') }}", method="POST">
-                    {{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}
-                    {{ displayField(form.password, 'Password') }}
-                    {{ displayField(form.confirm_pswd, 'Retype Password') }}
+                    {{ displayField(reg_form.username, 'Username', autocomplete="off", autofocus=true) }}
+                    {{ displayField(reg_form.password, 'Password') }}
+                    {{ displayField(reg_form.confirm_pswd, 'Retype Password') }}
                     <div class="form-group">
                         <input type="submit" value="Create" class="btn btn-warning">
                     </div>
-                    {{ form.csrf_token }}
+                    {{ reg_form.csrf_token }}
                 </form> 
             </div>
             <hr>
