@@ -18,7 +18,7 @@ from flask import session
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_talisman import Talisman
-from flask_wtf.csrf import CsrfProtect
+from flask_wtf.csrf import CSRFProtect
 
 # hash function for encrypting passwords
 from passlib.hash import pbkdf2_sha512
@@ -38,7 +38,7 @@ import helper_functions as hf
 import altair_plots as ap
 
 
-csrf = CsrfProtect()
+csrf = CSRFProtect()
 
 
 # TODO consider modularizing DB
@@ -294,7 +294,9 @@ def create_app(testing=False, debug=True):
 
 
 if __name__ == '__main__':
-    app = create_app(testing=False, debug=False)
+    testing = True
+    debug = True
+    app = create_app(testing, debug)
     app.run()
 
 # eof
