@@ -100,6 +100,9 @@ def create_app(testing=False, debug=True):
                 '\'self\'',
                 'https://github.com/sbuergers/'
             ],
+            'frame-ancestors': [
+                '\'self\''
+            ],
             'img-src': '*'
         }
         Talisman(app,
