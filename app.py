@@ -227,7 +227,7 @@ def create_app(testing=False, debug=True):
         return render_template('about.html', search_form=search_form)
 
     # insecure, avoid user input!
-    @talisman(content_security_policy={**csp_insecure})
+    @talisman(content_security_policy=csp_insecure)
     @app.route('/blog', methods=['GET', 'POST'])
     def blog():
         search_form = SearchForm()
