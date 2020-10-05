@@ -64,50 +64,53 @@ def create_app(testing=False, debug=True):
 
     # Use security headers in staging and production only
     if not testing and not debug:
+        SELF = "'self'"
         csp = {
             'default-src': [
-                '\'self\''
+                SELF
             ],
             'style-src': [
-                '\'self\'',
+                SELF,
                 'https://use.fontawesome.com',
                 'https://stackpath.bootstrapcdn.com',
                 'https://cdn.jsdelivr.net'
             ],
             'style-src-elem': [
-                '\'self\'',
+                SELF,
                 'https://use.fontawesome.com',
                 'https://stackpath.bootstrapcdn.com',
                 'https://cdn.jsdelivr.net'
             ],
             'script-src': [
-                '\'self\'',
+                SELF,
                 'https://code.jquery.com',
                 'https://cdnjs.cloudflare.com',
                 'https://stackpath.bootstrapcdn.com',
                 'https://cdn.jsdelivr.net'
             ],
             'font-src': [
-                '\'self\'',
+                SELF,
                 'https://use.fontawesome.com',
                 'https://stackpath.bootstrapcdn.com'
             ],
             'connect-src': [
-                '\'self\'',
+                SELF,
                 'https://cdn.jsdelivr.net'
             ],
             'frame-src': [
-                '\'self\'',
+                SELF,
                 'https://github.com/sbuergers/'
             ],
             'frame-ancestors': [
-                '\'self\''
+                SELF
             ],
             'img-src': '*'
         }
-        Talisman(app,
-                 content_security_policy=csp,
-                 content_security_policy_nonce_in=['script-src', 'style-src'])
+        talisman = Talisman(
+            app,
+            content_security_policy=csp,
+            content_security_policy_nonce_in=['script-src', 'style-src']
+        )
 
     # Initialize login manager
     login = LoginManager(app)
@@ -218,6 +221,11 @@ def create_app(testing=False, debug=True):
 
         return render_template('about.html', search_form=search_form)
 
+    @talisman(
+        frame_options='ALLOW_FROM',
+        frame_options_allow_from=SELF,
+        content_security_policy={**csp, 'frame-ancestors': ['*']}
+    )
     @app.route('/blog', methods=['GET', 'POST'])
     def blog():
         search_form = SearchForm()
