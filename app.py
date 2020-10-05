@@ -62,9 +62,10 @@ def create_app(testing=False, debug=True):
         app.config['WTF_CSRF_ENABLED'] = False
     app.debug = debug
 
-    # Use security headers in staging and production only
+    # Content security policy (CSP)
+    SELF = "'self'"
+    csp_insecure = {'default-src': '*'}
     if not testing and not debug:
-        SELF = "'self'"
         csp = {
             'default-src': [
                 SELF
@@ -106,11 +107,15 @@ def create_app(testing=False, debug=True):
             ],
             'img-src': '*'
         }
+        # secure
         talisman = Talisman(
             app,
             content_security_policy=csp,
             content_security_policy_nonce_in=['script-src', 'style-src']
         )
+    else:
+        # insecure
+        talisman = Talisman(app)
 
     # Initialize login manager
     login = LoginManager(app)
@@ -221,11 +226,8 @@ def create_app(testing=False, debug=True):
 
         return render_template('about.html', search_form=search_form)
 
-    @talisman(
-        frame_options='ALLOW_FROM',
-        frame_options_allow_from=SELF,
-        content_security_policy={**csp, 'frame-ancestors': ['*']}
-    )
+    # insecure, avoid user input!
+    @talisman(content_security_policy={**csp_insecure})
     @app.route('/blog', methods=['GET', 'POST'])
     def blog():
         search_form = SearchForm()
