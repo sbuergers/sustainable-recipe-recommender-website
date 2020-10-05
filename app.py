@@ -99,6 +99,7 @@ def create_app(testing=False, debug=True):
             'frame-src': [
                 '\'self\'',
                 '\'unsafe-inline\''
+                'https://github.com/sbuergers/'
             ],
             'img-src': '*'
         }
