@@ -69,7 +69,6 @@ def create_app(testing=False, debug=True):
 
     # Content security policy (CSP)
     SELF = "'self'"
-    csp_insecure = {'default-src': '*'}
     if not testing and not debug:
         csp = {
             'default-src': [
@@ -112,14 +111,11 @@ def create_app(testing=False, debug=True):
             'img-src': '*'
         }
         # secure
-        talisman = Talisman(
+        Talisman(
             app,
             content_security_policy=csp,
             content_security_policy_nonce_in=['script-src', 'style-src']
         )
-    else:
-        # insecure
-        talisman = Talisman(app)
 
     # Initialize login manager
     login = LoginManager(app)
