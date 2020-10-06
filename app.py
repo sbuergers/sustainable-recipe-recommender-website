@@ -110,9 +110,17 @@ def create_app(testing=False, debug=True):
             ],
             'img-src': '*'
         }
-        # secure
+        # secure (prod)
         Talisman(
             app,
+            content_security_policy=csp,
+            content_security_policy_nonce_in=['script-src', 'style-src']
+        )
+    else:
+        # insecure (dev only)
+        Talisman(
+            app,
+            force_https=False,
             content_security_policy=csp,
             content_security_policy_nonce_in=['script-src', 'style-src']
         )
@@ -293,7 +301,6 @@ if __name__ == '__main__':
     testing = True
     debug = True
     app = create_app(testing, debug)
-    app.run(host='localhost',
-            ssl_context=('localhost+2.pem', 'localhost+2-key.pem'))
+    app.run()
 
 # eof
