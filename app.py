@@ -293,6 +293,7 @@ if __name__ == '__main__':
     testing = True
     debug = True
     app = create_app(testing, debug)
-    app.run()
+    app.run(host='localhost',
+            ssl_context=('localhost+2.pem', 'localhost+2-key.pem'))
 
 # eof
