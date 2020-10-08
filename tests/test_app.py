@@ -9,6 +9,9 @@ https://stackoverflow.com/questions/17375340/testing-code-that-requires-a-flask-
 """
 import pytest
 
+from flask import url_for, request
+from flask_login import current_user
+
 # Make sure parent directory is added to search path before
 # importing create_app from app.py
 import os
@@ -18,7 +21,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
 from app import create_app
-from flask import url_for, request
+from wtform_fields import RegistrationForm, LoginForm
 
 
 @pytest.fixture
@@ -49,6 +52,17 @@ def user():
     user.name = 'test_user123'
     user.pw = 'zvnwkf[ejDSdEvn;1wfj-'
     return user
+
+
+def login(test_client, username, password):
+    return test_client.post(url_for('signin'), data={
+        'username': username,
+        'password': password
+        }, follow_redirects=True)
+
+
+def logout(test_client):
+    return test_client.get(url_for('logout'), follow_redirects=True)
 
 
 def test_home(test_client):
@@ -106,29 +120,43 @@ def test_blog(test_client):
     assert r.status_code == 200
 
 
-def test_profile(test_client):
+def test_profile(test_client, user):
     r = test_client.get(url_for('profile'), follow_redirects=True)
+    assert r.status_code == 200
+    assert url_for('signin') == '/signin'
+    login(test_client, user.name, user.pw)
+    r = test_client.get(url_for('profile'), follow_redirects=True)
+    assert url_for('profile') == '/profile'
     assert r.status_code == 200
 
 
-def test_signup(test_client, par):
+def test_signup(test_client):
     r = test_client.get(url_for('signup'), follow_redirects=True)
     assert r.status_code == 200
 
 
-def test_login(test_client, par):
-    r = test_client.get(url_for('login'), follow_redirects=True)
+def test_login(test_client):
+    r = test_client.get(url_for('signin'), follow_redirects=True)
     assert r.status_code == 200
 
+    r = login(test_client, user.name + 'x290fdsjkl', user.pw)
+    assert b'Username or password is incorrect' in r.data
 
-def test_logout(test_client, par):
+    r = login(test_client, user.name, user.pw + 'x13fhszlfo')
+    assert b'Username or password is incorrect' in r.data
+
+
+# For some reason I cannot use current_user.is_authenticated (always
+# False), but I can assert whether login worked by checking the route
+# endpoint for requests where a logged in user is required.
+def test_login_logout(test_client, user):
+    login(test_client, user.name, user.pw)
+    test_client.get(url_for('profile'), follow_redirects=True)
+    assert url_for('profile') == '/profile'
     r = test_client.get(url_for('logout'), follow_redirects=True)
     assert r.status_code == 200
-
-
-def test_login_logout(test_client, user):
-    # TODO figure out how to login / logout for tests
-    pass
+    test_client.get(url_for('profile'), follow_redirects=True)
+    assert url_for('signin') == '/signin'
 
 
 # eof
