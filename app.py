@@ -25,8 +25,7 @@ from flask_wtf.csrf import CSRFProtect
 from passlib.hash import pbkdf2_sha512
 
 # form and database modules (self-written)
-from wtform_fields import RegistrationForm, LoginForm
-from wtform_fields import invalid_credentials, SearchForm
+from wtform_fields import RegistrationForm, LoginForm, SearchForm
 from sql_tables import User
 
 # functions for connecting to AWS RDS postgres DB
