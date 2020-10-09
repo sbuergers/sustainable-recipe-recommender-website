@@ -24,6 +24,7 @@ from app import create_app
 from wtform_fields import RegistrationForm, LoginForm
 
 
+# FIXTURES
 @pytest.fixture
 def test_client():
     app = create_app(testing=True, debug=False)
@@ -54,6 +55,7 @@ def user():
     return user
 
 
+# HELPER FUNCTIONS
 def login(test_client, username, password):
     return test_client.post(url_for('signin'), data={
         'username': username,
@@ -65,6 +67,7 @@ def logout(test_client):
     return test_client.get(url_for('logout'), follow_redirects=True)
 
 
+# TESTS
 def test_home(test_client):
     r = test_client.get('/')
     assert r.status_code == 200
@@ -146,6 +149,7 @@ def test_login(test_client):
     assert b'Username or password is incorrect' in r.data
 
 
+# TODO Why is this:
 # For some reason I cannot use current_user.is_authenticated (always
 # False), but I can assert whether login worked by checking the route
 # endpoint for requests where a logged in user is required.
