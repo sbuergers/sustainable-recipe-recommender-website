@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session
 from flask_login import LoginManager, login_user, current_user, logout_user
+from flask_login import login_required
 from flask_sqlalchemy import SQLAlchemy
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
@@ -24,8 +25,7 @@ from flask_wtf.csrf import CSRFProtect
 from passlib.hash import pbkdf2_sha512
 
 # form and database modules (self-written)
-from wtform_fields import RegistrationForm, LoginForm
-from wtform_fields import invalid_credentials, SearchForm
+from wtform_fields import RegistrationForm, LoginForm, SearchForm
 from sql_tables import User
 
 # functions for connecting to AWS RDS postgres DB
@@ -38,14 +38,13 @@ import helper_functions as hf
 import altair_plots as ap
 
 
-csrf = CSRFProtect()
-
-
 # TODO consider modularizing DB
 # TODO add config file for deployment or testing as param
 # See Application factories in Flask docs
 def create_app(testing=False, debug=True):
     """ App factory """
+
+    csrf = CSRFProtect()
 
     load_dotenv('.env')
 
@@ -125,20 +124,17 @@ def create_app(testing=False, debug=True):
             content_security_policy_nonce_in=['script-src', 'style-src']
         )
 
+    # Connect to postgres AWS RDS DB
+    pg = postgresConnection()
+
     # Initialize login manager
     login = LoginManager(app)
     login.init_app(app)
-
-    # Connect to postgres AWS RDS DB
-    pg = postgresConnection()
+    login.login_view = 'signin'
 
     @login.user_loader
     def load_user(id):
         return User.query.get(int(id))
-
-    # For personal profile decoration!
-    # @app.route('/user/<username>')
-    # def profile(username):
 
     @app.route('/')
     @app.route('/home', methods=['GET', 'POST'])
@@ -245,6 +241,7 @@ def create_app(testing=False, debug=True):
         return render_template('blog.html', search_form=search_form)
 
     @app.route('/profile')
+    @login_required
     def profile():
         # TODO
         # This will include a user's personal recommendations etc.
@@ -270,12 +267,16 @@ def create_app(testing=False, debug=True):
             db.session.commit()
 
             flash('Registered successfully. Please login.', 'success')
-            return redirect(url_for('login'))
+            return redirect(url_for('signin'))
 
         return render_template('signup.html', reg_form=reg_form)
 
+    # TODO include remember_me field in form so user can select
     @app.route("/signin", methods=['GET', 'POST'])
-    def login():
+    def signin():
+
+        if current_user.is_authenticated:
+            return redirect(url_for('home'))
 
         login_form = LoginForm()
 
@@ -283,15 +284,16 @@ def create_app(testing=False, debug=True):
         if login_form.validate_on_submit():
             user_object = User.query.filter_by(
                             username=login_form.username.data).first()
-            login_user(user_object)
+            login_user(user_object, remember=False)
             return redirect(url_for('home'))
 
         return render_template('signin.html', login_form=login_form)
 
     @app.route("/logout", methods=['GET'])
+    @login_required
     def logout():
         logout_user()
-        flash('You have logged out successfully', 'success')
+        flash('You have logged out successfully.', 'success')
         return redirect(url_for('home'))
 
     return app
