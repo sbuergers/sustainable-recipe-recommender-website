@@ -7,6 +7,7 @@ db = SQLAlchemy()
 class User(UserMixin, db.Model):
     """ User model """
 
+    __table_args__ = {'extend_existing': True}
     __tablename__ = "users"
     userID = db.Column(
         db.Integer,
