@@ -133,8 +133,8 @@ def create_app(testing=False, debug=True):
     login.login_view = 'signin'
 
     @login.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
+    def load_user(userID):
+        return User.query.get(int(userID))
 
     @app.route('/')
     @app.route('/home', methods=['GET', 'POST'])
