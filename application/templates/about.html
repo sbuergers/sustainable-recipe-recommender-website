@@ -1,0 +1,35 @@
+{% from 'field-macro.html' import displayField %}
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.2.10/webcomponents-loader.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/zerodevx/zero-md@1/src/zero-md.min.js"></script>
+{% endblock %}
+
+{% block title %} About {% endblock %}
+
+{% block navsearch %}
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('search_results') }}" method="POST">
+        {{ search_form.search(class_='form-control', placeholder='Search') }}
+        {{ search_form.csrf_token }}
+    </form>
+{% endblock %}
+
+
+{% block body %}
+
+<br>
+<div class="container container-main">
+
+  <!-- possibly include navbar here? -->
+  <div class="col">
+
+    <!-- Markdown of about page -->
+    <zero-md src="../static/about.md"></zero-md>
+  </div>
+</div>
+<br><br>
+
+<!-- Footer -->
+
+{% endblock %}

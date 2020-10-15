@@ -1,0 +1,40 @@
+{% from 'field-macro.html' import displayField %}
+{% extends 'base.html' %}
+{% block title %} Sustainable recipe recommender {% endblock %}
+{% block body %}
+
+<div class="row justify-content-center">
+    <div class="col-8">
+        <center>
+        <!-- logo above search bar -->
+        <br>
+        <a href="home">
+            <img src="../static/logo_large.png" alt="logo" class="logo_startpage">
+        </a>
+        <br>
+
+        <!-- search bar title -->
+        <h2>
+            Search for sustainable recipes
+            <br>
+        </h2>
+
+        <!-- search bar -->
+        <form action="{{ url_for('search_results') }}", method="POST">
+            {{ displayField(search_form.search, 'Search') }}
+            <div class="form-group">
+                <input type="submit" value="search" class="btn btn-warning">
+            </div>
+            {{ search_form.csrf_token }}
+        </form>
+
+        <!-- disclaimer -->
+        Note: We search for recipes from
+        <a href="http:\\www.epicurious.com" target="_blank">www.epicurious.com</a>. 
+        <br>
+        After deciding on a recipe we refer you back to the original recipe post. 
+        </center>
+    </div>
+</div>
+
+{% endblock %}

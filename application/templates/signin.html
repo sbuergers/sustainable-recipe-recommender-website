@@ -1,0 +1,28 @@
+{% from 'field-macro.html' import displayField %}
+{% extends 'base.html' %}
+{% block title %} Recipes searcher {% endblock %}
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-6">
+        <center>
+            <br><br>
+            <h2>Sign in</h2>
+            <p>Signing in will improve recipe recommendations based on previous activity.</p>
+            <p></p>
+            <div id="container">
+                <form action="{{ url_for('signin') }}", method="POST">
+                    {{ displayField(login_form.username, 'Username', autocomplete="off", autofocus=true) }}
+                    {{ displayField(login_form.password, 'Password') }}
+                    <div class="form-group">
+                        <input type="submit" value="Login" class="btn btn-warning">
+                    </div>
+                {{ login_form.csrf_token }}
+                </form>
+            </div>
+
+            <hr>
+            <p>Not registered? <a href="{{ url_for('signup') }}">Register here</a>.</p>
+        </center>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% from 'field-macro.html' import displayField %}
+{% extends 'base.html' %}
+
+{% block meta %}{% endblock %}
+
+{% block title %} Recommended recipes {% endblock %}
+
+{% block navsearch %}
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('search_results') }}" method="POST">
+        {{ search_form.search(class_='form-control', placeholder='Search') }}
+        {{ search_form.csrf_token }}
+    </form>
+{% endblock %}
+
+{% block body %}
+
+<!-- Get CDNs -->
+<link href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" rel="stylesheet">
+
+<!-- JS actions -->
+<script nonce="{{ csp_nonce() }}">
+    // RATING SCALES 
+    function setRating(perc_ratings, class_selector, icon_selector='') {
+
+        // Set width of stars-inner 
+        var starElements = document.querySelectorAll(
+            class_selector.concat(icon_selector))
+        var i;
+        for (i = 0; i < starElements.length; i++) {
+            starElements[i].style.width = `${perc_ratings[i]}%`;
+        }
+        // Add rating as number next to it 
+        var starElements = document.querySelectorAll(
+            class_selector.concat(".number-rating"))
+        var i;
+        for (i = 0; i < starElements.length; i++) {
+            starElements[i].innerHTML = `${perc_ratings[i]}%`;
+        }
+    }  
+    
+    // Wait for DOM to load before fetching div elements
+    document.addEventListener("DOMContentLoaded", function(event) { 
+
+        // RATING SCALES
+        var ratings = {{ ratings | safe }};
+        var emissions = {{ emissions | safe }};
+        
+        // Render Rating
+        setRating(perc_ratings=ratings, 
+                  class_selector=".rating", 
+                  icon_selector=".stars-inner");
+        
+        // Render emissions
+        setRating(perc_ratings=emissions, 
+                  class_selector=".emissions", 
+                  icon_selector=".sustainability-inner");
+    });
+
+</script>
+
+<div class="row">
+{% for recipeID, df in results.iterrows() %}
+
+    <!-- maximum of 4 columns of search results (irrespective of display size) -->
+    <div class="col-12 col-sm-6 col-lg-4 col-xl-3"> <!--First column of search results-->
+
+        <div class="container-search-result"> <!-- do I need this?? -->
+            
+            <!-- Title -->
+            <div class="search-title"> 
+                {{ df['title'] }}
+            </div>
+
+            <!-- Ratings and emissions -->
+            <div>
+                <tr class="rating">
+                    <td></td>
+                    <td>
+                        <img src="../static/like_icon.png" class="icon" title="Average user rating">
+                        <div class="stars-outer">
+                        <div class="rating stars-inner" title="Average user rating"></div>
+                        </div>
+                        <span class="rating number-rating"></span>
+                        ({{'%i' | format(df['review_count']|int) }} votes)
+                    </td>
+                </tr>
+            </div>
+
+            <div>
+                <tr class="emissions">
+                    <td></td>
+                    <td>
+                        <img src="../static/sustainability_icon.png" class="icon" title="Relative green house gas emissions">
+                        <div class="sustainability-outer">
+                        <div class="emissions sustainability-inner" title="Relative green house gas emissions"></div>
+                        </div>
+                        <span class="emissions number-rating"></span>
+                        <!-- Show absolute CO2 emissions relative to reference recipe -->
+                        (<span  title="Estimated amount of CO2 emissions in kg">
+                            {{'%0.2f'| format(df['ghg']|float) }}
+                        </span> kg)
+                    </td>
+                </tr>
+            </div>
+
+            <div class="container">
+                <span id="rateMe3" class="rating-faces"></span>
+            </div>
+
+            <!-- Image -->
+            <div class="row">
+                <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
+                    target="_blank">
+                    <img src="{{ df['image_url'] }}" alt="">
+                </a>
+            </div>
+
+            <!-- Links -->
+            <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
+                target="_blank">
+                Visit recipe
+            </a>
+                | 
+            <a href="{{ url_for('compare_recipes', search_term=df['url'], page=page) }}">
+                Suggest similar
+            </a>
+
+        </div>
+
+    </div>
+{% endfor %}
+</div>
+<br><br>
+
+{% endblock %}
+
+<!-- eof -->

@@ -1,0 +1,92 @@
+<!-- inspired by https://rapidapi.com/blog/build-food-website/ -->
+{% from 'field-macro.html' import displayField %}
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <!-- favicon: Symbol shown in tab of browser -->
+        <link rel="shortcut icon" type="image/x-icon" href="../static/favicon.ico" />
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        {% block meta %}{% endblock %}
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <link rel="stylesheet" href="../static/style.css">
+        <!-- Optional JavaScript -->
+
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+        {% block head %}{% endblock %}
+        
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+
+    <body>
+    
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success"> <!-- sticky-top -->
+            <div class="container  container-main">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <img src="../static/logo_white.png" width="30" height="30" alt="Sustainable Recipe Recommender">
+            </a>          
+              <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item">
+                    <a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-item nav-link" href="{{ url_for('blog') }}">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-item nav-link" href="https://github.com/sbuergers/sustainable-recipe-recommender", target="_blank">Github</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-item nav-link" href="{{ url_for('profile') }}">Cookbook</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-item nav-link" href="{{ url_for('signin') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-item nav-link" href="{{ url_for('signup') }}">Sign up</a>
+                    </li>
+                {% endif %}
+              </ul>
+              <!-- search bar -->
+              {% block navsearch %}
+              {% endblock %}
+            </div><!--/container-->
+        </nav>
+        <div class="container container-main">
+        {% block body %}
+            Body block
+        {% endblock %}
+        </div><!--/container-->
+    </body>
+    
+
+    <!-- Footer 
+    <footer class="page-footer font-small  bg-success">
+        <div class="col-md-12">
+            <div class="footer-copyright text-center text-light py-3"> 
+                <a class="text-light" href="mailto:sbuergers@gmail.com">
+                    <i class="far fa-envelope fa-lg white-text mr-md-5 mr-3 fa-1.5x"  aria-hidden="true"></i>
+                </a>
+                <a class="text-light mr-md-5 mr-3" href="https://www.linkedin.com/in/steffen-b%C3%BCrgers-b4248215b/", target="_blank">
+                    <i class="fab fa-linkedin-in fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true" ></i>
+                </a>
+                <a class="text-light" href="https://github.com/sbuergers/sustainable-recipe-recommender", target="_blank">
+                    <i class="fab fa-github fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+    -->
+</html>

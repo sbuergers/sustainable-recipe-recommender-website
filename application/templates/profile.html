@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %} Recipes searcher {% endblock %}
+{% block body %}
+<center>
+    {% if current_user.is_authenticated %}
+        Personal menus are not supported yet. 
+    {% else %}
+        You need to sign in before being able to view your personal profile page. 
+    {% endif %}
+</center>
+{% endblock %}
