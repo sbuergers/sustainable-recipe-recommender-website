@@ -4,7 +4,7 @@ from psycopg2 import sql
 import pandas as pd
 
 
-# Postgres connection class used for all interactions with the postgres AWS DB
+# Postgres connection class used for interactions with the postgres AWS DB
 class postgresConnection():
 
     def __init__(self):
