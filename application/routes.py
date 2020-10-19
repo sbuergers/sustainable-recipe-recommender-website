@@ -1,23 +1,24 @@
+""" Flask routes """
+
+# Flask modules and forms
 from flask import render_template, request, redirect, url_for, flash
 from flask import session
+from flask import current_app as app
 from flask_login import login_user, current_user, logout_user
 from flask_login import login_required
-from flask import current_app as app
-
 from wtform_fields import RegistrationForm, LoginForm, SearchForm
-from sql_tables import User
 
+# Password hashing
 from passlib.hash import pbkdf2_sha512
 
-from . import login
-
+# User made modules
 import helper_functions as hf
 import altair_plots as ap
+from application.sql_queries import Sql_queries
 
-
-@login.user_loader
-def load_user(userID):
-    return User.query.get(int(userID))
+# Database
+from application import db
+from application.models import User
 
 
 @app.route('/')
@@ -36,12 +37,13 @@ def search_results(page=0):
     search_term = search_form.search.data
 
     # exact match? Suggest alternatives!
-    if pg.exact_recipe_match(search_term):
+    sq = Sql_queries(db.session)
+    if sq.exact_recipe_match(search_term):
         return redirect(url_for('compare_recipes',
                                 search_term=search_term,
                                 page=page))
     # fuzzy search
-    results = pg.search_recipes(search_term)
+    results = sq.search_recipes(search_term)
 
     if len(results) > 0:
 
@@ -50,10 +52,10 @@ def search_results(page=0):
         emissions = [v for v in results['perc_sustainability'].values]
 
         return render_template('explore.html',
-                                search_form=search_form,
-                                results=results,
-                                ratings=ratings,
-                                emissions=emissions)
+                               search_form=search_form,
+                               results=results,
+                               ratings=ratings,
+                               emissions=emissions)
     return redirect('/')
 
 
@@ -68,11 +70,12 @@ def compare_recipes(search_term, page=0, Np=20):
     else:
         page = 0
 
-    if pg.exact_recipe_match(search_term) is False:
+    sq = Sql_queries(db.session)
+    if sq.exact_recipe_match(search_term) is False:
         return redirect(url_for('search_results'))
 
     # Get top 199 most similar recipes (of this page)
-    results = pg.content_based_search(search_term)
+    results = sq.content_based_search(search_term)
 
     # Disentangle reference recipe and similar recipes
     ref_recipe = results.iloc[0]
@@ -96,18 +99,17 @@ def compare_recipes(search_term, page=0, Np=20):
     bp = ap.bar_compare_emissions(ref_recipe, results, sort_by=sort_by)
 
     return render_template('results.html',
-                            reference_recipe=ref_recipe,
-                            results=results,
-                            ratings=ratings,
-                            emissions=emissions,
-                            similarity=similarity,
-                            search_form=search_form,
-                            search_term=search_term,
-                            page=page,
-                            bp=bp)
+                           reference_recipe=ref_recipe,
+                           results=results,
+                           ratings=ratings,
+                           emissions=emissions,
+                           similarity=similarity,
+                           search_form=search_form,
+                           search_term=search_term,
+                           page=page,
+                           bp=bp)
 
 
-# TODO is GET needed here? I think not
 @app.route('/about', methods=['GET', 'POST'])
 def about():
     search_form = SearchForm()
@@ -132,7 +134,6 @@ def blog():
 @app.route('/profile')
 @login_required
 def profile():
-    # TODO
     # This will include a user's personal recommendations etc.
     return render_template('profile.html')
 
@@ -162,7 +163,6 @@ def signup():
     return render_template('signup.html', reg_form=reg_form)
 
 
-# TODO include remember_me field in form so user can select
 @app.route("/signin", methods=['GET', 'POST'])
 def signin():
 

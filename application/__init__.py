@@ -49,11 +49,12 @@ def create_app(cfg=DevConfig):
 
     # Load routes and models in application
     with app.app_context():
-
-        from application import routes
-
+        
         db.Model.metadata.reflect(db.engine)
         from application import models
+        from application import routes
+
+        
 
         return app
 

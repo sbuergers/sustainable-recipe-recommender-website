@@ -1,4 +1,4 @@
-from . import db
+from application import db, login
 from flask_login import UserMixin
 
 
@@ -10,6 +10,11 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+
+@login.user_loader
+def load_user(userID):
+    return User.query.get(int(userID))
 
 
 class Recipe(db.Model):
@@ -38,5 +43,6 @@ class ContentSimilarityID(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.recipeID)
+
 
 # eof
