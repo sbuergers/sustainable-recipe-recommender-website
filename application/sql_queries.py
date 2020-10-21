@@ -31,14 +31,13 @@ class Sql_queries():
             SELECT "recipesID", "title", "url", "perc_rating",
                 "perc_sustainability", "review_count", "image_url",
                 "emissions", "prop_ingredients",
-                LEVENSHTEIN(:search_column, :search_term) AS "rank"
+                LEVENSHTEIN("url", :search_term) AS "rank"
             FROM public.recipes
-            WHERE :search_column LIKE :search_term_like
+            WHERE "url" LIKE :search_term_like
             ORDER BY "rank" ASC
             LIMIT :N
             """,
             bindparams=[
-                bindparam('search_column', value=search_column, type_=String),
                 bindparam('search_term', value=search_term, type_=String),
                 bindparam('search_term_like', value='%'+search_term+'%',
                           type_=String),
@@ -54,13 +53,12 @@ class Sql_queries():
                 SELECT "recipesID", "title", "url", "perc_rating",
                     "perc_sustainability", "review_count", "image_url",
                     "emissions", "prop_ingredients",
-                    LEVENSHTEIN(:search_column, :search_term) AS "rank"
+                    LEVENSHTEIN("url", :search_term) AS "rank"
                 FROM public.recipes
                 ORDER BY "rank" ASC
                 LIMIT :N
                 """,
                 bindparams=[
-                    bindparam('search_column', value=search_column, type_=String),
                     bindparam('search_term', value=search_term, type_=String),
                     bindparam('N', value=N, type_=Integer)
                 ]
