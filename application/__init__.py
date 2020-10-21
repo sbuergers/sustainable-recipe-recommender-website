@@ -47,14 +47,11 @@ def create_app(cfg=DevConfig):
         )
     login.init_app(app)
 
-    # Load routes and models in application
+    # Load routes and models
     with app.app_context():
-        
         db.Model.metadata.reflect(db.engine)
-        from application import models
-        from application import routes
-
-        
+        from . import models
+        from . import routes
 
         return app
 
