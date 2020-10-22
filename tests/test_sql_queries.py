@@ -6,7 +6,6 @@ import pytest
 from application import create_app
 from config import DevConfig
 from flask_sqlalchemy import SQLAlchemy
-import psycopg2
 import sqlalchemy
 
 # Make sure parent directory is added to search path before
@@ -53,7 +52,6 @@ class TestSqlQueries:
     def test_fuzzy_search(self, app, pg):
         # normal querries
         result = pg.fuzzy_search(pg.fuzzy_search_term, N=2)  # substr of "url"
-        print(result)
         assert len(result) == 2
         assert pg.fuzzy_search_term in result[0][2]
         assert pg.fuzzy_search_term in result[1][2]

@@ -14,24 +14,25 @@ from passlib.hash import pbkdf2_sha512
 # User made modules
 import helper_functions as hf
 import altair_plots as ap
-from application.sql_queries import Sql_queries
+from application.main.sql_queries import Sql_queries
 
 # Database
 from application import db
-from application.models import User
+from application.main.models import User
+from application.main import bp
 
 
-@app.route('/')
-@app.route('/home', methods=['GET', 'POST'])
+@bp.route('/')
+@bp.route('/home', methods=['GET', 'POST'])
 def home():
     search_form = SearchForm()
     session['search_query'] = search_form.search.data
     if request.method == 'POST':
-        return redirect((url_for('search_results')))
+        return redirect((url_for('main.search_results')))
     return render_template('home.html', search_form=search_form)
 
 
-@app.route('/search', methods=['GET', 'POST'])
+@bp.route('/search', methods=['GET', 'POST'])
 def search_results(page=0):
     search_form = SearchForm()
     search_term = search_form.search.data
@@ -39,7 +40,7 @@ def search_results(page=0):
     # exact match? Suggest alternatives!
     sq = Sql_queries(db.session)
     if sq.exact_recipe_match(search_term):
-        return redirect(url_for('compare_recipes',
+        return redirect(url_for('main.compare_recipes',
                                 search_term=search_term,
                                 page=page))
     # fuzzy search
@@ -59,7 +60,7 @@ def search_results(page=0):
     return redirect('/')
 
 
-@app.route('/search/<search_term>', methods=['GET'])
+@bp.route('/search/<search_term>', methods=['GET'])
 def compare_recipes(search_term, page=0, Np=20):
     search_form = SearchForm()
     sort_by = request.args.get('sort_by')
@@ -72,7 +73,7 @@ def compare_recipes(search_term, page=0, Np=20):
 
     sq = Sql_queries(db.session)
     if sq.exact_recipe_match(search_term) is False:
-        return redirect(url_for('search_results'))
+        return redirect(url_for('main.search_results'))
 
     # Get top 199 most similar recipes (of this page)
     results = sq.content_based_search(search_term)
@@ -110,35 +111,35 @@ def compare_recipes(search_term, page=0, Np=20):
                            bp=bp)
 
 
-@app.route('/about', methods=['GET', 'POST'])
+@bp.route('/about', methods=['GET', 'POST'])
 def about():
     search_form = SearchForm()
     search_term = search_form.search.data
     if search_term:
-        redirect(url_for('search_results'))
+        redirect(url_for('main.search_results'))
 
     return render_template('about.html', search_form=search_form)
 
 
 # insecure, avoid user input!
-@app.route('/blog', methods=['GET', 'POST'])
+@bp.route('/blog', methods=['GET', 'POST'])
 def blog():
     search_form = SearchForm()
     search_term = search_form.search.data
     if search_term:
-        redirect(url_for('search_results'))
+        redirect(url_for('main.search_results'))
 
     return render_template('blog.html', search_form=search_form)
 
 
-@app.route('/profile')
+@bp.route('/profile')
 @login_required
 def profile():
     # This will include a user's personal recommendations etc.
     return render_template('profile.html')
 
 
-@app.route('/signup', methods=['GET', 'POST'])
+@bp.route('/signup', methods=['GET', 'POST'])
 def signup():
 
     reg_form = RegistrationForm()
@@ -158,16 +159,16 @@ def signup():
         db.session.commit()
 
         flash('Registered successfully. Please login.', 'success')
-        return redirect(url_for('signin'))
+        return redirect(url_for('main.signin'))
 
     return render_template('signup.html', reg_form=reg_form)
 
 
-@app.route("/signin", methods=['GET', 'POST'])
+@bp.route("/signin", methods=['GET', 'POST'])
 def signin():
 
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
 
     login_form = LoginForm()
 
@@ -176,16 +177,16 @@ def signin():
         user_object = User.query.filter_by(
                         username=login_form.username.data).first()
         login_user(user_object, remember=False)
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
 
     return render_template('signin.html', login_form=login_form)
 
 
-@app.route("/logout", methods=['GET'])
+@bp.route("/logout", methods=['GET'])
 @login_required
 def logout():
     logout_user()
     flash('You have logged out successfully.', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('main.home'))
 
 # eof

@@ -10,12 +10,13 @@ https://stackoverflow.com/questions/17375340/testing-code-that-requires-a-flask-
 import pytest
 
 from flask import url_for, request
+from flask_sqlalchemy import SQLAlchemy
 
 # Make sure parent directory is added to search path before
 # importing create_app from app.py
 import os
 import sys
-currentdir = os.path.dirname(os.path.realpath(__file__))
+currentdir = os.path.dirname(os.path.realpath("__file__"))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
@@ -27,12 +28,17 @@ from wtform_fields import RegistrationForm, LoginForm
 # FIXTURES
 @pytest.fixture
 def test_client():
+    db = SQLAlchemy()
     app = create_app(cfg=DevConfig)
+    db.init_app(app)
+
     test_client = app.test_client()
     app_context = app.app_context()
     test_request_context = app.test_request_context()
+
     app_context.push()
     test_request_context.push()
+    from . import routes
     yield test_client
     test_request_context.pop()
     app_context.pop()

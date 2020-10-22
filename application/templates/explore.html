@@ -6,7 +6,7 @@
 {% block title %} Recommended recipes {% endblock %}
 
 {% block navsearch %}
-    <form class="form-inline my-2 my-lg-0" action="{{ url_for('search_results') }}" method="POST">
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search_results') }}" method="POST">
         {{ search_form.search(class_='form-control', placeholder='Search') }}
         {{ search_form.csrf_token }}
     </form>
@@ -121,7 +121,7 @@
                 Visit recipe
             </a>
                 | 
-            <a href="{{ url_for('compare_recipes', search_term=df['url'], page=page) }}">
+            <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=page) }}">
                 Suggest similar
             </a>
 

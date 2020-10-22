@@ -47,11 +47,15 @@ def create_app(cfg=DevConfig):
         )
     login.init_app(app)
 
-    # Load routes and models
     with app.app_context():
+
+        # Create models from existing DB
         db.Model.metadata.reflect(db.engine)
-        from . import models
-        from . import routes
+        from application.main import models
+
+        # Create Routes
+        from application.main import bp as main_bp
+        app.register_blueprint(main_bp)
 
         return app
 
