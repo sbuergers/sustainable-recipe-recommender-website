@@ -70,14 +70,14 @@ class TestRoutes:
         for search_term in par.search_terms:
             if search_term == '':
                 r = test_client.post(url_for('main.search_results'),
-                                    data={'search_term': search_term},
-                                    follow_redirects=True)
+                                     data={'search_term': search_term},
+                                     follow_redirects=True)
                 assert r.status_code == 200
             else:
                 r = test_client.post(url_for('main.search_results'),
-                                    data={'search_term': search_term,
-                                        'page': par.page},
-                                    follow_redirects=True)
+                                     data={'search_term': search_term,
+                                           'page': par.page},
+                                     follow_redirects=True)
                 assert r.status_code == 200
 
     def test_compare_recipes(self, test_client, par):
@@ -98,7 +98,7 @@ class TestRoutes:
                 r = test_client.get(url_for('main.compare_recipes',
                                     search_term=search_term),
                                     data={'sort_by': sort_by,
-                                        'page': page},
+                                          'page': page},
                                     follow_redirects=True)
                 assert r.status_code == 200
 
