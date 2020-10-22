@@ -1,1 +1,1 @@
-web: gunicorn 'wsgi:app' --workers=1
+web: gunicorn 'wsgi:create_app(False, False)' --workers=1
