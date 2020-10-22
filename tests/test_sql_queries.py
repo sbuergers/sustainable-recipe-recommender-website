@@ -2,31 +2,17 @@
 Unit tests for sql_queries.py
 """
 import pytest
-
+import sqlalchemy
 from application import create_app
 from config import DevConfig
-from flask_sqlalchemy import SQLAlchemy
-import sqlalchemy
-
-# Make sure parent directory is added to search path before
-# importing sql_queries!
-import os
-import sys
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.append(parentdir)
-
-# Now I can import sql_queries
-from application.sql_queries import Sql_queries
 from dotenv import load_dotenv
 
 load_dotenv('.env')
 
-db = SQLAlchemy()
-
 
 @pytest.fixture
 def app():
+    """ Instantiate app context """
     app = create_app(cfg=DevConfig)
     app_context = app.app_context()
     app_context.push()
@@ -36,7 +22,9 @@ def app():
 
 @pytest.fixture
 def pg(app):
-    db.init_app(app)
+    """ DB connection and testing query parameters """
+    from application import db
+    from application.main.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
     pg.fuzzy_search_term = 'chicken'

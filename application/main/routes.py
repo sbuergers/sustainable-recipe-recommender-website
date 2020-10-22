@@ -3,17 +3,17 @@
 # Flask modules and forms
 from flask import render_template, request, redirect, url_for, flash
 from flask import session
-from flask import current_app as app
 from flask_login import login_user, current_user, logout_user
 from flask_login import login_required
-from wtform_fields import RegistrationForm, LoginForm, SearchForm
 
 # Password hashing
 from passlib.hash import pbkdf2_sha512
 
 # User made modules
-import helper_functions as hf
-import altair_plots as ap
+import application.main.helper_functions as hf
+import application.main.altair_plots as ap
+from application.main.wtform_fields import RegistrationForm, LoginForm,\
+                                           SearchForm
 from application.main.sql_queries import Sql_queries
 
 # Database

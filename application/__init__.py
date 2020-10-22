@@ -17,7 +17,7 @@ talisman = Talisman()
 
 # Login Manager
 login = LoginManager()
-login.login_view = 'signin'
+login.login_view = 'main.signin'
 
 
 def create_app(cfg=DevConfig):
@@ -51,7 +51,6 @@ def create_app(cfg=DevConfig):
 
         # Create models from existing DB
         db.Model.metadata.reflect(db.engine)
-        from application.main import models
 
         # Create Routes
         from application.main import bp as main_bp
