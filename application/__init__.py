@@ -5,7 +5,7 @@ from flask_talisman import Talisman
 from csp import csp
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
-from config import DevConfig
+from config import DevConfig, ProdConfig
 
 
 # Database
@@ -20,18 +20,21 @@ login = LoginManager()
 login.login_view = 'main.signin'
 
 
-def create_app(cfg=DevConfig):
+def create_app(testing=True, debug=True):
     """ App factory """
 
     # Initialize application
     app = Flask(__name__)
-    app.config.from_object(cfg)
-    app.debug = app.config['DEBUG']
+    if testing | debug:
+        app.config.from_object(DevConfig)
+    else:
+        app.config.from_object(ProdConfig)
+    app.debug = debug
 
     # Initialize extensions
     csrf.init_app(app)
     db.init_app(app)
-    if app.config['TESTING'] | app.config['DEBUG']:
+    if testing | debug:
         talisman.init_app(
             app,
             content_security_policy=csp,
