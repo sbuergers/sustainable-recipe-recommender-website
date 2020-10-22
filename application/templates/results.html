@@ -6,7 +6,7 @@
 {% block title %} Recommended recipes {% endblock %}
 
 {% block navsearch %}
-    <form class="form-inline my-2 my-lg-0" action="{{ url_for('search_results') }}" method="POST">
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search_results') }}" method="POST">
         {{ search_form.search(class_='form-control', placeholder='Search') }}
         {{ search_form.csrf_token }}
     </form>
@@ -228,7 +228,7 @@
 
     <!-- Sort by dropdown menu -->
     <div class="col sort_by">
-        <form action="{{ url_for('compare_recipes', search_term=search_term, page=page, sort_by=sort_by) }}" method="GET">
+        <form action="{{ url_for('main.compare_recipes', search_term=search_term, page=page, sort_by=sort_by) }}" method="GET">
             <label for="sort_by">Sort by </label>
             <select id="sort_by_form" name="sort_by">
                 <option value=sort_by></option>
@@ -323,7 +323,7 @@
                 Visit recipe
             </a>
                 | 
-            <a href="{{ url_for('compare_recipes', search_term=df['url'], page=page) }}">
+            <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=page) }}">
                 Suggest similar
             </a>
 
@@ -341,15 +341,15 @@
 <nav aria-label="Search results pages">
     <ul class="pagination justify-content-center">
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('compare_recipes', search_term=search_term, page=page-1) }}">Previous</a>
+            <a class="page-link" href="{{ url_for('main.compare_recipes', search_term=search_term, page=page-1) }}">Previous</a>
         </li>
         {% for i in range(0,10) %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('compare_recipes', search_term=search_term, page=i) }}">{{ i }}</a>
+            <a class="page-link" href="{{ url_for('main.compare_recipes', search_term=search_term, page=i) }}">{{ i }}</a>
         </li>
         {% endfor %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('compare_recipes', search_term=search_term, page=page+1) }}">Next</a>
+            <a class="page-link" href="{{ url_for('main.compare_recipes', search_term=search_term, page=page+1) }}">Next</a>
         </li>
     </ul>
 </nav>

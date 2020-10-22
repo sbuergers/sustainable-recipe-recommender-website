@@ -2,46 +2,44 @@
 Unit tests for sql_queries.py
 """
 import pytest
-import psycopg2 as ps
-
-# Make sure parent directory is added to search path before
-# importing sql_queries!
-import os
-import sys
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.append(parentdir)
-
-# Now I can import sql_queries
-import sql_queries
+import sqlalchemy
+from application import create_app
+from config import DevConfig
 from dotenv import load_dotenv
 
 load_dotenv('.env')
 
 
-# I cannot simply define an __init__ method - pytest does
-# not treat TestSqlQueries as an actual class, it's more of
-# a way to group test functions together. Instead I can
-# create a fixture "pg" doing the same thing.
+# FIXTURES
 @pytest.fixture
-def pg():
-    pg = sql_queries.postgresConnection()
+def app():
+    """ Instantiate app context """
+    app = create_app(cfg=DevConfig)
+    app_context = app.app_context()
+    app_context.push()
+    yield app
+    app_context.pop()
+
+
+@pytest.fixture
+def pg(app):
+    """ DB connection and testing query parameters """
+    from application import db
+    from application.main.sql_queries import Sql_queries
+    pg = Sql_queries(db.session)
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
     pg.fuzzy_search_term = 'chicken'
     pg.random_search_term = r'124 9i2oehf lkaj1iojk>,/1?/"490_£"'
     pg.phrase_search_term = 'vegan cookies'
-    pg.search_column = 'combined_tsv'
     pg.sql_inj1 = "''; SELECT true; --"
     pg.sql_inj2 = "'; SELECT true; --"
     return pg
 
 
+# TESTS
 class TestSqlQueries:
 
-    def test_connect(self, pg):
-        assert pg.conn.closed == 0
-
-    def test_fuzzy_search(self, pg):
+    def test_fuzzy_search(self, app, pg):
         # normal querries
         result = pg.fuzzy_search(pg.fuzzy_search_term, N=2)  # substr of "url"
         assert len(result) == 2
@@ -53,19 +51,19 @@ class TestSqlQueries:
         # sql injections
         assert len(pg.fuzzy_search(pg.sql_inj1, N=2)) == 2
         assert len(pg.fuzzy_search(pg.sql_inj2, N=2)) == 2
-        with pytest.raises(ps.errors.InvalidTextRepresentation):
+        with pytest.raises(sqlalchemy.exc.DataError):
             pg.fuzzy_search(pg.fuzzy_search_term, N=pg.sql_inj1)
 
     def test_phrase_search(self, pg):
         # normal querries
-        result = pg.phrase_search(pg.search_column, pg.phrase_search_term, N=2)
+        result = pg.phrase_search(pg.phrase_search_term, N=2)
         assert len(result) == 2
 
         # sql injections
-        assert len(pg.phrase_search(pg.search_column, pg.sql_inj1, N=2)) == 0
-        assert len(pg.phrase_search(pg.search_column, pg.sql_inj2, N=2)) == 0
-        with pytest.raises(ps.errors.InvalidTextRepresentation):
-            pg.phrase_search(pg.search_column, pg.phrase_search_term,
+        assert len(pg.phrase_search(pg.sql_inj1, N=2)) == 0
+        assert len(pg.phrase_search(pg.sql_inj2, N=2)) == 0
+        with pytest.raises(sqlalchemy.exc.DataError):
+            pg.phrase_search(pg.phrase_search_term,
                              N=pg.sql_inj1)
 
     def test_free_search(self, pg):
@@ -76,7 +74,7 @@ class TestSqlQueries:
         # sql injections
         assert len(pg.free_search(pg.sql_inj1, N=2)) == 2
         assert len(pg.free_search(pg.sql_inj2, N=2)) == 2
-        with pytest.raises(ps.errors.InvalidTextRepresentation):
+        with pytest.raises(sqlalchemy.exc.DataError):
             pg.free_search(pg.phrase_search_term, N=pg.sql_inj1)
 
     def test_query_content_similarity_ids(self, pg):
