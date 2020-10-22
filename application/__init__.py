@@ -26,7 +26,7 @@ def create_app(cfg=DevConfig):
     # Initialize application
     app = Flask(__name__)
     app.config.from_object(cfg)
-    app.debug = app.config['DEBUG']  # remove?
+    app.debug = app.config['DEBUG']
 
     # Initialize extensions
     csrf.init_app(app)

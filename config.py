@@ -17,6 +17,9 @@ class Config:
     DATABASE_URI = environ.get('DATABASE_URL')
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {'pool_recycle': 280,
+                                 'pool_timeout': 100,
+                                 'pool_pre_ping': True}
 
 
 class ProdConfig(Config):
