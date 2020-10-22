@@ -58,99 +58,89 @@ def logout(test_client):
 
 
 # TESTS
-def test_home(test_client):
-    r = test_client.get('/')
-    assert r.status_code == 200
-    r = test_client.get('/home')
-    assert r.status_code == 200
+class TestRoutes:
 
+    def test_home(self, test_client):
+        r = test_client.get('/')
+        assert r.status_code == 200
+        r = test_client.get('/home')
+        assert r.status_code == 200
 
-def test_search_results(test_client, par):
-    for search_term in par.search_terms:
-        if search_term == '':
-            r = test_client.post(url_for('main.search_results'),
-                                 data={'search_term': search_term},
-                                 follow_redirects=True)
-            assert r.status_code == 200
-        else:
-            r = test_client.post(url_for('main.search_results'),
-                                 data={'search_term': search_term,
-                                       'page': par.page},
-                                 follow_redirects=True)
-            assert r.status_code == 200
+    def test_search_results(self, test_client, par):
+        for search_term in par.search_terms:
+            if search_term == '':
+                r = test_client.post(url_for('main.search_results'),
+                                    data={'search_term': search_term},
+                                    follow_redirects=True)
+                assert r.status_code == 200
+            else:
+                r = test_client.post(url_for('main.search_results'),
+                                    data={'search_term': search_term,
+                                        'page': par.page},
+                                    follow_redirects=True)
+                assert r.status_code == 200
 
+    def test_compare_recipes(self, test_client, par):
+        search_term = par.recipe_tag
 
-def test_compare_recipes(test_client, par):
-    search_term = par.recipe_tag
+        # Default request
+        r = test_client.get(url_for('main.compare_recipes',
+                            search_term=search_term),
+                            data={},
+                            follow_redirects=True)
+        assert r.status_code == 200
+        assert request.args.get('sort_by') is None
+        assert request.args.get('page') is None
 
-    # Default request
-    r = test_client.get(url_for('main.compare_recipes',
-                        search_term=search_term),
-                        data={},
-                        follow_redirects=True)
-    assert r.status_code == 200
-    assert request.args.get('sort_by') is None
-    assert request.args.get('page') is None
+        # Specifying <sort_by> and <page> args
+        for sort_by in par.sort_bys:
+            for page in range(0, 1):
+                r = test_client.get(url_for('main.compare_recipes',
+                                    search_term=search_term),
+                                    data={'sort_by': sort_by,
+                                        'page': page},
+                                    follow_redirects=True)
+                assert r.status_code == 200
 
-    # Specifying <sort_by> and <page> args
-    for sort_by in par.sort_bys:
-        for page in range(0, 1):
-            r = test_client.get(url_for('main.compare_recipes',
-                                search_term=search_term),
-                                data={'sort_by': sort_by,
-                                      'page': page},
-                                follow_redirects=True)
-            assert r.status_code == 200
+    def test_about(self, test_client):
+        r = test_client.get(url_for('main.about'), follow_redirects=True)
+        assert r.status_code == 200
 
+    def test_blog(self, test_client):
+        r = test_client.get(url_for('main.blog'), follow_redirects=True)
+        assert r.status_code == 200
 
-def test_about(test_client):
-    r = test_client.get(url_for('main.about'), follow_redirects=True)
-    assert r.status_code == 200
+    def test_profile(self, test_client, user):
+        r = test_client.get(url_for('main.profile'), follow_redirects=True)
+        assert r.status_code == 200
+        assert url_for('main.signin') == '/signin'
+        login(test_client, user.name, user.pw)
+        r = test_client.get(url_for('main.profile'), follow_redirects=True)
+        assert url_for('main.profile') == '/profile'
+        assert r.status_code == 200
 
+    def test_signup(self, test_client):
+        r = test_client.get(url_for('main.signup'), follow_redirects=True)
+        assert r.status_code == 200
 
-def test_blog(test_client):
-    r = test_client.get(url_for('main.blog'), follow_redirects=True)
-    assert r.status_code == 200
+    def test_login(self, test_client):
+        r = test_client.get(url_for('main.signin'), follow_redirects=True)
+        assert r.status_code == 200
 
+        r = login(test_client, user.name + 'x290fdsjkl', user.pw)
+        assert b'Username or password is incorrect' in r.data
 
-def test_profile(test_client, user):
-    r = test_client.get(url_for('main.profile'), follow_redirects=True)
-    assert r.status_code == 200
-    assert url_for('main.signin') == '/signin'
-    login(test_client, user.name, user.pw)
-    r = test_client.get(url_for('main.profile'), follow_redirects=True)
-    assert url_for('main.profile') == '/profile'
-    assert r.status_code == 200
+        r = login(test_client, user.name, user.pw + 'x13fhszlfo')
+        assert b'Username or password is incorrect' in r.data
 
-
-def test_signup(test_client):
-    r = test_client.get(url_for('main.signup'), follow_redirects=True)
-    assert r.status_code == 200
-
-
-def test_login(test_client):
-    r = test_client.get(url_for('main.signin'), follow_redirects=True)
-    assert r.status_code == 200
-
-    r = login(test_client, user.name + 'x290fdsjkl', user.pw)
-    assert b'Username or password is incorrect' in r.data
-
-    r = login(test_client, user.name, user.pw + 'x13fhszlfo')
-    assert b'Username or password is incorrect' in r.data
-
-
-# TODO Why is this:
-# For some reason I cannot use current_user.is_authenticated (always
-# False), but I can assert whether login worked by checking the route
-# endpoint for requests where a logged in user is required.
-def test_login_logout(test_client, user):
-    login(test_client, user.name, user.pw)
-    test_client.get(url_for('main.profile'), follow_redirects=True)
-    assert url_for('main.profile') == '/profile'
-    r = test_client.get(url_for('main.logout'), follow_redirects=True)
-    assert r.status_code == 200
-    test_client.get(url_for('main.profile'), follow_redirects=True)
-    assert url_for('main.signin') == '/signin'
+    def test_login_logout(self, test_client, user):
+        login(test_client, user.name, user.pw)
+        test_client.get(url_for('main.profile'), follow_redirects=True)
+        assert url_for('main.profile') == '/profile'
+        r = test_client.get(url_for('main.logout'), follow_redirects=True)
+        assert r.status_code == 200
+        test_client.get(url_for('main.profile'), follow_redirects=True)
+        assert url_for('main.signin') == '/signin'
 
 
 # eof

@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv('.env')
 
 
+# FIXTURES
 @pytest.fixture
 def app():
     """ Instantiate app context """
@@ -35,6 +36,7 @@ def pg(app):
     return pg
 
 
+# TESTS
 class TestSqlQueries:
 
     def test_fuzzy_search(self, app, pg):
