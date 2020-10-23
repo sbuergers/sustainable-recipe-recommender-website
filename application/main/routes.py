@@ -135,8 +135,12 @@ def blog():
 @bp.route('/profile')
 @login_required
 def profile():
-    # This will include a user's personal recommendations etc.
-    return render_template('profile.html')
+    search_form = SearchForm()
+    search_term = search_form.search.data
+    if search_term:
+        redirect(url_for('main.search_results'))
+
+    return render_template('profile.html', search_form=search_form)
 
 
 @bp.route('/signup', methods=['GET', 'POST'])
