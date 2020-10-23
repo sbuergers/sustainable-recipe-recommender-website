@@ -189,4 +189,5 @@ def logout():
     flash('You have logged out successfully.', 'success')
     return redirect(url_for('main.home'))
 
+
 # eof
