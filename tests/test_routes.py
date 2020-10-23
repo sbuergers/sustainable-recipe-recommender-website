@@ -1,5 +1,5 @@
 """
-Test script for flask application.
+Test script for flask routes.
 
 Useful links:
 https://flask.palletsprojects.com/en/1.1.x/testing/
@@ -46,6 +46,13 @@ def user():
 
 
 # HELPER FUNCTIONS
+def signup(test_client, username, password):
+    return test_client.post(url_for('main.signup'), data={
+        'username': username,
+        'password': password
+        }, follow_redirects=True)
+
+
 def login(test_client, username, password):
     return test_client.post(url_for('main.signin'), data={
         'username': username,
