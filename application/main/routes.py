@@ -152,13 +152,17 @@ def signup():
     if reg_form.validate_on_submit():
         username = reg_form.username.data
         password = reg_form.password.data
+        email = reg_form.email.data
 
-        # Hash password
+        # Hash password and email
         # Automatically uses many iterations and adds salt for protection!
         hashed_pswd = pbkdf2_sha512.hash(password)
+        hashed_email = pbkdf2_sha512.hash(email)
 
         # Add username & hashed password to DB
-        user = User(username=username, password=hashed_pswd)
+        user = User(username=username,
+                    password=hashed_pswd,
+                    email=hashed_email)
         db.session.add(user)
         db.session.commit()
 
