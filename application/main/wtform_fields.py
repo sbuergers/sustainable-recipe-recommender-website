@@ -28,10 +28,14 @@ class RegistrationForm(FlaskForm):
                                 Length(min=4, max=25, message="Username must \
                                     be between 4 and 25 characters")
                                 ])
+    email = StringField('email', validators=[
+                                Length(min=4, max=35, message="Please \
+                                    enter a valid email address")
+                                ])
     password = PasswordField('password', validators=[
                                 InputRequired(message="Password required"),
-                                Length(min=4, max=25, message="Password must be \
-                                    between 4 and 25 characters")
+                                Length(min=8, max=25, message="Password must be \
+                                    between 8 and 25 characters")
                                 ])
     confirm_pswd = PasswordField('confirm_pswd', validators=[
                                 InputRequired(message="Password required"),
