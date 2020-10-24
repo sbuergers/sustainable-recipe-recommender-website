@@ -6,7 +6,7 @@ from flask import session
 from flask_login import login_user, current_user, logout_user
 from flask_login import login_required
 
-# Password hashing
+# Security
 from passlib.hash import pbkdf2_sha512
 
 # User made modules
@@ -155,14 +155,13 @@ def signup():
         email = reg_form.email.data
 
         # Hash password and email
-        # Automatically uses many iterations and adds salt for protection!
         hashed_pswd = pbkdf2_sha512.hash(password)
-        hashed_email = pbkdf2_sha512.hash(email)
 
         # Add username & hashed password to DB
         user = User(username=username,
                     password=hashed_pswd,
-                    email=hashed_email)
+                    email=email,
+                    confirmed=False)
         db.session.add(user)
         db.session.commit()
 
