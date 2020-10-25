@@ -45,8 +45,9 @@ def user():
 
 
 # HELPER FUNCTIONS
-def signup(test_client, username, password):
+def signup(test_client, email, username, password):
     return test_client.post(url_for('main.signup'), data={
+        'email': email,
         'username': username,
         'password': password
         }, follow_redirects=True)
