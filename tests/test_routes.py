@@ -15,7 +15,7 @@ from application import create_app
 # FIXTURES
 @pytest.fixture
 def test_client():
-    app = create_app(testing=True, debug=False)
+    app = create_app(testing=True, debug=True)
     test_client = app.test_client()
     app_context = app.app_context()
     test_request_context = app.test_request_context()
@@ -68,12 +68,16 @@ def logout(test_client):
 class TestRoutes:
 
     def test_home(self, test_client):
+        """ Endpoint checks """
+
         r = test_client.get('/')
         assert r.status_code == 200
         r = test_client.get('/home')
         assert r.status_code == 200
 
     def test_search_results(self, test_client, par):
+        """ Endpoint checks """
+
         for search_term in par.search_terms:
             if search_term == '':
                 r = test_client.post(url_for('main.search_results'),
@@ -88,6 +92,8 @@ class TestRoutes:
                 assert r.status_code == 200
 
     def test_compare_recipes(self, test_client, par):
+        """ Endpoint checks """
+
         search_term = par.recipe_tag
 
         # Default request
@@ -110,27 +116,40 @@ class TestRoutes:
                 assert r.status_code == 200
 
     def test_about(self, test_client):
+        """ Endpoint check """
+
         r = test_client.get(url_for('main.about'), follow_redirects=True)
         assert r.status_code == 200
 
     def test_blog(self, test_client):
+        """ Endpoint check """
+
         r = test_client.get(url_for('main.blog'), follow_redirects=True)
         assert r.status_code == 200
 
     def test_profile(self, test_client, user):
+        """ Endpoint check """
+
+        # Logged out (redirects to signin)
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert r.status_code == 200
-        assert url_for('main.signin') == '/signin'
+        assert b'Sign in' in r.data
+
+        # Logged in (accesses profile)
         login(test_client, user.name, user.pw)
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
-        assert url_for('main.profile') == '/profile'
         assert r.status_code == 200
+        assert b'Search for sustainable recipes' not in r.data
 
     def test_signup(self, test_client):
+        """ Endpoint check """
+
         r = test_client.get(url_for('main.signup'), follow_redirects=True)
         assert r.status_code == 200
 
     def test_login(self, test_client):
+        """ Endpoint check, failed credentials check """
+
         r = test_client.get(url_for('main.signin'), follow_redirects=True)
         assert r.status_code == 200
 
@@ -141,13 +160,19 @@ class TestRoutes:
         assert b'Username or password is incorrect' in r.data
 
     def test_login_logout(self, test_client, user):
+        """ Does the navbar change appropriately when logged in? """
+
+        # Logged in
         login(test_client, user.name, user.pw)
-        r = test_client.get(url_for('main.profile'), follow_redirects=True)
-        assert url_for('main.profile') == '/profile'
-        r = test_client.get(url_for('main.logout'), follow_redirects=True)
-        assert r.status_code == 200
-        r = test_client.get(url_for('main.profile'), follow_redirects=True)
-        assert url_for('main.signin') == '/signin'
+        r = test_client.get(url_for('main.home'), follow_redirects=True)
+        assert b'Cookbook' in r.data
+        assert b'Login' not in r.data
+
+        # Logged out
+        test_client.get(url_for('main.logout'), follow_redirects=True)
+        r = test_client.get(url_for('main.home'), follow_redirects=True)
+        assert b'Cookbook' not in r.data
+        assert b'Login' in r.data
 
 
 # eof
