@@ -10,13 +10,12 @@ https://stackoverflow.com/questions/17375340/testing-code-that-requires-a-flask-
 import pytest
 from flask import url_for, request
 from application import create_app
-from config import DevConfig
 
 
 # FIXTURES
 @pytest.fixture
 def test_client():
-    app = create_app(cfg=DevConfig)
+    app = create_app(testing=True, debug=False)
     test_client = app.test_client()
     app_context = app.app_context()
     test_request_context = app.test_request_context()
@@ -142,11 +141,11 @@ class TestRoutes:
 
     def test_login_logout(self, test_client, user):
         login(test_client, user.name, user.pw)
-        test_client.get(url_for('main.profile'), follow_redirects=True)
+        r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert url_for('main.profile') == '/profile'
         r = test_client.get(url_for('main.logout'), follow_redirects=True)
         assert r.status_code == 200
-        test_client.get(url_for('main.profile'), follow_redirects=True)
+        r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert url_for('main.signin') == '/signin'
 
 

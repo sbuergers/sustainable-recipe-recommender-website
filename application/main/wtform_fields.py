@@ -13,13 +13,12 @@ def invalid_credentials(form, field):
     password = field.data
     username = form.username.data
 
-    # Check username is invalid
-    user_data = User.query.filter_by(username=username).first()
-    if user_data is None:
+    # Check username or password is invalid
+    user_obj = User.query.filter_by(username=username).first()
+    if user_obj is None:
         raise ValidationError("Username or password is incorrect")
 
-    # Check password in invalid
-    elif not pbkdf2_sha512.verify(password, user_data.password):
+    elif not pbkdf2_sha512.verify(password, user_obj.password):
         raise ValidationError("Username or password is incorrect")
 
 

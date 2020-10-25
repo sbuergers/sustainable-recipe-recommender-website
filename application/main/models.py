@@ -1,7 +1,6 @@
 """ SQLAlchemy table abstractions """
 from application import db, login
 from flask_login import UserMixin
-from hashlib import md5
 
 
 class User(UserMixin, db.Model):
@@ -9,11 +8,6 @@ class User(UserMixin, db.Model):
 
     def get_id(self):
         return (self.userID)
-
-    def avatar(self, size):
-        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
-            digest, size)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)

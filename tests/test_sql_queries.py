@@ -4,7 +4,6 @@ Unit tests for sql_queries.py
 import pytest
 import sqlalchemy
 from application import create_app
-from config import DevConfig
 from dotenv import load_dotenv
 
 load_dotenv('.env')
@@ -14,7 +13,7 @@ load_dotenv('.env')
 @pytest.fixture
 def app():
     """ Instantiate app context """
-    app = create_app(cfg=DevConfig)
+    app = create_app(testing=True, debug=False)
     app_context = app.app_context()
     app_context.push()
     yield app

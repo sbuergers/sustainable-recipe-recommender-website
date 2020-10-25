@@ -20,6 +20,7 @@ from application.main.sql_queries import Sql_queries
 from application import db
 from application.main.models import User
 from application.main import bp
+import datetime
 
 
 @bp.route('/')
@@ -146,6 +147,9 @@ def profile():
 @bp.route('/signup', methods=['GET', 'POST'])
 def signup():
 
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+
     reg_form = RegistrationForm()
 
     # Update database if validation success
@@ -161,7 +165,8 @@ def signup():
         user = User(username=username,
                     password=hashed_pswd,
                     email=email,
-                    confirmed=False)
+                    confirmed=False,
+                    created_on=datetime.datetime.utcnow())
         db.session.add(user)
         db.session.commit()
 
@@ -181,9 +186,10 @@ def signin():
 
     # Allow login if validation success
     if login_form.validate_on_submit():
-        user_object = User.query.filter_by(
-                        username=login_form.username.data).first()
-        login_user(user_object, remember=False)
+        user_obj = User.query.filter_by(
+                       username=login_form.username.data).first()
+        login_user(user_obj, remember=False)
+        flash('You have logged in successfully.', 'success')
         return redirect(url_for('main.home'))
 
     return render_template('signin.html', login_form=login_form)
@@ -192,6 +198,9 @@ def signin():
 @bp.route("/logout", methods=['GET'])
 @login_required
 def logout():
+    if current_user.is_anonymous:
+        return redirect(url_for('main.home'))
+
     logout_user()
     flash('You have logged out successfully.', 'success')
     return redirect(url_for('main.home'))
