@@ -135,7 +135,8 @@ def profile():
     if search_term:
         redirect(url_for('main.search_results'))
 
-    return render_template('profile.html', search_form=search_form)
+    return render_template('profile.html',
+                           search_form=search_form)
 
 
 # eof

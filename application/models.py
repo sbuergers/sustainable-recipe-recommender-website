@@ -5,6 +5,7 @@ from flask_login import UserMixin
 
 class User(UserMixin, db.Model):
     __table__ = db.Model.metadata.tables['users']
+    posts = db.relationship('Like', backref='user', lazy='dynamic')
 
     def get_id(self):
         return (self.userID)

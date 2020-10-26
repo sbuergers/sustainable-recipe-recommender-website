@@ -54,7 +54,6 @@ def signin():
 
     login_form = LoginForm()
 
-    # Allow login if validation success
     if login_form.validate_on_submit():
         user_obj = User.query.filter_by(
                        username=login_form.username.data).first()
