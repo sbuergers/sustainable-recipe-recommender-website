@@ -26,18 +26,14 @@ def signup():
 
     reg_form = RegistrationForm()
 
-    # Update database if validation success
     if reg_form.validate_on_submit():
         username = reg_form.username.data
         password = reg_form.password.data
         email = reg_form.email.data
 
-        # Hash password and email
-        hashed_pswd = pbkdf2_sha512.hash(password)
-
         # Add username & hashed password to DB
         user = User(username=username,
-                    password=hashed_pswd,
+                    password=pbkdf2_sha512.hash(password),
                     email=email,
                     confirmed=False,
                     created_on=datetime.datetime.utcnow())
