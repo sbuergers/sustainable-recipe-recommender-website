@@ -46,7 +46,7 @@ def user():
 
 # HELPER FUNCTIONS
 def signup(test_client, email, username, password):
-    return test_client.post(url_for('main.signup'), data={
+    return test_client.post(url_for('auth.signup'), data={
         'email': email,
         'username': username,
         'password': password
@@ -54,18 +54,18 @@ def signup(test_client, email, username, password):
 
 
 def login(test_client, username, password):
-    return test_client.post(url_for('main.signin'), data={
+    return test_client.post(url_for('auth.signin'), data={
         'username': username,
         'password': password
         }, follow_redirects=True)
 
 
 def logout(test_client):
-    return test_client.get(url_for('main.logout'), follow_redirects=True)
+    return test_client.get(url_for('auth.logout'), follow_redirects=True)
 
 
 # TESTS
-class TestRoutes:
+class TestRoutesMain:
 
     def test_home(self, test_client):
         """ Endpoint checks """
@@ -141,16 +141,19 @@ class TestRoutes:
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
 
+
+class TestRoutesAuth:
+
     def test_signup(self, test_client):
         """ Endpoint check """
 
-        r = test_client.get(url_for('main.signup'), follow_redirects=True)
+        r = test_client.get(url_for('auth.signup'), follow_redirects=True)
         assert r.status_code == 200
 
     def test_login(self, test_client):
         """ Endpoint check, failed credentials check """
 
-        r = test_client.get(url_for('main.signin'), follow_redirects=True)
+        r = test_client.get(url_for('auth.signin'), follow_redirects=True)
         assert r.status_code == 200
 
         r = login(test_client, user.name + 'x290fdsjkl', user.pw)
@@ -169,7 +172,7 @@ class TestRoutes:
         assert b'Login' not in r.data
 
         # Logged out
-        test_client.get(url_for('main.logout'), follow_redirects=True)
+        test_client.get(url_for('auth.logout'), follow_redirects=True)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
         assert b'Cookbook' not in r.data
         assert b'Login' in r.data

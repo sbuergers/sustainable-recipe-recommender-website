@@ -1,10 +1,10 @@
+""" authentication forms """
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField
 from wtforms.validators import InputRequired, Length, EqualTo,\
     ValidationError, Email
-
 from passlib.hash import pbkdf2_sha512
-from application.main.models import User
+from application.models import User
 
 
 def invalid_credentials(form, field):
@@ -64,12 +64,6 @@ class LoginForm(FlaskForm):
     password = PasswordField('password', validators=[
                 InputRequired(message="Password required"),
                 invalid_credentials])
-
-
-class SearchForm(FlaskForm):
-    search = StringField('search')
-    submit = SubmitField('Search',
-                         render_kw={'class': 'btn btn-success btn-block'})
 
 
 # eof

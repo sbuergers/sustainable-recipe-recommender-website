@@ -48,14 +48,14 @@
                         <a class="nav-item nav-link" href="{{ url_for('main.profile') }}">Cookbook</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-item nav-link" href="{{ url_for('main.logout') }}">Logout</a>
+                        <a class="nav-item nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-item nav-link" href="{{ url_for('main.signin') }}">Login</a>
+                        <a class="nav-item nav-link" href="{{ url_for('auth.signin') }}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-item nav-link" href="{{ url_for('main.signup') }}">Sign up</a>
+                        <a class="nav-item nav-link" href="{{ url_for('auth.signup') }}">Sign up</a>
                     </li>
                 {% endif %}
               </ul>

@@ -10,7 +10,7 @@
             <p>Signing in will improve recipe recommendations based on previous activity.</p>
             <p></p>
             <div id="container">
-                <form action="{{ url_for('main.signin') }}", method="POST">
+                <form action="{{ url_for('auth.signin') }}", method="POST">
                     {{ displayField(login_form.username, 'Username', autocomplete="off", autofocus=true) }}
                     {{ displayField(login_form.password, 'Password') }}
                     <div class="form-group">
@@ -20,7 +20,7 @@
                 </form>
             </div>
             <hr>
-            <p>Not registered? <a href="{{ url_for('main.signup') }}">Register here</a>.</p>
+            <p>Not registered? <a href="{{ url_for('auth.signup') }}">Register here</a>.</p>
         </center>
     </div>
 </div>
