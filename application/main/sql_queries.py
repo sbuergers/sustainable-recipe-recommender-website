@@ -1,3 +1,4 @@
+""" Class for advanced SQL queries without DB changes """
 import pandas as pd
 from sqlalchemy import text, bindparam, String, Integer, Numeric
 
