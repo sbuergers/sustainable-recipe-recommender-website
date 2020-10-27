@@ -108,6 +108,8 @@ def compare_recipes(search_term, page=0, Np=20):
 
 @bp.route('/about', methods=['GET', 'POST'])
 def about():
+
+    # navbar-search
     search_form = SearchForm()
     search_term = search_form.search.data
     if search_term:
@@ -119,6 +121,8 @@ def about():
 # insecure, avoid user input!
 @bp.route('/blog', methods=['GET', 'POST'])
 def blog():
+
+    # navbar-search
     search_form = SearchForm()
     search_term = search_form.search.data
     if search_term:
@@ -130,10 +134,16 @@ def blog():
 @bp.route('/profile')
 @login_required
 def profile():
+
+    # navbar-search
     search_form = SearchForm()
     search_term = search_form.search.data
     if search_term:
         redirect(url_for('main.search_results'))
+
+    # TODO profile search
+
+    # TODO query data for profile content: Cookbook recipes
 
     return render_template('profile.html',
                            search_form=search_form)
