@@ -151,7 +151,7 @@
                     <div class="emissions sustainability-inner" title="Relative green house gas emissions"></div>
                 </div>
                 <span class="emissions number-rating"></span>
-                <span title="Estimated amount of CO2 emissions in kg">({{'%0.2f'| format(reference_recipe['ghg']|float)}} kg)</span>
+                <span title="Estimated amount of CO2 emissions in kg">({{'%0.2f'| format(reference_recipe['emissions']|float)}} kg)</span>
                 </td>
             </tr>
         </div>
@@ -200,7 +200,7 @@
         Rating: {{'%0.2f'| format(reference_recipe['rating']|float)}}/5
     </div>
     <div class='row'>
-        Emissions: {{'%0.2f'| format(reference_recipe['ghg']|float)}} kg CO2
+        Emissions: {{'%0.2f'| format(reference_recipe['emissions']|float)}} kg CO2
     </div>
     <div class='row'>
         Cal.: {{ reference_recipe['calories'] }} | 
@@ -292,13 +292,13 @@
                         </div>
                         <span class="emissions number-rating"></span>
                         <!-- Show absolute CO2 emissions relative to reference recipe -->
-                        {% if reference_recipe['ghg'] - df['ghg'] < 0 %}
+                        {% if reference_recipe['emissions'] - df['emissions'] < 0 %}
                             (<span  title="Estimated amount of CO2 emissions in kg" class="text-danger">
-                                +{{'%0.2f'| format(df['ghg']-reference_recipe['ghg']|float) }}
+                                +{{'%0.2f'| format(df['emissions']-reference_recipe['emissions']|float) }}
                             </span> kg)
                         {% else %}
                             (<span  title="Estimated amount of CO2 emissions in kg" class="text-success">
-                                {{'%0.2f'| format(df['ghg']-reference_recipe['ghg']|float) }}
+                                {{'%0.2f'| format(df['emissions']-reference_recipe['emissions']|float) }}
                             </span> kg)
                         {% endif %}
                     </td>

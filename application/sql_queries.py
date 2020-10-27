@@ -246,9 +246,9 @@ class Sql_queries():
         # TODO: Make column names similar in pandas and sql!
         col_sel = [
                 'recipesID', 'title', 'ingredients', 'rating', 'calories',
-                'sodium', 'fat', 'protein', 'ghg', 'prop_ing', 'ghg_log10',
-                'url', 'servings', 'index', 'image_url', 'perc_rating',
-                'perc_sustainability', 'review_count'
+                'sodium', 'fat', 'protein', 'emissions', 'prop_ing',
+                'emissions_log10', 'url', 'servings', 'index', 'image_url',
+                'perc_rating', 'perc_sustainability', 'review_count'
                     ]
         recipes_sql = self.query_similar_recipes(CS_ids)
 
@@ -263,9 +263,9 @@ class Sql_queries():
         # Assign data types (sql output might be decimal, should
         # be float!)
         numerics = ['recipesID', 'rating', 'calories', 'sodium',
-                    'fat', 'protein', 'ghg', 'prop_ing', 'ghg_log10',
-                    'index', 'perc_rating', 'perc_sustainability',
-                    'similarity', 'review_count']
+                    'fat', 'protein', 'emissions', 'prop_ing',
+                    'emissions_log10', 'index', 'perc_rating',
+                    'perc_sustainability', 'similarity', 'review_count']
         strings = ['title', 'ingredients', 'url', 'servings', 'image_url']
         for num in numerics:
             results[num] = pd.to_numeric(results[num])

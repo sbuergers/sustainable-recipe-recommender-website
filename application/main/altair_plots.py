@@ -36,10 +36,10 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
 
     # determine scale
     if scale == 'log':
-        voi = 'ghg_log10'
+        voi = 'emissions_log10'
         xlabel = 'log10(kg CO2 eq)'
     else:
-        voi = 'ghg'
+        voi = 'emissions'
         xlabel = 'kg CO2 eq'
 
     if relative:

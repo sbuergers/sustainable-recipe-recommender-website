@@ -59,7 +59,6 @@ def compare_recipes(search_term, page=0, Np=20):
     search_form = SearchForm()
     sort_by = request.args.get('sort_by')
     page = request.args.get('page')
-    # TODO is this needed?
     if page:
         page = int(page)
     else:
@@ -145,7 +144,18 @@ def profile():
     # TODO query data for profile content: Cookbook recipes
     # Get liked recipes
     sq = Sql_queries(db.session)
-    sq.query_cookbook(current_user.userID)
+    results = sq.query_cookbook(current_user.userID)
+
+    # Sort by similarity, sustainability or rating
+    results = hf.sort_search_results(results, sort_by)
+
+    # Pass ratings & emissions jointly for ref recipe and results
+    # TODO this is very ugly, do this more succinctly earlier on!
+    ratings = list(results['perc_rating'].values)
+    ratings = [ref_recipe['perc_rating']] + ratings
+    emissions = [v for v in results['perc_sustainability'].values]
+    emissions = [ref_recipe['perc_sustainability']] + emissions
+    similarity = [round(v*100) for v in results['similarity'].values]
 
     return render_template('profile.html',
                            search_form=search_form)
