@@ -22,7 +22,7 @@ def sort_search_results(results, sort_by):
     if sort_by == 'similarity':
         return results
     if sort_by == 'sustainability':
-        return results.sort_values(by='ghg', ascending=True)
+        return results.sort_values(by='emissions', ascending=True)
     if sort_by == 'rating':
         return results.sort_values(by='rating', ascending=False)
     return results
