@@ -3,18 +3,17 @@
 # Flask modules and forms
 from flask import render_template, request, redirect, url_for
 from flask import session
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 # User made modules
 import application.main.helper_functions as hf
 import application.main.altair_plots as ap
 from application.main.forms import SearchForm
-from application.main.sql_queries import Sql_queries
+from application.sql_queries import Sql_queries
 
 # Database
 from application import db
 from application.main import bp
-from application.models import User
 
 
 @bp.route('/')
@@ -146,7 +145,7 @@ def profile():
     # TODO query data for profile content: Cookbook recipes
     # Get liked recipes
     sq = Sql_queries(db.session)
-    sq.query_liked_recipes()
+    sq.query_cookbook(current_user.userID)
 
     return render_template('profile.html',
                            search_form=search_form)

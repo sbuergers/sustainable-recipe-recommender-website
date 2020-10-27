@@ -314,5 +314,53 @@ class Sql_queries():
         results = results.sort_values(by='rank', ascending=False)
         return results
 
+    def query_cookbook(self, userID):
+        """
+        DESCRIPTION:
+            Creates a pandas dataframe containing all recipes the given
+            user has liked / added to the cookbook.
+        INPUT:
+            userID (Integer)
+        OUTPUT:
+            cookbook (pd.DataFrame)
+        """
+        query = text(
+            """
+            SELECT u."userID", u.username,
+                l.created, l.rating,
+                r.title, r.url, r.perc_rating, r.perc_sustainability,
+                r.review_count, r.image_url, r.emissions, r.prop_ingredients
+                FROM users u
+                JOIN likes l ON (u.username = l.username)
+                JOIN recipes r ON (l."recipesID" = r."recipesID")
+            WHERE u."userID" = :userID
+            ORDER BY l.rating
+            """,
+            bindparams=[
+                bindparam('userID', value=userID, type_=Integer)
+            ]
+        )
+        recipes = self.session.execute(query).fetchall()
+
+        # Convert to DataFrame
+        col_sel = ["userID", "username", "created", "user_rating",
+                   "recipe_title", "url", "perc_rating", "perc_sustainability",
+                   "review_count", "image_url", "emissions", "prop_ingredients"]
+        results = pd.DataFrame(recipes, columns=col_sel)
+
+        # Assign data types
+        numerics = ['userID', 'user_rating', 'perc_rating',
+                    'perc_sustainability', 'review_count', 'emissions',
+                    'prop_ingredients']
+        strings = ['username', 'recipe_title', 'url', 'image_url']
+        datetimes = ['created']
+        for num in numerics:
+            results[num] = pd.to_numeric(results[num])
+        for s in strings:
+            results[s] = results[s].astype('str')
+        for dt in datetimes:
+            results[dt] = pd.to_datetime(results[dt])
+        return results
+
 
 # eof
