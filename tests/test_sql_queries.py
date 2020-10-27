@@ -24,7 +24,7 @@ def app():
 def pg(app):
     """ DB connection and testing query parameters """
     from application import db
-    from application.main.sql_queries import Sql_queries
+    from application.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
     pg.fuzzy_search_term = 'chicken'
@@ -32,6 +32,7 @@ def pg(app):
     pg.phrase_search_term = 'vegan cookies'
     pg.sql_inj1 = "''; SELECT true; --"
     pg.sql_inj2 = "'; SELECT true; --"
+    pg.userID = 2
     return pg
 
 
@@ -116,5 +117,11 @@ class TestSqlQueries:
         pg.content_based_search(pg.search_term)
         pg.fuzzy_search(pg.fuzzy_search_term)
 
+    def test_query_cookbook(self, pg):
+        result = pg.query_cookbook(pg.userID)
+        assert result['username'][0] == 'test_user123'
+        assert len(result) < 50
+        result = pg.query_cookbook(999999999)
+        assert len(result) == 0
 
 # eof
