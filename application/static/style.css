@@ -160,14 +160,14 @@
   }
   
   .sustainability-outer::before {
-    content: "\f06c \f06c \f06c \f06c \f06c"; /* "\f0c2 \f0c2 \f0c2 \f0c2 \f0c2"; */
+    content: "\f06c \f06c \f06c \f06c \f06c";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     color: #ccc;
   }
 
   .sustainability-inner::before {
-    content: "\f06c \f06c \f06c \f06c \f06c"; /* "\f0c2 \f0c2 \f0c2 \f0c2 \f0c2"; */
+    content: "\f06c \f06c \f06c \f06c \f06c";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     color: #12d800;

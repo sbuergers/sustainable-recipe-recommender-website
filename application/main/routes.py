@@ -141,24 +141,27 @@ def profile():
 
     # TODO profile search
 
-    # TODO query data for profile content: Cookbook recipes
     # Get liked recipes
     sq = Sql_queries(db.session)
-    results = sq.query_cookbook(current_user.userID)
+    cookbook = sq.query_cookbook(current_user.userID)
 
     # Sort by similarity, sustainability or rating
-    results = hf.sort_search_results(results, sort_by)
+    sort_by = request.args.get('sort_by')
+    cookbook = hf.sort_search_results(cookbook, sort_by)
 
-    # Pass ratings & emissions jointly for ref recipe and results
-    # TODO this is very ugly, do this more succinctly earlier on!
-    ratings = list(results['perc_rating'].values)
-    ratings = [ref_recipe['perc_rating']] + ratings
-    emissions = [v for v in results['perc_sustainability'].values]
-    emissions = [ref_recipe['perc_sustainability']] + emissions
-    similarity = [round(v*100) for v in results['similarity'].values]
+    # Variables to sort by
+    user_ratings = list(cookbook['perc_rating'].values)
+    avg_ratings = [round(v*100) for v in cookbook['user_rating'].values]
+    emissions = [v for v in cookbook['perc_sustainability'].values]
 
+    # TODO Make figures
+    
     return render_template('profile.html',
-                           search_form=search_form)
+                           search_form=search_form,
+                           cookbook=cookbook,
+                           user_ratings=user_ratings,
+                           avg_ratings=avg_ratings,
+                           emissions=emissions)
 
 
 # eof
