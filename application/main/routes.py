@@ -144,6 +144,9 @@ def profile():
     # TODO profile search
 
     # TODO query data for profile content: Cookbook recipes
+    # Get liked recipes
+    sq = Sql_queries(db.session)
+    sq.query_liked_recipes()
 
     return render_template('profile.html',
                            search_form=search_form)
