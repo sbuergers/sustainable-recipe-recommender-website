@@ -155,7 +155,7 @@ def profile():
     emissions = [v for v in cookbook['perc_sustainability'].values]
 
     # TODO Make figures
-    
+
     return render_template('profile.html',
                            search_form=search_form,
                            cookbook=cookbook,
