@@ -344,7 +344,7 @@ class Sql_queries():
 
         # Convert to DataFrame
         col_sel = ["userID", "username", "created", "user_rating",
-                   "recipe_title", "url", "perc_rating", "perc_sustainability",
+                   "title", "url", "perc_rating", "perc_sustainability",
                    "review_count", "image_url", "emissions", "prop_ingredients"]
         results = pd.DataFrame(recipes, columns=col_sel)
 
@@ -352,7 +352,7 @@ class Sql_queries():
         numerics = ['userID', 'user_rating', 'perc_rating',
                     'perc_sustainability', 'review_count', 'emissions',
                     'prop_ingredients']
-        strings = ['username', 'recipe_title', 'url', 'image_url']
+        strings = ['username', 'title', 'url', 'image_url']
         datetimes = ['created']
         for num in numerics:
             results[num] = pd.to_numeric(results[num])

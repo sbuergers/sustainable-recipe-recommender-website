@@ -102,7 +102,7 @@
     border: 20px;
   }
   
-  /* star rating */
+  /* star rating without user interaction */
   .stars-outer {
     position: relative;
     display: inline-block;
@@ -185,6 +185,17 @@
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     color: #1851f0;
+  }
+
+  .cookbook {
+    width: 30px;
+    height:30px;
+    display:block;
+    background:transparent url('cookbook_icon_inactive.png') center top no-repeat;
+  }
+  
+  .cookbook:hover {
+    background-image: url('cookbook_icon.png');
   }
   
 #form-group {

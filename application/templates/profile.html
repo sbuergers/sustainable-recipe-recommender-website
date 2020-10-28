@@ -51,7 +51,7 @@
         
         // Render user's rating
         setRating(perc_ratings=user_ratings, 
-                  class_selector=".rating", 
+                  class_selector=".user-rating", 
                   icon_selector=".stars-inner");
         
         // Render average user rating
@@ -113,20 +113,22 @@
                     {{ df['title'] }}
                 </div>
 
-                <!-- User and average rating -->
+                <!-- User rating -->
                 <div>
-                    <tr class="rating">
+                    <tr class="user-rating">
                         <td></td>
                         <td>
-                            <img src="../static/like_icon.png" class="icon" title="Average user rating">
+                            <img src="../static/like_icon.png" class="icon" title="User rating">
                             <div class="stars-outer">
-                            <div class="rating stars-inner" title="Average user rating"></div>
+                            <div class="user-rating stars-inner" title="User rating"></div>
                             </div>
-                            <span class="rating number-rating"></span>
+                            <span class="user-rating number-rating"></span>
                         </td>
                     </tr>
                 </div>
-                
+
+                <!-- Average rating -->
+                <!-- For now: Looks too cluttered with personal ratings on top
                 <div>
                     <tr class="rating">
                         <td></td>
@@ -140,7 +142,8 @@
                         </td>
                     </tr>
                 </div>
-
+                -->
+                <!-- Emission score -->
                 <div>
                     <tr class="emissions">
                         <td></td>
