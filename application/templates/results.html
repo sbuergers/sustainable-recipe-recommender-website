@@ -314,17 +314,21 @@
             </div>
 
             <!-- Links -->
-                <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=df['url']) }}" class="cookbook">
-                </a>
+            <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=df['url']) }}">
+                <div class="cookbook">
+                    <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
+                    <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
+                </div>
+            </a>   
                 |
             <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
                 target="_blank">
-                Visit recipe
+                Full recipe
             </a>
                 | 
             <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=page) }}">
-                Suggest similar
-            </a>            
+                Similar recipes
+            </a>  
 
         </div>
 

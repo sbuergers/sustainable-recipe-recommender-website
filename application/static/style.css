@@ -188,15 +188,21 @@
   }
 
   .cookbook {
-    margin-top: 5px;
-    width: 30px;
+    width: 40px;
     height: 30px;
+    position: relative;
     display: inline-block;
-    background: transparent url('cookbook_icon_inactive.png') center top no-repeat;
+}
+
+  .cookbook .img-top {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 99;
   }
-  
-  .cookbook:hover {
-    background-image: url('cookbook_icon.png');
+  .cookbook:hover .img-top {
+      display: inline;
   }
   
 #form-group {
