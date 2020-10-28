@@ -189,9 +189,9 @@
 
   .cookbook {
     width: 30px;
-    height:30px;
-    display:block;
-    background:transparent url('cookbook_icon_inactive.png') center top no-repeat;
+    height: 30px;
+    display: inline-block;
+    background: transparent url('cookbook_icon_inactive.png') center top no-repeat;
   }
   
   .cookbook:hover {

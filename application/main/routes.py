@@ -56,6 +56,13 @@ def search_results(page=0):
 
 @bp.route('/search/<search_term>', methods=['GET'])
 def compare_recipes(search_term, page=0, Np=20):
+
+    # No exact match found
+    sq = Sql_queries(db.session)
+    if sq.exact_recipe_match(search_term) is False:
+        return redirect(url_for('main.search_results'))
+
+    # Get params
     search_form = SearchForm()
     sort_by = request.args.get('sort_by')
     page = request.args.get('page')
@@ -63,12 +70,13 @@ def compare_recipes(search_term, page=0, Np=20):
         page = int(page)
     else:
         page = 0
+    bookmark = request.args.get('bookmark')
 
-    sq = Sql_queries(db.session)
-    if sq.exact_recipe_match(search_term) is False:
-        return redirect(url_for('main.search_results'))
+    # Add recipe to cookbook
+    if bookmark:
+        sq.add_to_cookbook(bookmark)
 
-    # Get top 199 most similar recipes (of this page)
+    # Get top 199 most similar recipes
     results = sq.content_based_search(search_term)
 
     # Disentangle reference recipe and similar recipes
@@ -82,7 +90,6 @@ def compare_recipes(search_term, page=0, Np=20):
     results = hf.sort_search_results(results, sort_by)
 
     # Pass ratings & emissions jointly for ref recipe and results
-    # TODO this is very ugly, do this more succinctly earlier on!
     ratings = list(results['perc_rating'].values)
     ratings = [ref_recipe['perc_rating']] + ratings
     emissions = [v for v in results['perc_sustainability'].values]

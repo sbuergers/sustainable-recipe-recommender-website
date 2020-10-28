@@ -314,6 +314,9 @@
             </div>
 
             <!-- Links -->
+                <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=df['url']) }}" class="cookbook">
+                </a>
+                |
             <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
                 target="_blank">
                 Visit recipe
@@ -321,7 +324,7 @@
                 | 
             <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=page) }}">
                 Suggest similar
-            </a>
+            </a>            
 
         </div>
 
