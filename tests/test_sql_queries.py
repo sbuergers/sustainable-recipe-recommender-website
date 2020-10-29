@@ -3,6 +3,7 @@ Unit tests for sql_queries.py
 """
 import pytest
 import sqlalchemy
+import pandas as pd
 from application import create_app
 from dotenv import load_dotenv
 
@@ -28,12 +29,14 @@ def pg(app):
     pg = Sql_queries(db.session)
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
     pg.url = pg.search_term
+    pg.urls_exist = [pg.url, 'cold-sesame-noodles-12715']
+    pg.urls_dont_exist = ['i-am-not-a-recipe-link', 'neither-am-i']
     pg.fuzzy_search_term = 'chicken'
     pg.random_search_term = r'124 9i2oehf lkaj1iojk>,/1?/"490_£"'
     pg.phrase_search_term = 'vegan cookies'
     pg.sql_inj1 = "''; SELECT true; --"
     pg.sql_inj2 = "'; SELECT true; --"
-    pg.userID = 2
+    pg.userID = 3
     return pg
 
 
@@ -158,6 +161,19 @@ class TestSqlQueries:
         assert result == 'UserID or recipe url invalid'
         result = pg.add_to_cookbook(pg.userID + 999999999, pg.url)
         assert result == 'UserID or recipe url invalid'
+
+    def test_query_user_ratings(self, pg):
+
+        # Query existing entries in likes table
+        df = pg.query_user_ratings(pg.userID,
+                                   pg.urls_exist + pg.urls_dont_exist)
+        assert type(df) == pd.core.frame.DataFrame
+        assert not df.empty
+        assert df.shape[0] == 2
+
+        # Query non-existing entries in likes table
+        df = pg.query_user_ratings(pg.userID, pg.urls_dont_exist)
+        assert df.empty
 
 
 # eof

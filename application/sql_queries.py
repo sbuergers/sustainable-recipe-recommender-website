@@ -437,5 +437,27 @@ class Sql_queries():
             return 'Removed recipe from cookbook successfully'
         return 'Recipe was not bookmarked to begin with'
 
+    def query_user_ratings(self, userID, urls):
+        """
+        DESCRIPTION:
+            Query all rows in likes table with the given userID
+            for all elements in urls
+        INPUT:
+            userID (Integer): userID from users table
+            urls (List of strings): Url strings from recipes table
+        OUTPUT:
+            pandas.DataFrame with columns [likeID, userID, recipesID,
+                username, bookmarked, rating, created], can be empty
+        NOTE:
+            A like entry may exist even if the user has not explicitly
+            rated a recipe - it may only have been bookmarked
+        """
+        recipesIDs = self.session.query(Recipe.recipesID).filter(
+                        Recipe.url.in_(urls)).all()
+        likes_query = self.session.query(Like).filter(
+                        Like.userID == userID,
+                        Like.recipesID.in_(recipesIDs))
+        return pd.read_sql(likes_query.statement, self.session.bind)
+
 
 # eof
