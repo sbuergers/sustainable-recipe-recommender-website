@@ -347,7 +347,8 @@ class Sql_queries():
         # Convert to DataFrame
         col_sel = ["userID", "username", "created", "user_rating",
                    "title", "url", "perc_rating", "perc_sustainability",
-                   "review_count", "image_url", "emissions", "prop_ingredients"]
+                   "review_count", "image_url", "emissions",
+                   "prop_ingredients"]
         results = pd.DataFrame(recipes, columns=col_sel)
 
         # Assign data types
