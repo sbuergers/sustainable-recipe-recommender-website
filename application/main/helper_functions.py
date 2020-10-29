@@ -40,8 +40,8 @@ def predict_user_ratings(df):
     OUTPUT:
         user_ratings (List): Updated ratings column converted to percentages
     '''
-    df['user_rating'].fillna(value=5, inplace=True)
-    user_ratings = [round(v/5*100) for v in df['user_rating'].values]
+    df['rating'].fillna(value=5, inplace=True)
+    user_ratings = [round(v/5*100) for v in df['rating'].values]
     return user_ratings
 
 
