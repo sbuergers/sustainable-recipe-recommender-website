@@ -27,6 +27,7 @@ def pg(app):
     from application.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
+    pg.url = pg.search_term
     pg.fuzzy_search_term = 'chicken'
     pg.random_search_term = r'124 9i2oehf lkaj1iojk>,/1?/"490_£"'
     pg.phrase_search_term = 'vegan cookies'
@@ -123,5 +124,40 @@ class TestSqlQueries:
         assert len(result) < 50
         result = pg.query_cookbook(999999999)
         assert len(result) == 0
+
+    def test_is_in_cookbook(self, pg):
+
+        # there is an entry
+        result = pg.is_in_cookbook(pg.userID, pg.url)
+        assert result
+
+        # there is no entry
+        result = pg.is_in_cookbook(pg.userID, pg.url + '123')
+        assert not result
+        result = pg.is_in_cookbook(pg.userID + 999999999, pg.url)
+        assert not result
+
+    def test_add_to_and_delete_from_cookbook(self, pg):
+
+        # Try adding existing entry
+        result = pg.add_to_cookbook(pg.userID, pg.url)
+        assert result == 'Cookbook entry already exists'
+
+        # Remove entry
+        result = pg.remove_from_cookbook(pg.userID, pg.url)
+        assert result == 'Removed recipe from cookbook successfully'
+        result = pg.remove_from_cookbook(pg.userID, pg.url)
+        assert result == 'Recipe was not bookmarked to begin with'
+
+        # Add new entry
+        result = pg.add_to_cookbook(pg.userID, pg.url)
+        assert result == 'Cookbook entry added successfully'
+
+        # Add new entry with invalid userID or url
+        result = pg.add_to_cookbook(pg.userID, pg.url + '123')
+        assert result == 'UserID or recipe url invalid'
+        result = pg.add_to_cookbook(pg.userID + 999999999, pg.url)
+        assert result == 'UserID or recipe url invalid'
+
 
 # eof

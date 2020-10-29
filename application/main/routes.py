@@ -76,7 +76,7 @@ def compare_recipes(search_term, page=0, Np=20):
     if bookmark:
         if current_user.is_anonymous:
             return redirect(url_for('auth.signin'))
-        sq.add_to_cookbook(bookmark)
+        sq.add_to_cookbook(current_user.userID, bookmark)
 
     # Get top 199 most similar recipes
     results = sq.content_based_search(search_term)

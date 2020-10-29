@@ -1,6 +1,8 @@
 """ Class for advanced SQL queries without DB changes """
 import pandas as pd
 from sqlalchemy import text, bindparam, String, Integer, Numeric
+from application.models import User, Recipe, Like
+import datetime
 
 
 class Sql_queries():
@@ -361,6 +363,78 @@ class Sql_queries():
         for dt in datetimes:
             results[dt] = pd.to_datetime(results[dt])
         return results
+
+    def is_in_cookbook(self, userID, url):
+        """
+        DESCRIPTION:
+            Check if a recipe (given by url) is already in a user's
+            cookbook (given by userID)
+        INPUT:
+            userID (Integer): userID from users table
+            url (String): Url string from recipes table
+        OUTPUT:
+            Boolean
+        """
+        # Get recipesID
+        recipe = Recipe.query.filter_by(url=url).first()
+        if not recipe:
+            return False
+
+        # Query like entries
+        like = Like.query.filter_by(userID=userID,
+                                    recipesID=recipe.recipesID).first()
+        if like:
+            return True
+        return False
+
+    def add_to_cookbook(self, userID, url):
+        """
+        DESCRIPTION:
+            Creates a new entry in the likes table for a given user
+            and recipe.
+        INPUT:
+            userID (Integer): userID from users table
+            url (String): Url string from recipes table
+        OUTPUT:
+            None
+        """
+        if self.is_in_cookbook(userID, url):
+            return 'Cookbook entry already exists'
+        # Get username and recipesID
+        user = User.query.filter_by(userID=userID).first()
+        recipe = Recipe.query.filter_by(url=url).first()
+
+        # Create new like entry
+        if user and recipe:
+            like = Like(username=user.username,
+                        rating=5,
+                        userID=userID,
+                        recipesID=recipe.recipesID,
+                        created=datetime.datetime.utcnow())
+            self.session.add(like)
+            self.session.commit()
+            return 'Cookbook entry added successfully'
+        return 'UserID or recipe url invalid'
+
+    def remove_from_cookbook(self, userID, url):
+        """
+        DESCRIPTION:
+            Removes an existing entry in the likes table for a given
+            user and recipe.
+        INPUT:
+            userID (Integer): userID from users table
+            url (String): Url string from recipes table
+        OUTPUT:
+            String: Feedback message
+        """
+        if self.is_in_cookbook(userID, url):
+            recipe = Recipe.query.filter_by(url=url).first()
+            like = Like.query.filter_by(userID=userID,
+                                        recipesID=recipe.recipesID).first()
+            self.session.delete(like)
+            self.session.commit()
+            return 'Removed recipe from cookbook successfully'
+        return 'Recipe was not bookmarked to begin with'
 
 
 # eof
