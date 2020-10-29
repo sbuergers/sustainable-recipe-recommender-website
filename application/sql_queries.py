@@ -446,8 +446,8 @@ class Sql_queries():
             userID (Integer): userID from users table
             urls (List of strings): Url strings from recipes table
         OUTPUT:
-            pandas.DataFrame with columns [likeID, userID, recipesID,
-                username, bookmarked, rating, created], can be empty
+            df (pandas.DataFrame): Has columns [likeID, userID, recipesID,
+                username, bookmarked, user_rating, created], can be empty.
         NOTE:
             A like entry may exist even if the user has not explicitly
             rated a recipe - it may only have been bookmarked
@@ -457,7 +457,9 @@ class Sql_queries():
         likes_query = self.session.query(Like).filter(
                         Like.userID == userID,
                         Like.recipesID.in_(recipesIDs))
-        return pd.read_sql(likes_query.statement, self.session.bind)
+        df = pd.read_sql(likes_query.statement, self.session.bind)
+        df.rename(columns={'rating': 'user_rating'}, inplace=True)
+        return df
 
 
 # eof
