@@ -88,6 +88,10 @@ def compare_recipes(search_term, page=0, Np=20):
     # Select only the top Np recipes for one page
     results = results[(0+page*Np):((page+1)*Np)]
 
+    # Retrieve or predict user ratings
+    user_results = sq.query_user_ratings(current_user.userID, results['url'])
+    user_ratings = hf.predict_user_ratings(user_results)
+
     # Sort by similarity, sustainability or rating
     results = hf.sort_search_results(results, sort_by)
 
@@ -105,6 +109,7 @@ def compare_recipes(search_term, page=0, Np=20):
                            reference_recipe=ref_recipe,
                            results=results,
                            ratings=ratings,
+                           user_ratings=user_ratings,
                            emissions=emissions,
                            similarity=similarity,
                            search_form=search_form,
