@@ -159,7 +159,7 @@ def profile():
     cookbook = hf.sort_search_results(cookbook, sort_by)
 
     # Variables to sort by
-    user_ratings = [round(v/5*100) for v in cookbook['user_rating'].values]
+    user_ratings = hf.predict_user_ratings(cookbook)
     avg_ratings = list(cookbook['perc_rating'].values)
     emissions = [v for v in cookbook['perc_sustainability'].values]
 

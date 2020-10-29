@@ -28,4 +28,21 @@ def sort_search_results(results, sort_by):
     return results
 
 
+def predict_user_ratings(df):
+    '''
+    TODO: Implement algo. Placeholder fills in 5 for all ratings
+
+    DESCRIPTION:
+        Takes DataFrame with output from Sql_queries.query_cookbook()
+        and predicts missing user ratings.
+    INPUT:
+        df (pd.DataFrame)
+    OUTPUT:
+        user_ratings (List): Updated ratings column converted to percentages
+    '''
+    df['user_rating'].fillna(value=5, inplace=True)
+    user_ratings = [round(v/5*100) for v in df['user_rating'].values]
+    return user_ratings
+
+
 # eof

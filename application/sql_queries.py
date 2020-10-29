@@ -408,7 +408,7 @@ class Sql_queries():
         # Create new like entry
         if user and recipe:
             like = Like(username=user.username,
-                        rating=5,
+                        bookmarked=True,
                         userID=userID,
                         recipesID=recipe.recipesID,
                         created=datetime.datetime.utcnow())
