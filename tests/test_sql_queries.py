@@ -123,7 +123,7 @@ class TestSqlQueries:
 
     def test_query_cookbook(self, pg):
         result = pg.query_cookbook(pg.userID)
-        assert result['username'][0] == 'test_user123'
+        assert result['username'][0] == 'asdfjlq;weruioasdnf'
         assert len(result) < 50
         result = pg.query_cookbook(999999999)
         assert len(result) == 0
