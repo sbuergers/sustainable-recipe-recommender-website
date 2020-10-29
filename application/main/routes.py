@@ -74,6 +74,8 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Add recipe to cookbook
     if bookmark:
+        if current_user.is_anonymous:
+            return redirect(url_for('auth.signin'))
         sq.add_to_cookbook(bookmark)
 
     # Get top 199 most similar recipes
