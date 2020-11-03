@@ -9,4 +9,8 @@ class SearchForm(FlaskForm):
                          render_kw={'class': 'btn btn-success btn-block'})
 
 
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
+
+
 # eof
