@@ -8,12 +8,16 @@ from flask_login import login_required, current_user
 # User made modules
 import application.main.helper_functions as hf
 import application.main.altair_plots as ap
-from application.main.forms import SearchForm
+from application.main.forms import SearchForm, EmptyForm
 from application.sql_queries import Sql_queries
 
 # Database
 from application import db
 from application.main import bp
+
+
+# Use only one Sql_queries instance
+sq = Sql_queries(db.session)
 
 
 @bp.route('/')
@@ -32,7 +36,6 @@ def search_results(page=0):
     search_term = search_form.search.data
 
     # exact match? Suggest alternatives!
-    sq = Sql_queries(db.session)
     if sq.exact_recipe_match(search_term):
         return redirect(url_for('main.compare_recipes',
                                 search_term=search_term,
@@ -58,7 +61,6 @@ def search_results(page=0):
 def compare_recipes(search_term, page=0, Np=20):
 
     # No exact match found
-    sq = Sql_queries(db.session)
     if sq.exact_recipe_match(search_term) is False:
         return redirect(url_for('main.search_results'))
 
@@ -160,7 +162,6 @@ def profile():
     # TODO profile search
 
     # Get liked recipes
-    sq = Sql_queries(db.session)
     cookbook = sq.query_cookbook(current_user.userID)
 
     # Sort by similarity, sustainability or rating
