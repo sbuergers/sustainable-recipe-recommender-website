@@ -461,5 +461,27 @@ class Sql_queries():
         df.rename(columns={'rating': 'user_rating'}, inplace=True)
         return df
 
+    def rate_recipe(self, userID, url, rating):
+        """
+        DESCRIPTION:
+            Add user rating to bookmarked recipe in DB.
+        INPUT:
+            userID (Integer): userID from users table
+            url (String): Recipe url tag
+        OUTPUT:
+            None
+        """
+        # Get recipeID
+        recipeID = self.session.query(Recipe.recipesID).\
+            filter(Recipe.url == url).first()
+
+        # Find relevant likes row
+        like = Like.query.filter_by(userID=userID,
+                                    recipesID=recipeID).first()
+        # Add user rating and commit to DB
+        like.rating = rating
+        self.session.add(like)
+        self.session.commit()
+
 
 # eof
