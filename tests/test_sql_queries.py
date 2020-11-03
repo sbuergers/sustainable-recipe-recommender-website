@@ -37,6 +37,7 @@ def pg(app):
     pg.sql_inj1 = "''; SELECT true; --"
     pg.sql_inj2 = "'; SELECT true; --"
     pg.userID = 3
+    pg.recipesID = 563  # 'pineapple-shrimp-noodle-bowls'
     return pg
 
 
@@ -174,6 +175,20 @@ class TestSqlQueries:
         # Query non-existing entries in likes table
         df = pg.query_user_ratings(pg.userID, pg.urls_dont_exist)
         assert df.empty
+
+    def test_rate_recipe(self, pg):
+
+        # Change recipe rating to 4
+        pg.rate_recipe(pg.userID, pg.url, 4)
+        df = pg.query_user_ratings(pg.userID, [pg.url])
+        assert df.loc[df['recipesID'] == pg.recipesID, 'user_rating'].\
+            values == 4
+
+        # Change rating to 5
+        pg.rate_recipe(pg.userID, pg.url, 5)
+        df = pg.query_user_ratings(pg.userID, [pg.url])
+        assert df.loc[df['recipesID'] == pg.recipesID, 'user_rating'].\
+            values == 5
 
 
 # eof
