@@ -183,4 +183,15 @@ def profile():
                            emissions=emissions)
 
 
+@bp.route('/rate/<recipe_url>', methods=['POST'])
+@login_required
+def rate_recipe(recipe_url):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        sq.rate_recipe(current_user.userID, recipe_url)
+        return redirect(url_for('profile'))
+    else:
+        return redirect(url_for('profile'))
+
+
 # eof

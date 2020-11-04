@@ -218,14 +218,14 @@ fieldset, label { margin: 0; padding: 0;}
 
 /* CSS Magic to Highlight Stars on Hover */
 
-.interact_rating > input:checked ~ label, /* show gold star when clicked */
+.interact_rating > input.radio-btn:checked ~ label, /* show gold star when clicked */
 .interact_rating:not(:checked) > label:hover, /* hover current star */
 .interact_rating:not(:checked) > label:hover ~ label { color: #9b39f7;  } /* hover previous stars in list */
 
-.interact_rating > input:checked + label:hover, /* hover current star when changing rating */
-.interact_rating > input:checked ~ label:hover,
-.interact_rating > label:hover ~ input:checked ~ label, /* lighten current selection */
-.interact_rating > input:checked ~ label:hover ~ label { color: #cda0f1;  } 
+.interact_rating > input.radio-btn:checked + label:hover, /* hover current star when changing rating */
+.interact_rating > input.radio-btn:checked ~ label:hover,
+.interact_rating > label:hover ~ input.radio-btn:checked ~ label, /* lighten current selection */
+.interact_rating > input.radio-btn:checked ~ label:hover ~ label { color: #cda0f1;  } 
 
   .cookbook {
     width: 40px;

@@ -194,15 +194,24 @@
                     <!-- from: https://codepen.io/jamesbarnett/pen/vlpkh -->
                     <form action="{{ url_for('main.profile') }}" method="POST" id="#user_rating_form">
                         <fieldset class="interact_rating">
-                            <input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Good - 4 stars"></label>
-                            <input type="radio" id="star3half" name="rating" value="3 and a half" /><label class="half" for="star3half" title="Good - 3.5 stars"></label>
-                            <input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
-                            <input type="radio" id="star2half" name="rating" value="2 and a half" /><label class="half" for="star2half" title="Meh - 2.5 stars"></label>
-                            <input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Bad - 2 stars"></label>
-                            <input type="radio" id="star1half" name="rating" value="1 and a half" /><label class="half" for="star1half" title="Bad - 1.5 stars"></label>
-                            <input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Never again - 1 star"></label>
-                            <input type="radio" id="starhalf" name="rating" value="half" /><label class="half" for="starhalf" title="Never again - 0.5 stars"></label>
+                            <input type="radio" id="star4" name="rating" value="4" class="radio-btn hide"/>
+                            <label class = "full" for="star4" title="Good - 4 stars"></label>
+                            <input type="radio" id="star3half" name="rating" value="3 and a half"  class="radio-btn hide"/>
+                            <label class="half" for="star3half" title="Good - 3.5 stars"></label>
+                            <input type="radio" id="star3" name="rating" value="3"  class="radio-btn hide"/>
+                            <label class = "full" for="star3" title="Meh - 3 stars"></label>
+                            <input type="radio" id="star2half" name="rating" value="2 and a half"  class="radio-btn hide"/>
+                            <label class="half" for="star2half" title="Meh - 2.5 stars"></label>
+                            <input type="radio" id="star2" name="rating" value="2"  class="radio-btn hide"/>
+                            <label class = "full" for="star2" title="Bad - 2 stars"></label>
+                            <input type="radio" id="star1half" name="rating" value="1 and a half"  class="radio-btn hide"/>
+                            <label class="half" for="star1half" title="Bad - 1.5 stars"></label>
+                            <input type="radio" id="star1" name="rating" value="1"  class="radio-btn hide"/>
+                            <label class = "full" for="star1" title="Never again - 1 star"></label>
+                            <input type="radio" id="starhalf" name="rating" value="half"  class="radio-btn hide"/>
+                            <label class="half" for="starhalf" title="Never again - 0.5 stars"></label>
                         </fieldset>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     </form>
                 </div>
             </div>
