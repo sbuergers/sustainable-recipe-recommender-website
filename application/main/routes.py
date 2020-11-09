@@ -159,6 +159,9 @@ def profile():
     if search_term:
         redirect(url_for('main.search_results'))
 
+    # Like/Unlike form
+    like_form = EmptyForm()
+
     # TODO profile search
 
     # Get liked recipes
@@ -180,18 +183,30 @@ def profile():
                            cookbook=cookbook,
                            user_ratings=user_ratings,
                            avg_ratings=avg_ratings,
-                           emissions=emissions)
+                           emissions=emissions,
+                           like_form=like_form)
 
 
-@bp.route('/rate/<recipe_url>', methods=['POST'])
+@bp.route('/like/<recipe_url>', methods=['POST'])
 @login_required
-def rate_recipe(recipe_url):
+def like_recipe(recipe_url):
     form = EmptyForm()
     if form.validate_on_submit():
-        sq.rate_recipe(current_user.userID, recipe_url)
-        return redirect(url_for('profile'))
+        sq.rate_recipe(current_user.userID, recipe_url, 5)
+        return redirect(url_for('main.profile'))
     else:
-        return redirect(url_for('profile'))
+        return redirect(url_for('main.profile'))
+
+
+@bp.route('/dislike/<recipe_url>', methods=['POST'])
+@login_required
+def dislike_recipe(recipe_url):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        sq.rate_recipe(current_user.userID, recipe_url, 1)
+        return redirect(url_for('main.profile'))
+    else:
+        return redirect(url_for('main.profile'))
 
 
 # eof
