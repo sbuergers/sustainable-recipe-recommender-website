@@ -228,3 +228,64 @@
   width: 75px;
   height: 75px;
 }
+
+/* Like / dislike buttons */
+.btn-like-unrated {
+  color: #868e96;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-like-unrated:hover,
+.btn-like-unrated:active,
+.btn-like-unrated:focus,
+.btn-like-unrated.active {
+  color:#007bff;
+}
+
+.btn-dislike-unrated {
+  color: #868e96;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-dislike-unrated:hover,
+.btn-dislike-unrated:active,
+.btn-dislike-unrated:focus,
+.btn-dislike-unrated.active {
+  color:#dc3545;
+}
+
+.btn-like-rated {
+  color: #007bff;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-like-rated:hover,
+.btn-like-rated:active,
+.btn-like-rated:focus,
+.btn-like-rated.active {
+  color: #868e96;
+}
+
+.btn-dislike-rated {
+  color: #dc3545;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-dislike-rated:hover,
+.btn-dislike-rated:active,
+.btn-dislike-rated:focus,
+.btn-dislike-rated.active {
+  color: #868e96;
+}
