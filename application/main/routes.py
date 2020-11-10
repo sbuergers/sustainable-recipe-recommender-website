@@ -5,6 +5,9 @@ from flask import render_template, request, redirect, url_for
 from flask import session
 from flask_login import login_required, current_user
 
+# Pandas
+import pandas as pd
+
 # User made modules
 import application.main.helper_functions as hf
 import application.main.altair_plots as ap
@@ -164,7 +167,7 @@ def profile():
 
     # TODO profile search
 
-    # Get liked recipes
+    # Get bookmarked recipes
     cookbook = sq.query_cookbook(current_user.userID)
 
     # Sort by similarity, sustainability or rating
@@ -176,7 +179,6 @@ def profile():
     # user_ratings = hf.predict_user_ratings(cookbook)
 
     # Variables to sort by
-    user_ratings = 
     avg_ratings = list(cookbook['perc_rating'].values)
     emissions = [v for v in cookbook['perc_sustainability'].values]
 
@@ -185,7 +187,6 @@ def profile():
     return render_template('profile.html',
                            search_form=search_form,
                            cookbook=cookbook,
-                           user_ratings=user_ratings,
                            avg_ratings=avg_ratings,
                            emissions=emissions,
                            like_form=like_form)

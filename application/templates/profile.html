@@ -45,14 +45,8 @@
     document.addEventListener("DOMContentLoaded", function(event) { 
 
         // RATING SCALES
-        var user_ratings = {{ user_ratings | safe }};
         var avg_ratings = {{ avg_ratings | safe }};
         var emissions = {{ emissions | safe }};
-        
-        // Render user's rating
-        setRating(perc_ratings=user_ratings, 
-                  class_selector=".user-rating", 
-                  icon_selector=".stars-inner");
         
         // Render average user rating
         setRating(perc_ratings=avg_ratings, 
@@ -187,18 +181,49 @@
                     </a>
                     |
                     <!-- Like / unlike recipe -->
-                    <!-- ifelse depending whether users already liked/disliked recipe -->
-                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url']) }}" method="POST">
-                        {{ like_form.csrf_token }}
-                        <button type="submit" class="btn btn-dislike-unrated btn-sm">
-                            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
-                        </button>
-                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url']) }}" method="POST">
-                        {{ like_form.csrf_token }}
-                        <button type="submit" class="btn btn-like-unrated btn-sm">
-                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
-                        </button>
-                    </form>
+                    {% if df['user_rating'] == 5 %}
+
+                        <!-- recipe was liked -->
+                        <form action="{{ url_for('main.like_recipe', recipe_url=df['url']) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-dislike-unrated btn-sm">
+                                <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                            </button>
+                        <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url']) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-like-rated btn-sm">
+                                <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% elif df['user_rating'] == 1 %}
+
+                        <!-- recipe was disliked -->
+                        <form action="{{ url_for('main.like_recipe', recipe_url=df['url']) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-dislike-rated btn-sm">
+                                <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                            </button>
+                        <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url']) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-like-unrated btn-sm">
+                                <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% else %}
+                        
+                        <!-- recipe was neither liked nor disliked -->
+                        <form action="{{ url_for('main.like_recipe', recipe_url=df['url']) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-dislike-unrated btn-sm">
+                                <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                            </button>
+                        <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url']) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-like-unrated btn-sm">
+                                <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
 
