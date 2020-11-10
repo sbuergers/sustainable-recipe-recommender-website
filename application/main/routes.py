@@ -172,6 +172,9 @@ def profile():
     cookbook = hf.sort_search_results(cookbook, sort_by)
 
     # Variables to sort by
+    # TODO user_ratings not currently used, might be prudent to
+    # create separate route for personalized recommendations, see
+    # https://github.com/sbuergers/sustainable-recipe-recommender-website/issues/3#issuecomment-717503064
     user_ratings = hf.predict_user_ratings(cookbook)
     avg_ratings = list(cookbook['perc_rating'].values)
     emissions = [v for v in cookbook['perc_sustainability'].values]
