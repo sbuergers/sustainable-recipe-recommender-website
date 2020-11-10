@@ -187,7 +187,7 @@
                     </a>
                     |
                     <!-- Like / unlike recipe -->
-                    {% if  %}
+                    <!-- ifelse depending whether users already liked/disliked recipe -->
                     <form action="{{ url_for('main.like_recipe', recipe_url=df['url']) }}" method="POST">
                         {{ like_form.csrf_token }}
                         <button type="submit" class="btn btn-dislike-unrated btn-sm">
