@@ -464,7 +464,7 @@ class Sql_queries():
     def rate_recipe(self, userID, url, rating):
         """
         DESCRIPTION:
-            Add user rating to bookmarked recipe in DB.
+            Add or update user rating to bookmarked recipe in DB.
         INPUT:
             userID (Integer): userID from users table
             url (String): Recipe url tag
