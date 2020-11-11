@@ -67,9 +67,11 @@ def compare_recipes(search_term, page=0, Np=20):
     if sq.exact_recipe_match(search_term) is False:
         return redirect(url_for('main.search_results'))
 
-    # Get params
+    # Get params and set defaults
     search_form = SearchForm()
     sort_by = request.args.get('sort_by')
+    if not sort_by:
+        sort_by = 'Similarity'
     page = request.args.get('page')
     if page:
         page = int(page)
@@ -172,6 +174,8 @@ def profile():
 
     # Sort by similarity, sustainability or rating
     sort_by = request.args.get('sort_by')
+    if not sort_by:
+        sort_by = 'Sustainability'
     cookbook = hf.sort_search_results(cookbook, sort_by)
 
     # TODO create separate route for personalized recommendations, see
@@ -197,10 +201,11 @@ def profile():
 def like_recipe(recipe_url):
     form = EmptyForm()
     if form.validate_on_submit():
+        sort_by = request.form.get('sort_by')
         sq.rate_recipe(current_user.userID, recipe_url, 5)
-        return redirect(url_for('main.profile'))
+        return redirect(url_for('main.profile', sort_by=sort_by))
     else:
-        return redirect(url_for('main.profile'))
+        return redirect(url_for('main.profile', sort_by=sort_by))
 
 
 @bp.route('/dislike/<recipe_url>', methods=['POST'])
@@ -208,10 +213,23 @@ def like_recipe(recipe_url):
 def dislike_recipe(recipe_url):
     form = EmptyForm()
     if form.validate_on_submit():
+        sort_by = request.form.get('sort_by')
         sq.rate_recipe(current_user.userID, recipe_url, 1)
-        return redirect(url_for('main.profile'))
+        return redirect(url_for('main.profile', sort_by=sort_by))
     else:
-        return redirect(url_for('main.profile'))
+        return redirect(url_for('main.profile', sort_by=sort_by))
+
+
+@bp.route('/unlike/<recipe_url>', methods=['POST'])
+@login_required
+def unlike_recipe(recipe_url):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        sort_by = request.form.get('sort_by')
+        sq.rate_recipe(current_user.userID, recipe_url, 3)
+        return redirect(url_for('main.profile', sort_by=sort_by))
+    else:
+        return redirect(url_for('main.profile', sort_by=sort_by))
 
 
 # eof
