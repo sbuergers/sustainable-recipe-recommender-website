@@ -141,6 +141,17 @@ class TestSqlQueries:
         result = pg.is_in_cookbook(pg.userID + 999999999, pg.url)
         assert not result
 
+    def test_query_bookmarks(self, pg):
+        # un-bookmark url
+        pg.remove_from_cookbook(pg.userID, pg.url)
+        df = pg.query_bookmarks(pg.userID, [pg.url])
+        assert df['bookmarked'] is False
+
+        # bookmark
+        pg.add_to_cookbook(pg.userID, pg.url)
+        df = pg.query_bookmarks(pg.userID, [pg.url])
+        assert df['bookmarked']
+
     def test_add_to_and_delete_from_cookbook(self, pg):
 
         # Try adding existing entry
