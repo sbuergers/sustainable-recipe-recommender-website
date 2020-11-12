@@ -106,10 +106,17 @@ def compare_recipes(search_term, page=0, Np=20):
     similarity = [round(v*100) for v in results['similarity'].values]
 
     # Retrieve or predict user ratings
+    # TODO: Currently user_ratings isn't used at all
     if current_user.is_authenticated:
-        user_results = sq.query_user_ratings(current_user.userID,
-                                             list(results['url'].values))
+        urls = list(results['url'].values)
+
+        # User ratings
+        user_results = sq.query_user_ratings(current_user.userID, urls)
         user_ratings = hf.predict_user_ratings(user_results)
+
+        # Bookmarked recipes
+        df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
+        results = results.merge(df_bookmarks, how='left', on='recipesID')
     else:
         user_ratings = None
 

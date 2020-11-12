@@ -365,6 +365,28 @@ class Sql_queries():
             results[dt] = pd.to_datetime(results[dt])
         return results
 
+    def query_bookmarks(self, userID, urls):
+        """
+        DESCRIPTION:
+            For all recipes (given in list urls) check if it has
+            been bookmarked by the user (return boolean list).
+        INPUT:
+            userID (Integer): userID from users table
+            urls (List of strings): Url strings from recipes table
+        OUTPUT:
+            Pandas DataFrame with columns 'recipesID' and 'bookmarked'
+        """
+        sql_query = self.session.query(
+            Recipe, Like
+        ).join(
+            Like, Like.recipesID == Recipe.recipesID, isouter=True
+        ).filter(
+            Like.userID == userID,
+            Recipe.url.in_(urls)
+        )
+        df = pd.read_sql(sql_query.statement, self.session.bind)
+        return df[['recipesID', 'bookmarked']]
+
     def is_in_cookbook(self, userID, url):
         """
         DESCRIPTION:
