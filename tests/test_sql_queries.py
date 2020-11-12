@@ -28,7 +28,8 @@ def pg(app):
     from application.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
-    pg.url = pg.search_term
+    pg.url = 'pineapple-shrimp-noodle-bowls'
+    pg.url_bookmark = 'pineapple-shrimp-noodle-bowls'
     pg.urls_exist = [pg.url, 'cold-sesame-noodles-12715']
     pg.urls_dont_exist = ['i-am-not-a-recipe-link', 'neither-am-i']
     pg.fuzzy_search_term = 'chicken'
@@ -142,15 +143,16 @@ class TestSqlQueries:
         assert not result
 
     def test_query_bookmarks(self, pg):
-        # un-bookmark url
-        pg.remove_from_cookbook(pg.userID, pg.url)
-        df = pg.query_bookmarks(pg.userID, [pg.url])
-        assert df['bookmarked'] is False
 
-        # bookmark
-        pg.add_to_cookbook(pg.userID, pg.url)
-        df = pg.query_bookmarks(pg.userID, [pg.url])
-        assert df['bookmarked']
+        # un-bookmark url
+        pg.remove_from_cookbook(pg.userID, pg.url_bookmark)
+        df = pg.query_bookmarks(pg.userID, [pg.url_bookmark])
+        assert df.empty
+
+        # bookmarked url
+        pg.add_to_cookbook(pg.userID, pg.url_bookmark)
+        df = pg.query_bookmarks(pg.userID, [pg.url_bookmark])
+        assert df['bookmarked'][0]
 
     def test_add_to_and_delete_from_cookbook(self, pg):
 
