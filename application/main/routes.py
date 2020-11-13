@@ -117,6 +117,7 @@ def compare_recipes(search_term, page=0, Np=20):
         # Bookmarked recipes
         df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
         results = results.merge(df_bookmarks, how='left', on='recipesID')
+        results['bookmarked'].fillna(False, inplace=True)
     else:
         user_ratings = None
 

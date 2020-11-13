@@ -385,6 +385,9 @@ class Sql_queries():
             Recipe.url.in_(urls)
         )
         df = pd.read_sql(sql_query.statement, self.session.bind)
+
+        # I got 2 recipeID columns, keep only one!
+        df = df.loc[:, ~df.columns.duplicated()]
         return df[['recipesID', 'bookmarked']]
 
     def is_in_cookbook(self, userID, url):
