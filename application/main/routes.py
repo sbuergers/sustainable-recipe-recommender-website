@@ -77,6 +77,8 @@ def compare_recipes(search_term, page=0, Np=20):
         page = int(page)
     else:
         page = 0
+
+    # TODO: Consider moving bookmark logic to separate route
     bookmark = request.args.get('bookmark')
 
     # Add recipe to cookbook
@@ -138,31 +140,6 @@ def compare_recipes(search_term, page=0, Np=20):
                            search_term=search_term,
                            page=page,
                            bp=bp)
-
-
-@bp.route('/about', methods=['GET', 'POST'])
-def about():
-
-    # navbar-search
-    search_form = SearchForm()
-    search_term = search_form.search.data
-    if search_term:
-        redirect(url_for('main.search_results'))
-
-    return render_template('about.html', search_form=search_form)
-
-
-# insecure, avoid user input!
-@bp.route('/blog', methods=['GET', 'POST'])
-def blog():
-
-    # navbar-search
-    search_form = SearchForm()
-    search_term = search_form.search.data
-    if search_term:
-        redirect(url_for('main.search_results'))
-
-    return render_template('blog.html', search_form=search_form)
 
 
 @bp.route('/profile')
@@ -241,6 +218,31 @@ def unlike_recipe(recipe_url):
         return redirect(url_for('main.profile', sort_by=sort_by))
     else:
         return redirect(url_for('main.profile', sort_by=sort_by))
+
+
+@bp.route('/about', methods=['GET', 'POST'])
+def about():
+
+    # navbar-search
+    search_form = SearchForm()
+    search_term = search_form.search.data
+    if search_term:
+        redirect(url_for('main.search_results'))
+
+    return render_template('about.html', search_form=search_form)
+
+
+# insecure, avoid user input!
+@bp.route('/blog', methods=['GET', 'POST'])
+def blog():
+
+    # navbar-search
+    search_form = SearchForm()
+    search_term = search_form.search.data
+    if search_term:
+        redirect(url_for('main.search_results'))
+
+    return render_template('blog.html', search_form=search_form)
 
 
 # eof

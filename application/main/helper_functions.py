@@ -7,15 +7,15 @@ def sort_search_results(results, sort_by):
             similar recipes to reference recipe to be diplayed
 
         sort_by (string): What metric to sort rows by. Can be one of
-            ['similarity', 'sustainability', 'rating'],
-            default = 'similarity'
+            ['similarity', 'sustainability', 'rating'], or a user
+            specified column name. default = 'similarity'
     OUTPUT:
         Updated results dataframe sorted as requested.
     '''
     # When sort_by is empty, simply return input dataframe
-    # This can happen when they URL is tempered with manually
+    # This can happen when the URL is tempered with manually
     if not sort_by:
-        return results
+        sort_by = 'similarity'
 
     # Otherwise try to sort
     sort_by = sort_by.lower()
@@ -25,6 +25,8 @@ def sort_search_results(results, sort_by):
         return results.sort_values(by='emissions', ascending=True)
     if sort_by == 'rating':
         return results.sort_values(by='rating', ascending=False)
+    else:
+        return results.sort_values(by=sort_by, ascending=False)
     return results
 
 
