@@ -93,6 +93,22 @@ def compare_recipes(search_term, page=0, Np=20):
     # Get top 199 most similar recipes
     results = sq.content_based_search(search_term)
 
+    # Retrieve or predict user ratings
+    # TODO: Currently user_ratings isn't used at all
+    if current_user.is_authenticated:
+        urls = list(results['url'].values)
+
+        # User ratings
+        user_results = sq.query_user_ratings(current_user.userID, urls)
+        user_ratings = hf.predict_user_ratings(user_results)
+
+        # Bookmarked recipes
+        df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
+        results = results.merge(df_bookmarks, how='left', on='recipesID')
+        results['bookmarked'].fillna(False, inplace=True)
+    else:
+        user_ratings = None
+
     # Disentangle reference recipe and similar recipes
     ref_recipe = results.iloc[0]
     results = results.iloc[1::, :]
@@ -109,22 +125,6 @@ def compare_recipes(search_term, page=0, Np=20):
     emissions = [v for v in results['perc_sustainability'].values]
     emissions = [ref_recipe['perc_sustainability']] + emissions
     similarity = [round(v*100) for v in results['similarity'].values]
-
-    # Retrieve or predict user ratings
-    # TODO: Currently user_ratings isn't used at all
-    if current_user.is_authenticated:
-        urls = list(results['url'].values)
-
-        # User ratings
-        user_results = sq.query_user_ratings(current_user.userID, urls)
-        user_ratings = hf.predict_user_ratings(user_results)
-
-        # Bookmarked recipes
-        df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
-        results = results.merge(df_bookmarks, how='left', on='recipesID')
-        results['bookmarked'].fillna(False, inplace=True)
-    else:
-        user_ratings = None
 
     # make figures
     bp = ap.bar_compare_emissions(ref_recipe, results, sort_by=sort_by)

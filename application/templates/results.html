@@ -105,8 +105,27 @@
 <!-- Reference recipe -->
 <div class="row">
     <div class="col col-6">
+        
         <!-- Title -->
         <h3>{{ reference_recipe['title'] }}</h3> 
+
+        <!-- Header -->
+        {% if reference_recipe['bookmarked'] %}
+            <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=reference_recipe['url']) }}">
+                <div class="cookbook">
+                    <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
+                    <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
+                </div>
+            </a>
+        {% else %}
+            <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=reference_recipe['url']) }}">
+                <div class="cookbook">
+                    <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
+                    <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
+                </div>
+            </a>
+        {% endif %}
+        |
         <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + reference_recipe['url']}}" 
             target="_blank">
             Visit recipe
