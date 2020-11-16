@@ -242,7 +242,7 @@
 .btn-like-unrated:active,
 .btn-like-unrated:focus,
 .btn-like-unrated.active {
-  color:#28a745;
+  color:#0026ff;
 }
 
 .btn-dislike-unrated {
@@ -261,7 +261,7 @@
 }
 
 .btn-like-rated {
-  color: #28a745;
+  color: #0026ff;
   background-color: #ffffff;
   border-color: #ffffff;
   font-weight: bold;
