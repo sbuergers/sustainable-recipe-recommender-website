@@ -45,6 +45,17 @@ def search_results(page=0):
 
     if len(results) > 0:
 
+        # Add recipe to cookbook
+        # TODO put in helper function
+        bookmark = request.args.get('bookmark')
+        if bookmark:
+            if current_user.is_anonymous:
+                return redirect(url_for('auth.signin'))
+            if sq.is_in_cookbook(current_user.userID, bookmark):
+                sq.remove_from_cookbook(current_user.userID, bookmark)
+            else:
+                sq.add_to_cookbook(current_user.userID, bookmark)
+
         # ratings and emissions need to be passed separately for JS
         ratings = list(results['perc_rating'].values)
         emissions = [v for v in results['perc_sustainability'].values]
@@ -75,10 +86,9 @@ def compare_recipes(search_term, page=0, Np=20):
     else:
         page = 0
 
-    # TODO: Consider moving bookmark logic to separate route
-    bookmark = request.args.get('bookmark')
-
     # Add recipe to cookbook
+    # TODO put in helper function
+    bookmark = request.args.get('bookmark')
     if bookmark:
         if current_user.is_anonymous:
             return redirect(url_for('auth.signin'))
