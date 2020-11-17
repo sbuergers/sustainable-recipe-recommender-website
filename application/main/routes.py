@@ -5,9 +5,6 @@ from flask import render_template, request, redirect, url_for
 from flask import session
 from flask_login import login_required, current_user
 
-# Pandas
-import pandas as pd
-
 # User made modules
 import application.main.helper_functions as hf
 import application.main.altair_plots as ap
