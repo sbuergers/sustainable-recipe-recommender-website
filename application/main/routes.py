@@ -24,22 +24,28 @@ sq = Sql_queries(db.session)
 @bp.route('/home', methods=['GET', 'POST'])
 def home():
     search_form = SearchForm()
-    session['search_query'] = search_form.search.data
     if request.method == 'POST':
+        session['search_query'] = search_form.search.data
         return redirect((url_for('main.search_results')))
     return render_template('home.html', search_form=search_form)
 
 
 @bp.route('/search', methods=['GET', 'POST'])
-def search_results(page=0):
+def search_results():
+
+    # We either get the search_term from the SearchForm, or we
+    # use the "old" query saved in session
     search_form = SearchForm()
-    search_term = search_form.search.data
+    if request.method == 'POST':
+        search_term = search_form.search.data
+        session['search_query'] = search_form.search.data
+    else:
+        search_term = session['search_query']
 
     # exact match? Suggest alternatives!
     if sq.exact_recipe_match(search_term):
         return redirect(url_for('main.compare_recipes',
-                                search_term=search_term,
-                                page=page))
+                                search_term=search_term))
     # fuzzy search
     results = sq.search_recipes(search_term)
 

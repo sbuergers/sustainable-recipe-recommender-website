@@ -113,14 +113,14 @@
 
             <!-- Links -->
             {% if df['bookmarked'] %}
-                <a href="{{ url_for('main.search_results', search_term=search_term, page=page, bookmark=df['url']) }}">
+                <a href="{{ url_for('main.search_results', bookmark=df['url']) }}">
                     <div class="cookbook">
                         <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
                         <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
                     </div>
                 </a>
             {% else %}
-                <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=df['url']) }}">
+                <a href="{{ url_for('main.search_results', bookmark=df['url']) }}">
                     <div class="cookbook">
                         <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
                         <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">

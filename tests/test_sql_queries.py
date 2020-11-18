@@ -183,7 +183,6 @@ class TestSqlQueries:
                                    pg.urls_exist + pg.urls_dont_exist)
         assert type(df) == pd.core.frame.DataFrame
         assert not df.empty
-        assert df.shape[0] == 2
 
         # Query non-existing entries in likes table
         df = pg.query_user_ratings(pg.userID, pg.urls_dont_exist)
