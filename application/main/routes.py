@@ -62,6 +62,17 @@ def search_results():
             else:
                 sq.add_to_cookbook(current_user.userID, bookmark)
 
+        # Retrieve or predict user ratings
+        # TODO: Currently user_ratings isn't used at all
+        # - put in helper fun, used in compare_recipes and search_results
+        if current_user.is_authenticated:
+            urls = list(results['url'].values)
+
+            # Bookmarked recipes
+            df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
+            results = results.merge(df_bookmarks, how='left', on='recipesID')
+            results['bookmarked'].fillna(False, inplace=True)
+
         # ratings and emissions need to be passed separately for JS
         ratings = list(results['perc_rating'].values)
         emissions = [v for v in results['perc_sustainability'].values]
@@ -108,6 +119,7 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Retrieve or predict user ratings
     # TODO: Currently user_ratings isn't used at all
+    # - put in helper fun, used in compare_recipes and search_results
     if current_user.is_authenticated:
         urls = list(results['url'].values)
 
