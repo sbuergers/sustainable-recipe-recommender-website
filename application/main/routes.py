@@ -52,15 +52,7 @@ def search_results():
     if len(results) > 0:
 
         # Add recipe to cookbook
-        # TODO put in helper function
-        bookmark = request.args.get('bookmark')
-        if bookmark:
-            if current_user.is_anonymous:
-                return redirect(url_for('auth.signin'))
-            if sq.is_in_cookbook(current_user.userID, bookmark):
-                sq.remove_from_cookbook(current_user.userID, bookmark)
-            else:
-                sq.add_to_cookbook(current_user.userID, bookmark)
+        hf.add_or_remove_bookmark(sq)
 
         # Retrieve or predict user ratings
         # TODO: Currently user_ratings isn't used at all
@@ -104,15 +96,7 @@ def compare_recipes(search_term, page=0, Np=20):
         page = 0
 
     # Add recipe to cookbook
-    # TODO put in helper function
-    bookmark = request.args.get('bookmark')
-    if bookmark:
-        if current_user.is_anonymous:
-            return redirect(url_for('auth.signin'))
-        if sq.is_in_cookbook(current_user.userID, bookmark):
-            sq.remove_from_cookbook(current_user.userID, bookmark)
-        else:
-            sq.add_to_cookbook(current_user.userID, bookmark)
+    hf.add_or_remove_bookmark(sq)
 
     # Get top 199 most similar recipes
     results = sq.content_based_search(search_term)

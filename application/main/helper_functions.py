@@ -1,3 +1,9 @@
+
+# Flask modules and forms
+from flask import request, redirect, url_for
+from flask_login import current_user
+
+
 def sort_search_results(results, sort_by):
     '''
     DESCRIPTION:
@@ -45,6 +51,28 @@ def predict_user_ratings(df):
     df['user_rating'].fillna(value=5, inplace=True)
     user_ratings = [round(v/5*100) for v in df['user_rating'].values]
     return user_ratings
+
+
+def add_or_remove_bookmark(sq):
+    '''
+    DESCRIPTION:
+        Checks if a GET request contains a 'bookmark', meaning that a user
+        has clicked the 'bookmark' button of a recipe. If so, either adds
+        or deletes the recipe from the user's cookbook. Can be called in
+        any route in routes.py.
+    INPUT:
+        sq: sql_queries object (see sql_queries.py)
+    OUTPUT:
+        None
+    '''
+    bookmark = request.args.get('bookmark')
+    if bookmark:
+        if current_user.is_anonymous:
+            return redirect(url_for('auth.signin'))
+        if sq.is_in_cookbook(current_user.userID, bookmark):
+            sq.remove_from_cookbook(current_user.userID, bookmark)
+        else:
+            sq.add_to_cookbook(current_user.userID, bookmark)
 
 
 # eof
