@@ -290,5 +290,21 @@
   color: #868e96;
 }
 
+/* Delete button */
+.btn-delete {
+  color: #868e96;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-delete:hover,
+.btn-delete:active,
+.btn-delete:focus,
+.btn-delete.active {
+  color:#dc3545;
+}
+
 
 /* eof */

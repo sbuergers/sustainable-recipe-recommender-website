@@ -173,11 +173,11 @@
                     
                     <!-- Links -->
                     <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" target="_blank">
-                        Full recipe
+                        recipe
                     </a>
                     |
                     <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=0) }}">
-                        Similar recipes
+                        suggestions
                     </a>
                     |
                     <!-- Like / unlike recipe -->
@@ -186,13 +186,13 @@
                         <!-- recipe was liked -->
                         <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
                             {{ like_form.csrf_token }}
-                            <button type="submit" class="btn btn-dislike-unrated btn-sm">
+                            <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
                                 <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                             </button>
                         </form>
                         <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
                             {{ like_form.csrf_token }}
-                            <button type="submit" class="btn btn-like-rated btn-sm">
+                            <button type="submit" class="btn btn-like-rated btn-sm" title="Like recipe">
                                 <i class="fa fa-thumbs-up" aria-hidden="true"></i>
                             </button>
                         </form>
@@ -201,13 +201,13 @@
                         <!-- recipe was disliked -->
                         <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
                             {{ like_form.csrf_token }}
-                            <button type="submit" class="btn btn-dislike-rated btn-sm">
+                            <button type="submit" class="btn btn-dislike-rated btn-sm" title="Dislike recipe">
                                 <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                             </button>
                         </form>
                         <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
                             {{ like_form.csrf_token }}
-                            <button type="submit" class="btn btn-like-unrated btn-sm">
+                            <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
                                 <i class="fa fa-thumbs-up" aria-hidden="true"></i>
                             </button>
                         </form>
@@ -216,17 +216,25 @@
                         <!-- recipe was neither liked nor disliked -->
                         <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
                             {{ like_form.csrf_token }}
-                            <button type="submit" class="btn btn-dislike-unrated btn-sm">
+                            <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
                                 <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                             </button>
                         </form>
                         <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
                             {{ like_form.csrf_token }}
-                            <button type="submit" class="btn btn-like-unrated btn-sm">
+                            <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
                                 <i class="fa fa-thumbs-up" aria-hidden="true"></i>
                             </button>
                         </form>
                     {% endif %}
+                    |
+                    <!-- Remove recipe from cookbook -->
+                    <form action="{{ url_for('main.profile', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-delete btn-sm" title="Remove from cookbook">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
 

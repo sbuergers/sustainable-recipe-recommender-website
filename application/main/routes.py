@@ -36,6 +36,7 @@ def search_results():
     # We either get the search_term from the SearchForm, or we
     # use the "old" query saved in session
     search_form = SearchForm()
+    like_form = EmptyForm()
     if request.method == 'POST':
         search_term = search_form.search.data
         session['search_query'] = search_form.search.data
@@ -71,6 +72,7 @@ def search_results():
 
         return render_template('explore.html',
                                search_form=search_form,
+                               like_form=like_form,
                                results=results,
                                ratings=ratings,
                                emissions=emissions)
@@ -86,6 +88,7 @@ def compare_recipes(search_term, page=0, Np=20):
 
     # Get params and set defaults
     search_form = SearchForm()
+    like_form = EmptyForm()
     sort_by = request.args.get('sort_by')
     if not sort_by:
         sort_by = 'Similarity'
@@ -145,13 +148,14 @@ def compare_recipes(search_term, page=0, Np=20):
                            user_ratings=user_ratings,
                            emissions=emissions,
                            similarity=similarity,
+                           like_form=like_form,
                            search_form=search_form,
                            search_term=search_term,
                            page=page,
                            bp=bp)
 
 
-@bp.route('/profile')
+@bp.route('/profile', methods=['GET'])
 @login_required
 def profile():
 
@@ -163,6 +167,9 @@ def profile():
 
     # Like/Unlike form
     like_form = EmptyForm()
+
+    # Remove bookmark
+    hf.add_or_remove_bookmark(sq)
 
     # TODO profile search
 

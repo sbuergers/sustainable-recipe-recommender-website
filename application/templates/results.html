@@ -332,34 +332,84 @@
                 </a>
             </div>
 
-            <!-- Links -->
-            {% if df['bookmarked'] %}
-                <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=df['url']) }}">
-                    <div class="cookbook">
-                        <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
-                        <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
-                    </div>
+            <!-- Below image -->
+            <div class="container-flex">
+
+                <!-- Links -->
+                <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" target="_blank">
+                    recipe
                 </a>
-            {% else %}
-                <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=df['url']) }}">
-                    <div class="cookbook">
-                        <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
-                        <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
-                    </div>
-                </a>
-            {% endif %}
                 |
-            <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
-                target="_blank">
-                Full recipe
-            </a>
-                | 
-            <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=page) }}">
-                Similar recipes
-            </a>  
+                <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=0) }}">
+                    suggestions
+                </a>
+                |
+                <!-- Like / unlike recipe -->
+                {% if df['user_rating'] == 5 %}
 
+                    <!-- recipe was liked -->
+                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-like-rated btn-sm" title="Like recipe">
+                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                {% elif df['user_rating'] == 1 %}
+
+                    <!-- recipe was disliked -->
+                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-dislike-rated btn-sm" title="Dislike recipe">
+                            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                {% else %}
+                    
+                    <!-- recipe was neither liked nor disliked -->
+                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                {% endif %}
+                |
+                <!-- bookmark / unbookmark-->
+                {% if df['bookmarked'] %}
+                    <a href="{{ url_for('main.search_results', bookmark=df['url']) }}">
+                        <div class="cookbook">
+                            <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
+                            <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
+                        </div>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('main.search_results', bookmark=df['url']) }}">
+                        <div class="cookbook">
+                            <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
+                            <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
+                        </div>
+                    </a>
+                {% endif %}
+            </div>
         </div>
-
     </div>
 {% endfor %}
 </div>
