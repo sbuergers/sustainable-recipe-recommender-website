@@ -86,17 +86,18 @@ def compare_recipes(search_term, Np=20):
     if sq.exact_recipe_match(search_term) is False:
         return redirect(url_for('main.search_results'))
 
-    # Get params and set defaults
+    # Forms
     search_form = SearchForm()
     like_form = EmptyForm()
+
+    # Sorting results
     sort_by = request.args.get('sort_by')
     if not sort_by:
         sort_by = 'Similarity'
+
+    # Pagination
     page = request.args.get('page')
-    if page:
-        page = int(page)
-    else:
-        page = 0
+    page = int(page) if page else 0
 
     # Add recipe to cookbook
     hf.add_or_remove_bookmark(sq)
@@ -157,7 +158,7 @@ def compare_recipes(search_term, Np=20):
 
 @bp.route('/profile', methods=['GET'])
 @login_required
-def profile():
+def profile(Np=20):
 
     # navbar-search
     search_form = SearchForm()
@@ -171,6 +172,10 @@ def profile():
     # Remove bookmark
     hf.add_or_remove_bookmark(sq)
 
+    # Pagination
+    page = request.args.get('page')
+    page = int(page) if page else 0
+
     # TODO profile search
 
     # Get bookmarked recipes
@@ -181,6 +186,10 @@ def profile():
     if not sort_by:
         sort_by = 'Sustainability'
     cookbook = hf.sort_search_results(cookbook, sort_by)
+    Npages = cookbook.shape[0] // Np + 1
+
+    # Select only the top Np recipes for one page
+    cookbook = cookbook[(0+page*Np):((page+1)*Np)]
 
     # TODO create separate route for personalized recommendations, see
     # https://github.com/sbuergers/sustainable-recipe-recommender-website/issues/3#issuecomment-717503064
@@ -197,7 +206,9 @@ def profile():
                            cookbook=cookbook,
                            avg_ratings=avg_ratings,
                            emissions=emissions,
-                           like_form=like_form)
+                           like_form=like_form,
+                           page=page,
+                           Npages=Npages)
 
 
 @bp.route('/like/<recipe_url>', methods=['POST'])

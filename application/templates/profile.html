@@ -82,7 +82,7 @@
 
         <!-- Sort by dropdown menu -->
         <div class="col sort_by">
-            <form action="{{ url_for('main.profile', username=username, sort_by=sort_by) }}" method="GET">
+            <form action="{{ url_for('main.profile', page=page, sort_by=sort_by) }}" method="GET">
                 <label for="sort_by">Sort by </label>
                 <select id="sort_by_form" name="sort_by">
                     <option value=sort_by></option>
@@ -246,6 +246,26 @@
     <!-- This should not be reachable, but just to be safe -->
     You need to sign in before being able to view your personal profile page. 
 {% endif %}
+
+<!-- Page navigation -->
+<!-- TODO: Highlight currently selected website. Disable buttons when appropriate -->
+<br>
+<br>
+<nav aria-label="Search results pages">
+    <ul class="pagination justify-content-center">
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.profile', page=page-1) }}">Previous</a>
+        </li>
+        {% for i in range(0,Npages) %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.profile', page=i) }}">{{ i }}</a>
+        </li>
+        {% endfor %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.profile', page=page+1) }}">Next</a>
+        </li>
+    </ul>
+</nav>
 
 {% endblock %}
 
