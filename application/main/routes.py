@@ -80,7 +80,7 @@ def search_results():
 
 
 @bp.route('/search/<search_term>', methods=['GET'])
-def compare_recipes(search_term, page=0, Np=20):
+def compare_recipes(search_term, Np=20):
 
     # No exact match found
     if sq.exact_recipe_match(search_term) is False:
