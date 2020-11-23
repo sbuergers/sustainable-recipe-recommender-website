@@ -33,7 +33,6 @@ def sort_search_results(results, sort_by):
         return results.sort_values(by='rating', ascending=False)
     else:
         return results.sort_values(by=sort_by, ascending=False)
-    return results
 
 
 def predict_user_ratings(df):
