@@ -95,4 +95,5 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
     # Return .json of chart
     return bars.to_json()
 
+
 # eof
