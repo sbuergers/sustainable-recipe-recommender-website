@@ -181,6 +181,13 @@ def profile(Np=20):
     # Get bookmarked recipes
     cookbook = sq.query_cookbook(current_user.userID)
 
+    # Prepare figure data
+    df_hist = sq.query_all_recipe_emissions()
+    df_hist['reference'] = df_hist.url.isin(cookbook['url'])
+    df_hist.rename(columns={'emissions_log10': 'log10(Emissions)',
+                            'emissions': 'Emissions',
+                            'title': 'Title'}, inplace=True)
+
     # Sort by similarity, sustainability or rating
     sort_by = request.args.get('sort_by')
     if not sort_by:
@@ -199,7 +206,9 @@ def profile(Np=20):
     avg_ratings = list(cookbook['perc_rating'].values)
     emissions = [v for v in cookbook['perc_sustainability'].values]
 
-    # TODO Make figures
+    # Make figures
+    hist_title = "Emissions distribution of cookbook recipes"
+    hist_emissions = ap.histogram_emissions(df_hist, hist_title)
 
     return render_template('profile.html',
                            search_form=search_form,
@@ -208,7 +217,8 @@ def profile(Np=20):
                            emissions=emissions,
                            like_form=like_form,
                            page=page,
-                           Npages=Npages)
+                           Npages=Npages,
+                           hist_emissions=hist_emissions)
 
 
 @bp.route('/like/<recipe_url>', methods=['POST'])

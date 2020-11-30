@@ -316,6 +316,23 @@ class Sql_queries():
         results = results.sort_values(by='rank', ascending=False)
         return results
 
+    def query_all_recipe_emissions(self):
+        """
+        DESCRIPTION:
+            Retrieves emission scores from all recipes, their title and url.
+        INPUT:
+            None
+        OUTPUT:
+            df (pandas.DataFrame): With columns "recipesID", "emissions",
+                                   "emissions_log10", "url", "title"
+        """
+        query = self.session.query(Recipe.recipesID,
+                                   Recipe.emissions,
+                                   Recipe.emissions_log10,
+                                   Recipe.url,
+                                   Recipe.title)
+        return pd.read_sql(query.statement, self.session.bind)
+
     def query_cookbook(self, userID):
         """
         DESCRIPTION:

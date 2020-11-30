@@ -113,6 +113,8 @@ def histogram_emissions(data, title):
     OUTPUT:
         Altair json object
     '''
+    alt.data_transformers.disable_max_rows()  # TODO find a better solution
+
     col = '#1f77b4'  # try different color?
 
     # background chart (histogram of all emissions)

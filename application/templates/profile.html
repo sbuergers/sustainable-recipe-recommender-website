@@ -14,6 +14,12 @@
 <!-- Get CDNs -->
 <link href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" rel="stylesheet">
 
+<!-- Get Vega for importing Altair plots -->
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-interpreter@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
 <!---------------------------------------------------->
 <!--                      JS                        -->
 <!---------------------------------------------------->
@@ -58,6 +64,18 @@
                   class_selector=".emissions", 
                   icon_selector=".sustainability-inner");
 
+        // ALTAIR FIGURES
+        vegaEmbed(
+            "#hist-emissions", 
+            JSON.parse({{ hist_emissions | tojson | safe}}),
+            {
+                renderer: 'svg', 
+                ast: true,
+                tooltip: false,
+                actions: false
+            }
+        );
+
         // ONCHANGE EVENTS
         // Sort_by dropdown menu
         $(function() {
@@ -74,6 +92,7 @@
 <!------------------------------------->
 
 <br><br>
+
 {% if current_user.is_authenticated %}
     <div class="row">
 
@@ -94,6 +113,9 @@
             </form>
         </div>
     </div>
+
+    <!-- Figure 1: Histogram of emission scores -->
+    <div class="col-12 col-sm-6 col-lg-4 col-xl-4 left-padded" id='hist-emissions'></div>   
 
     <div class="row">
     {% for recipeID, df in cookbook.iterrows() %}
