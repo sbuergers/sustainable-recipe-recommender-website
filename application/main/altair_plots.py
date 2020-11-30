@@ -92,8 +92,83 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
         # TODO option for plotting absolute emission scores
         pass
 
-    # Return .json of chart
     return bars.to_json()
+
+
+def histogram_emissions(data, title):
+    '''
+    DESCRIPTION:
+        Creates a histogram of emission scores of a list of reference
+        recipes, with the distribution of all emission scores as the
+        background.
+
+    INPUT:
+        data (pandas.DataFrame): With columns
+            Emissions (Float): log10-scaled emission scores
+            url (String): recipe url (e.g. "pineapple-shrimp-noodles")
+            Title (String): recipe title (e.g. "Pineapple shrimp noodles")
+            reference (boolean): True for all reference recipes to highlight
+        title (String): Figure title
+
+    OUTPUT:
+        Altair json object
+    '''
+    col = '#1f77b4'  # try different color?
+
+    # background chart (histogram of all emissions)
+    source = data
+    bg_chart = alt.Chart(source).mark_area(
+        color=col,
+        opacity=0.3,
+    ).encode(
+        alt.X("log10(Emissions):Q",
+              axis=alt.Axis(title='log10(Emissions (kg CO2 eq.))'),
+              scale=alt.Scale(type='linear', domain=(-1.5, 2.5)),
+              bin=alt.BinParams(maxbins=300),
+              ),
+        alt.Y('count(*):Q',
+              axis=alt.Axis(title='Number of recipes (all)'),
+              stack=None
+              ),
+    ).properties(
+        width=800,
+        height=300,
+        title=title
+        )
+
+    # foreground chart - e.g. cookbook recipes
+    source = data.loc[data['reference'], :]
+    fg_chart = alt.Chart(source).mark_bar(
+        color=col
+    ).encode(
+        x=alt.X("log10(Emissions):Q",
+                scale=alt.Scale(type='linear', domain=(-1.5, 2.5)),
+                bin=alt.BinParams(maxbins=300),
+                ),
+        y=alt.Y('count(*):Q',
+                axis=alt.Axis(title='Number of recipes (selection)'),
+                stack=None
+                ),
+        tooltip=['Title', 'Emissions'],
+        href='link:N',
+    ).properties(width=800, height=300).interactive()
+
+    # Set different y-axes for background and foreground and make pretty
+    full_chart = alt.layer(bg_chart, fg_chart).resolve_scale(
+        y='independent'
+    ).configure_axis(
+        labelFontSize=16,
+        titleFontSize=16,
+        labelFontWeight='normal',
+        titleFontWeight='normal',
+        labelColor='gray',
+        titleColor='gray',
+    ).configure_title(
+        fontSize=22,
+        fontWeight='normal'
+    )
+
+    return full_chart.to_json()
 
 
 # eof
