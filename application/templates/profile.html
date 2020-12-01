@@ -98,8 +98,17 @@
 
         <!-- Section Title -->
         <div class="col"><h3>{{current_user.username}}'s cookbook</h3></div>
+    </div>
 
-        <!-- Sort by dropdown menu -->
+    <br>
+
+    <!-- Figure 1: Histogram of emission scores -->
+    <div class="row">
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-4 left-padded" id='hist-emissions'></div>   
+    </div>
+
+    <!-- Sort by dropdown menu -->
+    <div class="row">
         <div class="col sort_by">
             <form action="{{ url_for('main.profile', page=page, sort_by=sort_by) }}" method="GET">
                 <label for="sort_by">Sort by </label>
@@ -113,11 +122,6 @@
             </form>
         </div>
     </div>
-
-    <br>
-
-    <!-- Figure 1: Histogram of emission scores -->
-    <div class="col-12 col-sm-6 col-lg-4 col-xl-4 left-padded" id='hist-emissions'></div>   
 
     <div class="row">
     {% for recipeID, df in cookbook.iterrows() %}
