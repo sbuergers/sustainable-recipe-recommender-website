@@ -123,6 +123,12 @@ class TestSqlQueries:
         pg.content_based_search(pg.search_term)
         pg.fuzzy_search(pg.fuzzy_search_term)
 
+    def test_query_all_recipe_emissions(self, pg):
+        df = pg.query_all_recipe_emissions()
+        assert sorted(list(df.columns.values)) == \
+               ['emissions', 'emissions_log10', 'recipesID', 'title', 'url']
+        assert df.shape[0] > 36000
+
     def test_query_cookbook(self, pg):
         result = pg.query_cookbook(pg.userID)
         assert result['username'][0] == 'asdfjlq;weruioasdnf'
