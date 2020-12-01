@@ -95,7 +95,8 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
     return bars.to_json()
 
 
-def histogram_emissions(data, title):
+def histogram_emissions(data, title,
+                        base_url='https://sustainable-recipe-recommender.herokuapp.com/search/'):
     '''
     DESCRIPTION:
         Creates a histogram of emission scores of a list of reference
@@ -109,6 +110,7 @@ def histogram_emissions(data, title):
             Title (String): recipe title (e.g. "Pineapple shrimp noodles")
             reference (boolean): True for all reference recipes to highlight
         title (String): Figure title
+        base_url (String): Base url of the recipe search website
 
     OUTPUT:
         Altair json object
@@ -119,7 +121,9 @@ def histogram_emissions(data, title):
 
     # background chart (histogram of all emissions)
     source = data
-    bg_chart = alt.Chart(source).mark_area(
+    bg_chart = alt.Chart(
+        source
+    ).mark_area(
         color=col,
         opacity=0.3,
     ).encode(
@@ -140,7 +144,11 @@ def histogram_emissions(data, title):
 
     # foreground chart - e.g. cookbook recipes
     source = data.loc[data['reference'], :]
-    fg_chart = alt.Chart(source).mark_bar(
+    fg_chart = alt.Chart(
+        source
+    ).transform_calculate(
+        link=base_url + alt.datum.url + '?sort_by=' + 'Similarity'
+    ).mark_bar(
         color=col
     ).encode(
         x=alt.X("log10(Emissions):Q",
