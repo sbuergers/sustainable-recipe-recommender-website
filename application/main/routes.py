@@ -181,6 +181,16 @@ def profile(Np=20):
     # Get bookmarked recipes
     cookbook = sq.query_cookbook(current_user.userID)
 
+    # Descriptive statistics to show the user
+    Nrecipes = cookbook.shape[0]
+    Nliked = sum(cookbook['user_rating'] == 5)
+    Ndisliked = sum(cookbook['user_rating'] == 1)
+    favorite_recipes = ['']  # TODO write helper func
+    favorite_categories = ['']  # TODO write helper func
+    mean_cookbook_emissions = round(sum(cookbook['emissions']) /
+                                    cookbook.shape[0], 2)
+    recommendations = ['']  # TODO write helper func
+
     # Prepare figure data
     df_hist = sq.query_all_recipe_emissions()
     df_hist['reference'] = df_hist.url.isin(cookbook['url'])
@@ -213,6 +223,13 @@ def profile(Np=20):
     return render_template('profile.html',
                            search_form=search_form,
                            cookbook=cookbook,
+                           Nrecipes=Nrecipes,
+                           Nliked=Nliked,
+                           Ndisliked=Ndisliked,
+                           favorite_recipes=favorite_recipes,
+                           favorite_categories=favorite_categories,
+                           mean_cookbook_emissions=mean_cookbook_emissions,
+                           recommendations=recommendations,
                            avg_ratings=avg_ratings,
                            emissions=emissions,
                            like_form=like_form,

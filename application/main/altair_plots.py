@@ -156,7 +156,7 @@ def histogram_emissions(data, title,
                 bin=alt.BinParams(maxbins=200),
                 ),
         y=alt.Y('count(*):Q',
-                axis=alt.Axis(title='Number of recipes (selection)'),
+                axis=None,
                 stack=None
                 ),
         tooltip=['Title', 'Emissions'],
