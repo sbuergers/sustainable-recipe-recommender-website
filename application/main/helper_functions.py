@@ -1,4 +1,3 @@
-
 # Flask modules and forms
 from flask import request, redirect, url_for
 from flask_login import current_user
@@ -72,6 +71,23 @@ def add_or_remove_bookmark(sq):
             sq.remove_from_cookbook(current_user.userID, bookmark)
         else:
             sq.add_to_cookbook(current_user.userID, bookmark)
+
+
+def get_favorite_recipes(df, N):
+    '''
+    DESCRIPTION:
+        retrieves the names of the N most favorite recipes. For now favorite
+        recipes are those with a "thumbs up", i.e. rating equal to 5.
+    INPUT:
+        df (pandas.DataFrame): "cookbook" dataframe (see profile in routes.py)
+        N (Integer): Maximum number of titles to return
+    OUTPUT:
+        titles (List of strings): List of favorite recipe titles
+    '''
+    return list(
+        df.sort_values(by='user_rating', ascending=False)
+        .loc[df['user_rating'] == 5, 'title']
+    )[0:N]
 
 
 # eof
