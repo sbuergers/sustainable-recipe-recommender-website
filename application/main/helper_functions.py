@@ -90,4 +90,26 @@ def get_favorite_recipes(df, N):
     )[0:N]
 
 
+def get_favorite_categories(df, N):
+    """
+    DESCRIPTION:
+        takes a dataframe with cookbook recipes as input and return a list
+        of two-element tuples with category and number of occurrences. Over
+        the whole categories column.
+    INPUT:
+        df (pandas.DataFrame): "cookbook" dataframe (see profile in routes.py)
+        N (Integer): Maximum number of categories to return
+    OUTPUT:
+        List of tuples (e.g. [('dinner', 18), ('vegetarian', 10)])
+    """
+    category_list = []
+    for item in df['categories']:
+        category_list.extend(item.split(';'))
+    count_table = [(el, category_list.count(el)) for el in set(category_list)]
+    count_table.sort(reverse=True, key=lambda x: x[1])
+    labels = [item[0] for item in count_table]
+    counts = [item[1] for item in count_table]
+    return labels[0:N], counts[0:N]
+
+
 # eof

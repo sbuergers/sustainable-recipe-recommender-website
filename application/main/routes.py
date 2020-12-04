@@ -185,8 +185,8 @@ def profile(Np=20):
     Nrecipes = cookbook.shape[0]
     Nliked = sum(cookbook['user_rating'] == 5)
     Ndisliked = sum(cookbook['user_rating'] == 1)
-    favorite_recipes = hf.get_favorite_recipes(cookbook, 3)
-    favorite_categories = ['']  # TODO write helper func
+    fav_recipes = hf.get_favorite_recipes(cookbook, 3)
+    fav_categ, fav_categ_cnt = hf.get_favorite_categories(cookbook, 7)
     mean_cookbook_emissions = round(sum(cookbook['emissions']) /
                                     cookbook.shape[0], 2)
     recommendations = ['']  # TODO write helper func
@@ -226,8 +226,9 @@ def profile(Np=20):
                            Nrecipes=Nrecipes,
                            Nliked=Nliked,
                            Ndisliked=Ndisliked,
-                           favorite_recipes=favorite_recipes,
-                           favorite_categories=favorite_categories,
+                           fav_recipes=fav_recipes,
+                           fav_categ=fav_categ,
+                           fav_categ_cnt=fav_categ_cnt,
                            mean_cookbook_emissions=mean_cookbook_emissions,
                            recommendations=recommendations,
                            avg_ratings=avg_ratings,
