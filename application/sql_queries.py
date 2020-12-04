@@ -348,7 +348,8 @@ class Sql_queries():
             SELECT u."userID", u.username,
                 l.created, l.rating,
                 r.title, r.url, r.perc_rating, r.perc_sustainability,
-                r.review_count, r.image_url, r.emissions, r.prop_ingredients
+                r.review_count, r.image_url, r.emissions, r.prop_ingredients,
+                r.categories
                 FROM users u
                 JOIN likes l ON (u.username = l.username)
                 JOIN recipes r ON (l."recipesID" = r."recipesID")
@@ -362,24 +363,27 @@ class Sql_queries():
         recipes = self.session.execute(query).fetchall()
 
         # Convert to DataFrame
-        col_sel = ["userID", "username", "created", "user_rating",
-                   "title", "url", "perc_rating", "perc_sustainability",
-                   "review_count", "image_url", "emissions",
-                   "prop_ingredients"]
-        results = pd.DataFrame(recipes, columns=col_sel)
+        colsel = ["userID", "username", "created", "user_rating",
+                  "title", "url", "perc_rating", "perc_sustainability",
+                  "review_count", "image_url", "emissions", "prop_ingredients",
+                  "categories"]
+        results = pd.DataFrame(recipes, columns=colsel)
 
         # Assign data types
         numerics = ['userID', 'user_rating', 'perc_rating',
                     'perc_sustainability', 'review_count', 'emissions',
                     'prop_ingredients']
-        strings = ['username', 'title', 'url', 'image_url']
+        strings = ['username', 'title', 'url', 'image_url',
+                   'categories']
         datetimes = ['created']
+
         for num in numerics:
             results[num] = pd.to_numeric(results[num])
         for s in strings:
             results[s] = results[s].astype('str')
         for dt in datetimes:
             results[dt] = pd.to_datetime(results[dt])
+
         return results
 
     def query_bookmarks(self, userID, urls):
