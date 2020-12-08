@@ -76,18 +76,17 @@ def add_or_remove_bookmark(sq):
 def get_favorite_recipes(df, N):
     '''
     DESCRIPTION:
-        retrieves the names of the N most favorite recipes. For now favorite
+        retrieves the N most favorite recipes. For now favorite
         recipes are those with a "thumbs up", i.e. rating equal to 5.
     INPUT:
         df (pandas.DataFrame): "cookbook" dataframe (see profile in routes.py)
         N (Integer): Maximum number of titles to return
     OUTPUT:
-        titles (List of strings): List of favorite recipe titles
+        df_fav (pandas.DataFrame) with columns "title", "user_rating" and
+             "url", sorted by user_rating (descending), and clipped at row N.
     '''
-    return list(
-        df.sort_values(by='user_rating', ascending=False)
-        .loc[df['user_rating'] == 5, 'title']
-    )[0:N]
+    return df.sort_values(by='user_rating', ascending=False)\
+        .loc[df['user_rating'] == 5, ['title', 'user_rating', 'url']][0:N]
 
 
 def get_favorite_categories(df, N):

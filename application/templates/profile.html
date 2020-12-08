@@ -104,16 +104,21 @@
 
     <!-- Figure 1: Histogram of emission scores -->
     <div class="row">
-        <div class="col-9" id='hist-emissions'></div>  
         <div class="col-3">
             <p><h5> </h5></p>
             <p>Recipes in cookbook: {{ Nrecipes }} </p>
             <p>Liked recipes: {{ Nliked }} </p>
             <p>Disliked recipes: {{ Ndisliked }} </p>
-            <p>Favorite recipes: {{ ", ".join(fav_recipes) }} </p>  <!-- add item list? -->
+            <p>Favorite recipes: 
+                {% for recipeID, df in cookbook.iterrows() %}
+                {{ fav_recipes }} 
+                {% endfor %}
+            </p>
             <p>Favorite categories: {{ ", ".join(fav_categ) }} </p>  <!-- add counts in parantheses? -->
             <p>Mean emissions per recipe: {{ mean_cookbook_emissions }} kg </p>
         </div> 
+        <div class="figure1 col-8 left-padded" id='hist-emissions'></div>  
+        <div class="col-0.5"></div>
     </div>
 
     <!-- Sort by dropdown menu -->
