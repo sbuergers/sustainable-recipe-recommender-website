@@ -73,7 +73,7 @@ def search_results(search_term):
     return redirect('/')
 
 
-@bp.route('/recipe/<search_term>', methods=['GET'])
+@bp.route('/recipe/<search_term>', methods=['GET', 'POST'])
 def compare_recipes(search_term, Np=20):
 
     # No exact match found
@@ -150,7 +150,7 @@ def compare_recipes(search_term, Np=20):
                            bp=bp)
 
 
-@bp.route('/profile', methods=['GET'])
+@bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile(Np=20):
 
