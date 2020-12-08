@@ -111,7 +111,7 @@
             <p>Disliked recipes: {{ Ndisliked }} </p>
             <p>Favorite recipes: 
                 {% for fav_rec_id, fav_rec in fav_recipes.iterrows() %}
-                <a href="{{ url_for('main.compare_recipes', search_term=fav_rec['url'], page=0) }}" target="_blank">
+                <a href="{{ url_for('main.compare_recipes', search_term=fav_rec['url'], page=0) }}">
                     {{ fav_rec['title'] }}
                 </a>
                 .
