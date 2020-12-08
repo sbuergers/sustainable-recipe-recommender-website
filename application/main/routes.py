@@ -26,22 +26,16 @@ def home():
     search_form = SearchForm()
     if request.method == 'POST':
         session['search_query'] = search_form.search.data
-        return redirect((url_for('main.search_results')))
+        return redirect((url_for('main.search_results',
+                         search_term=session['search_query'])))
     return render_template('home.html', search_form=search_form)
 
 
-@bp.route('/search', methods=['GET', 'POST'])
-def search_results():
+@bp.route('/search/<search_term>', methods=['GET', 'POST'])
+def search_results(search_term):
 
-    # We either get the search_term from the SearchForm, or we
-    # use the "old" query saved in session
     search_form = SearchForm()
     like_form = EmptyForm()
-    if request.method == 'POST':
-        search_term = search_form.search.data
-        session['search_query'] = search_form.search.data
-    else:
-        search_term = session['search_query']
 
     # exact match? Suggest alternatives!
     if sq.exact_recipe_match(search_term):
@@ -79,7 +73,7 @@ def search_results():
     return redirect('/')
 
 
-@bp.route('/search/<search_term>', methods=['GET'])
+@bp.route('/recipe/<search_term>', methods=['GET'])
 def compare_recipes(search_term, Np=20):
 
     # No exact match found

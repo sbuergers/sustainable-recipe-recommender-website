@@ -6,7 +6,7 @@
 {% block title %} Recommended recipes {% endblock %}
 
 {% block navsearch %}
-    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search_results') }}" method="POST">
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.home') }}" method="POST">
         {{ search_form.search(class_='form-control', placeholder='Search') }}
         {{ search_form.csrf_token }}
     </form>
@@ -174,14 +174,14 @@
                 |
                 <!-- bookmark / unbookmark-->
                 {% if df['bookmarked'] %}
-                    <a href="{{ url_for('main.search_results', bookmark=df['url']) }}">
+                    <a href="{{ url_for('main.search_results', bookmark=df['url'], search_term=search_term) }}">
                         <div class="cookbook">
                             <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
                             <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
                         </div>
                     </a>
                 {% else %}
-                    <a href="{{ url_for('main.search_results', bookmark=df['url']) }}">
+                    <a href="{{ url_for('main.search_results', bookmark=df['url'], search_term=search_term) }}">
                         <div class="cookbook">
                             <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
                             <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
