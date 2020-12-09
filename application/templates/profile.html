@@ -274,8 +274,8 @@
                     {% endif %}
                     |
                     <!-- Remove recipe from cookbook -->
-                    <form action="{{ url_for('main.profile', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
-                        {{ like_form.csrf_token }}
+                    <form action="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], sort_by=sort_by, origin='main.profile') }}" method="GET">
+                        {{ bookmark_form.csrf_token }}
                         <button type="submit" class="btn btn-delete btn-sm" title="Remove from cookbook">
                             <i class="fa fa-times" aria-hidden="true"></i>
                         </button>

@@ -46,9 +46,6 @@ def search_results(search_term):
 
     if len(results) > 0:
 
-        # Add recipe to cookbook
-        hf.add_or_remove_bookmark(sq)
-
         # Retrieve or predict user ratings
         # TODO: Currently user_ratings isn't used at all
         # - put in helper fun, used in compare_recipes and search_results
@@ -92,9 +89,6 @@ def compare_recipes(search_term, Np=20):
     # Pagination
     page = request.args.get('page')
     page = int(page) if page else 0
-
-    # Add recipe to cookbook
-    hf.add_or_remove_bookmark(sq)
 
     # Get top 199 most similar recipes
     results = sq.content_based_search(search_term)
@@ -160,11 +154,9 @@ def profile(Np=20):
     if search_term:
         redirect(url_for('main.search_results'))
 
-    # Like/Unlike form
+    # Like/Unlike form and bookmark form
     like_form = EmptyForm()
-
-    # Remove bookmark
-    hf.add_or_remove_bookmark(sq)
+    bookmark_form = EmptyForm()
 
     # Pagination
     page = request.args.get('page')
@@ -175,7 +167,7 @@ def profile(Np=20):
     # Get bookmarked recipes
     cookbook = sq.query_cookbook(current_user.userID)
 
-    # Descriptive statistics to show the user
+    # Descriptive statistics to show to user
     Nrecipes = cookbook.shape[0]
     Nliked = sum(cookbook['user_rating'] == 5)
     Ndisliked = sum(cookbook['user_rating'] == 1)
@@ -228,9 +220,28 @@ def profile(Np=20):
                            avg_ratings=avg_ratings,
                            emissions=emissions,
                            like_form=like_form,
+                           bookmark_form=bookmark_form,
                            page=page,
                            Npages=Npages,
                            hist_emissions=hist_emissions)
+
+
+@bp.route('/add_or_remove_bookmark/<bookmark>/<origin>', methods=['GET'])
+@login_required
+def add_or_remove_bookmark(bookmark, origin):
+    # TODO fix sort_by for main.compare_recipes and main.search_results
+    hf.add_or_remove_bookmark(sq, bookmark)
+    if origin == 'main.compare_recipes':
+        search_term = session['search_query']
+        return redirect(url_for(origin, search_term=search_term))
+    elif origin == 'main.search_results':
+        search_term = session['search_query']
+        return redirect(url_for(origin, search_term=search_term,
+                                sort_by='Sustainability'))
+    elif origin == 'main.profile':
+        sort_by = request.form.get('sort_by')
+        return redirect(url_for(origin, sort_by=sort_by))
+    return redirect(url_for('main.home'))
 
 
 @bp.route('/like/<recipe_url>', methods=['POST'])

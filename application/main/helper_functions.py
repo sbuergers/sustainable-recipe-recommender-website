@@ -51,7 +51,7 @@ def predict_user_ratings(df):
     return user_ratings
 
 
-def add_or_remove_bookmark(sq):
+def add_or_remove_bookmark(sq, bookmark):
     '''
     DESCRIPTION:
         Checks if a GET request contains a 'bookmark', meaning that a user
@@ -60,10 +60,10 @@ def add_or_remove_bookmark(sq):
         any route in routes.py.
     INPUT:
         sq: sql_queries object (see sql_queries.py)
+        bookmark: recipe url (e.g. shrimp-noodle-bowl-1294)
     OUTPUT:
         None
     '''
-    bookmark = request.args.get('bookmark')
     if bookmark:
         if current_user.is_anonymous:
             return redirect(url_for('auth.signin'))
