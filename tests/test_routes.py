@@ -10,21 +10,36 @@ https://stackoverflow.com/questions/17375340/testing-code-that-requires-a-flask-
 import pytest
 from flask import url_for, request
 from application import create_app
+from bs4 import BeautifulSoup
 
 
 # FIXTURES
 @pytest.fixture
-def test_client():
-    app = create_app(testing=True, debug=True)
-    test_client = app.test_client()
+def app():
+    """ Instantiate app context """
+    app = create_app(testing=True, debug=False)
     app_context = app.app_context()
-    test_request_context = app.test_request_context()
-
     app_context.push()
+    yield app
+    app_context.pop()
+
+
+@pytest.fixture
+def test_client(app):
+    test_client = app.test_client()
+    test_request_context = app.test_request_context()
     test_request_context.push()
     yield test_client
     test_request_context.pop()
-    app_context.pop()
+
+
+@pytest.fixture
+def pg(app):
+    """ DB connection """
+    from application import db
+    from application.sql_queries import Sql_queries
+    pg = Sql_queries(db.session)
+    return pg
 
 
 @pytest.fixture
@@ -41,6 +56,7 @@ def par():
 def user():
     user.name = 'test_user123'
     user.pw = 'zvnwkf[ejDSdEvn;1wfj-'
+    user.userID = 2
     return user
 
 
@@ -72,23 +88,17 @@ class TestRoutesMain:
 
         r = test_client.get('/')
         assert r.status_code == 200
-        r = test_client.get('/home')
+        r = test_client.get(url_for('main.home'))
         assert r.status_code == 200
 
     def test_search_results(self, test_client, par):
         """ Endpoint checks """
 
         for search_term in par.search_terms:
-            if search_term == '':
-                r = test_client.post(url_for('main.search_results'),
-                                     data={'search_term': search_term},
-                                     follow_redirects=True)
-                assert r.status_code == 200
-            else:
-                r = test_client.post(url_for('main.search_results'),
-                                     data={'search_term': search_term,
-                                           'page': par.page},
-                                     follow_redirects=True)
+            if search_term:
+                r = test_client.get(url_for('main.search_results',
+                                            search_term=search_term),
+                                    follow_redirects=True)
                 assert r.status_code == 200
 
     def test_compare_recipes(self, test_client, par):
@@ -98,7 +108,7 @@ class TestRoutesMain:
 
         # Default request
         r = test_client.get(url_for('main.compare_recipes',
-                            search_term=search_term),
+                                    search_term=search_term),
                             data={},
                             follow_redirects=True)
         assert r.status_code == 200
@@ -140,6 +150,72 @@ class TestRoutesMain:
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
+
+    def test_add_or_remove_bookmark(self, test_client, pg, user, par):
+        '''
+        We can get here from various routes - the user
+        clicks on the bookmark (or un-bookmark) button and this
+        view handles the database changes and then redirects
+        back to the route we came from ("origin").
+        '''
+        search_term = par.recipe_tag
+        login(test_client, user.name, user.pw)
+
+        # Check if recipe is in cookbook
+        bookmark_status = pg.is_in_cookbook(user.userID, search_term)
+
+        # Create 'search_query' variable in session object
+        with test_client.session_transaction() as sess:
+            sess['search_query'] = search_term
+
+        # coming from main.compare_recipes
+        r = test_client.get(url_for('main.add_or_remove_bookmark',
+                                    bookmark=search_term,
+                                    origin='main.compare_recipes'),
+                            follow_redirects=True)
+
+        # Are we redirected back correctly?
+        soup = BeautifulSoup(r.data)
+        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
+        assert route == "main.compare_recipes"
+
+        # The bookmark status should have changed, did it?
+        assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
+        bookmark_status = pg.is_in_cookbook(user.userID, search_term)
+
+        # coming from main.search_results
+        with test_client.session_transaction() as sess:
+            # use only part of search_term so multiple results are found
+            sess['search_query'] = search_term.split('-')[0]
+
+        r = test_client.get(url_for('main.add_or_remove_bookmark',
+                                    bookmark=search_term,
+                                    origin='main.search_results'),
+                            follow_redirects=True)
+
+        # Are we redirected back correctly?
+        soup = BeautifulSoup(r.data)
+        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
+        assert route == "main.search_results"
+
+        # The bookmark status should have changed, did it?
+        assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
+        bookmark_status = pg.is_in_cookbook(user.userID, search_term)
+
+        # coming from main.profile
+        r = test_client.get(url_for('main.add_or_remove_bookmark',
+                                    bookmark=search_term,
+                                    origin='main.profile'),
+                            follow_redirects=True)
+
+        # Are we redirected back correctly?
+        soup = BeautifulSoup(r.data)
+        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
+        assert route == "main.profile"
+
+        # The bookmark status should have changed, did it?
+        assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
+        bookmark_status = pg.is_in_cookbook(user.userID, search_term)
 
 
 class TestRoutesAuth:
