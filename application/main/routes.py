@@ -75,7 +75,8 @@ def compare_recipes(search_term, Np=20):
 
     # No exact match found
     if sq.exact_recipe_match(search_term) is False:
-        return redirect(url_for('main.search_results'))
+        return redirect(url_for('main.search_results',
+                                search_term=search_term))
 
     # Forms
     search_form = SearchForm()
