@@ -1,7 +1,11 @@
 {% from 'field-macro.html' import displayField %}
 {% extends 'base.html' %}
 
-{% block meta %}{% endblock %}
+{% block meta %}
+<meta name="title" content="compare recipes">
+<meta name="route" content="main.compare_recipes">
+<meta name="url" content="results.html">
+{% endblock %}
 
 {% block title %} Recommended recipes {% endblock %}
 
@@ -111,14 +115,14 @@
 
         <!-- Header -->
         {% if reference_recipe['bookmarked'] %}
-            <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=reference_recipe['url']) }}">
+            <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=reference_recipe['url'], origin='main.compare_recipes') }}">
                 <div class="cookbook">
                     <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
                     <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
                 </div>
             </a>
         {% else %}
-            <a href="{{ url_for('main.compare_recipes', search_term=search_term, page=page, bookmark=reference_recipe['url']) }}">
+            <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=reference_recipe['url'], origin='main.compare_recipes') }}">
                 <div class="cookbook">
                     <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
                     <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
@@ -394,14 +398,14 @@
                 |
                 <!-- bookmark / unbookmark-->
                 {% if df['bookmarked'] %}
-                    <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], origin='main.compare_recipes', search_term=search_term) }}">
+                    <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], origin='main.compare_recipes') }}">
                         <div class="cookbook">
                             <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
                             <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
                         </div>
                     </a>
                 {% else %}
-                    <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], origin='main.compare_recipes', search_term=search_term) }}">
+                    <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], origin='main.compare_recipes') }}">
                         <div class="cookbook">
                             <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
                             <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
