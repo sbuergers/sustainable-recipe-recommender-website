@@ -34,8 +34,8 @@ def home():
 @bp.route('/search/<search_term>', methods=['GET', 'POST'])
 def search_results(search_term):
 
-    search_form = SearchForm()
     like_form = EmptyForm()
+    search_form = SearchForm()
 
     # exact match? Suggest alternatives!
     if sq.exact_recipe_match(search_term):
@@ -150,9 +150,6 @@ def profile(Np=20):
 
     # navbar-search
     search_form = SearchForm()
-    search_term = search_form.search.data
-    if search_term:
-        redirect(url_for('main.search_results'))
 
     # Like/Unlike form and bookmark form
     like_form = EmptyForm()
@@ -174,7 +171,7 @@ def profile(Np=20):
     fav_recipes = hf.get_favorite_recipes(cookbook, 3)
     fav_categ, fav_categ_cnt = hf.get_favorite_categories(cookbook, 7)
     mean_cookbook_emissions = round(sum(cookbook['emissions']) /
-                                    cookbook.shape[0], 2)
+                                    (cookbook.shape[0]+0.00001), 2)
     recommendations = ['']  # TODO write helper func
 
     # Prepare figure data
@@ -280,28 +277,16 @@ def unlike_recipe(recipe_url):
         return redirect(url_for('main.profile', sort_by=sort_by))
 
 
-@bp.route('/about', methods=['GET', 'POST'])
+@bp.route('/about')
 def about():
-
-    # navbar-search
     search_form = SearchForm()
-    search_term = search_form.search.data
-    if search_term:
-        redirect(url_for('main.search_results'))
-
     return render_template('about.html', search_form=search_form)
 
 
 # insecure, avoid user input!
-@bp.route('/blog', methods=['GET', 'POST'])
+@bp.route('/blog')
 def blog():
-
-    # navbar-search
     search_form = SearchForm()
-    search_term = search_form.search.data
-    if search_term:
-        redirect(url_for('main.search_results'))
-
     return render_template('blog.html', search_form=search_form)
 
 
