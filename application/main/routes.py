@@ -25,9 +25,10 @@ sq = Sql_queries(db.session)
 def home():
     search_form = SearchForm()
     if request.method == 'POST':
-        session['search_query'] = search_form.search.data
-        return redirect((url_for('main.search_results',
-                         search_term=session['search_query'])))
+        if search_form.search.data:
+            session['search_query'] = search_form.search.data
+            return redirect((url_for('main.search_results',
+                            search_term=session['search_query'])))
     return render_template('home.html', search_form=search_form)
 
 
