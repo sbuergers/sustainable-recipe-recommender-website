@@ -242,7 +242,7 @@
 .btn-like-unrated:active,
 .btn-like-unrated:focus,
 .btn-like-unrated.active {
-  color:#0026ff;
+  color: #0275d8;
 }
 
 .btn-dislike-unrated {
@@ -257,11 +257,11 @@
 .btn-dislike-unrated:active,
 .btn-dislike-unrated:focus,
 .btn-dislike-unrated.active {
-  color:#dc3545;
+  color:#d9534f;
 }
 
 .btn-like-rated {
-  color: #0026ff;
+  color: #0275d8;
   background-color: #ffffff;
   border-color: #ffffff;
   font-weight: bold;
@@ -276,7 +276,7 @@
 }
 
 .btn-dislike-rated {
-  color: #dc3545;
+  color: #d9534f;
   background-color: #ffffff;
   border-color: #ffffff;
   font-weight: bold;
