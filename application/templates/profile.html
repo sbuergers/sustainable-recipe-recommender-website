@@ -110,6 +110,8 @@
 
     <!-- Figure 1: Histogram of emission scores -->
     <div class="row">
+        <div class="col-8" id='hist-emissions'></div>  
+        <div class="col-1"></div>
         <div class="col-3">
             <p><h5> </h5></p>
             <p>Recipes in cookbook: {{ Nrecipes }} </p>
@@ -126,8 +128,6 @@
             <p>Favorite categories: {{ ", ".join(fav_categ) }} </p>  <!-- add counts in parantheses? -->
             <p>Mean emissions per recipe: {{ mean_cookbook_emissions }} kg </p>
         </div> 
-        <div class="figure1 col-8" id='hist-emissions'></div>  
-        <div class="col-0.5"></div>
     </div>
 
     <!-- Sort by dropdown menu -->
