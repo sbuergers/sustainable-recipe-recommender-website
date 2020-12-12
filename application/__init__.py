@@ -17,7 +17,7 @@ talisman = Talisman()
 
 # Login Manager
 login = LoginManager()
-login.login_view = 'main.signin'
+login.login_view = 'auth.signin'
 
 
 def create_app(testing=True, debug=True):
@@ -58,6 +58,9 @@ def create_app(testing=True, debug=True):
         # Create Routes
         from application.main import bp as main_bp
         app.register_blueprint(main_bp)
+
+        from application.auth import bp as auth_bp
+        app.register_blueprint(auth_bp, url_prefix='/auth')
 
         return app
 

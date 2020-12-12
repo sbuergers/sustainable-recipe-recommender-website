@@ -3,8 +3,8 @@ Unit tests for sql_queries.py
 """
 import pytest
 import sqlalchemy
+import pandas as pd
 from application import create_app
-from config import DevConfig
 from dotenv import load_dotenv
 
 load_dotenv('.env')
@@ -14,7 +14,7 @@ load_dotenv('.env')
 @pytest.fixture
 def app():
     """ Instantiate app context """
-    app = create_app(cfg=DevConfig)
+    app = create_app(testing=True, debug=False)
     app_context = app.app_context()
     app_context.push()
     yield app
@@ -25,14 +25,20 @@ def app():
 def pg(app):
     """ DB connection and testing query parameters """
     from application import db
-    from application.main.sql_queries import Sql_queries
+    from application.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
     pg.search_term = 'pineapple-shrimp-noodle-bowls'
+    pg.url = 'pineapple-shrimp-noodle-bowls'
+    pg.url_bookmark = 'pineapple-shrimp-noodle-bowls'
+    pg.urls_exist = [pg.url, 'cold-sesame-noodles-12715']
+    pg.urls_dont_exist = ['i-am-not-a-recipe-link', 'neither-am-i']
     pg.fuzzy_search_term = 'chicken'
     pg.random_search_term = r'124 9i2oehf lkaj1iojk>,/1?/"490_£"'
     pg.phrase_search_term = 'vegan cookies'
     pg.sql_inj1 = "''; SELECT true; --"
     pg.sql_inj2 = "'; SELECT true; --"
+    pg.userID = 3
+    pg.recipesID = 563  # 'pineapple-shrimp-noodle-bowls'
     return pg
 
 
@@ -116,6 +122,91 @@ class TestSqlQueries:
         # TODO what is being tested here?
         pg.content_based_search(pg.search_term)
         pg.fuzzy_search(pg.fuzzy_search_term)
+
+    def test_query_all_recipe_emissions(self, pg):
+        df = pg.query_all_recipe_emissions()
+        assert sorted(list(df.columns.values)) == \
+               ['emissions', 'emissions_log10', 'recipesID', 'title', 'url']
+        assert df.shape[0] > 36000
+
+    def test_query_cookbook(self, pg):
+        result = pg.query_cookbook(pg.userID)
+        assert result['username'][0] == 'asdfjlq;weruioasdnf'
+        assert len(result) < 50
+        result = pg.query_cookbook(999999999)
+        assert len(result) == 0
+
+    def test_is_in_cookbook(self, pg):
+
+        # there is an entry
+        result = pg.is_in_cookbook(pg.userID, pg.url)
+        assert result
+
+        # there is no entry
+        result = pg.is_in_cookbook(pg.userID, pg.url + '123')
+        assert not result
+        result = pg.is_in_cookbook(pg.userID + 999999999, pg.url)
+        assert not result
+
+    def test_query_bookmarks(self, pg):
+
+        # un-bookmark url
+        pg.remove_from_cookbook(pg.userID, pg.url_bookmark)
+        df = pg.query_bookmarks(pg.userID, [pg.url_bookmark])
+        assert df.empty
+
+        # bookmarked url
+        pg.add_to_cookbook(pg.userID, pg.url_bookmark)
+        df = pg.query_bookmarks(pg.userID, [pg.url_bookmark])
+        assert df['bookmarked'][0]
+
+    def test_add_to_and_delete_from_cookbook(self, pg):
+
+        # Try adding existing entry
+        result = pg.add_to_cookbook(pg.userID, pg.url)
+        assert result == 'Cookbook entry already exists'
+
+        # Remove entry
+        result = pg.remove_from_cookbook(pg.userID, pg.url)
+        assert result == 'Removed recipe from cookbook successfully'
+        result = pg.remove_from_cookbook(pg.userID, pg.url)
+        assert result == 'Recipe was not bookmarked to begin with'
+
+        # Add new entry
+        result = pg.add_to_cookbook(pg.userID, pg.url)
+        assert result == 'Cookbook entry added successfully'
+
+        # Add new entry with invalid userID or url
+        result = pg.add_to_cookbook(pg.userID, pg.url + '123')
+        assert result == 'UserID or recipe url invalid'
+        result = pg.add_to_cookbook(pg.userID + 999999999, pg.url)
+        assert result == 'UserID or recipe url invalid'
+
+    def test_query_user_ratings(self, pg):
+
+        # Query existing entries in likes table
+        df = pg.query_user_ratings(pg.userID,
+                                   pg.urls_exist + pg.urls_dont_exist)
+        assert type(df) == pd.core.frame.DataFrame
+        assert not df.empty
+
+        # Query non-existing entries in likes table
+        df = pg.query_user_ratings(pg.userID, pg.urls_dont_exist)
+        assert df.empty
+
+    def test_rate_recipe(self, pg):
+
+        # Change recipe rating to 4
+        pg.rate_recipe(pg.userID, pg.url, 4)
+        df = pg.query_user_ratings(pg.userID, [pg.url])
+        assert df.loc[df['recipesID'] == pg.recipesID, 'user_rating'].\
+            values == 4
+
+        # Change rating to 5
+        pg.rate_recipe(pg.userID, pg.url, 5)
+        df = pg.query_user_ratings(pg.userID, [pg.url])
+        assert df.loc[df['recipesID'] == pg.recipesID, 'user_rating'].\
+            values == 5
 
 
 # eof

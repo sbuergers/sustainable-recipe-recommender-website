@@ -8,8 +8,9 @@
             <br><br>
             <h2>Create a new account</h2><br>
             <div id="container">
-                <form action="{{ url_for('main.signup') }}", method="POST">
+                <form action="{{ url_for('auth.signup') }}", method="POST">
                     {{ displayField(reg_form.username, 'Username', autocomplete="off", autofocus=true) }}
+                    {{ displayField(reg_form.email, 'Email', autocomplete="off", autofocus=true) }}
                     {{ displayField(reg_form.password, 'Password') }}
                     {{ displayField(reg_form.confirm_pswd, 'Retype Password') }}
                     <div class="form-group">
@@ -19,7 +20,7 @@
                 </form> 
             </div>
             <hr>
-            <p>Already registered? <a href="{{ url_for('main.signin') }}">Login here</a>.</p>
+            <p>Already registered? <a href="{{ url_for('auth.signin') }}">Login here</a>.</p>
         </center>
     </div>
 </div>

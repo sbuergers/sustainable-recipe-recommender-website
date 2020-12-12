@@ -10,6 +10,7 @@ class Config:
     """Base config"""
     SECRET_KEY = environ.get('SECRET')
     WTF_CSRF_SECRET_KEY = environ.get('SECRET')
+    SALT_EMAIL = environ.get('SALT_EMAIL')
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
 

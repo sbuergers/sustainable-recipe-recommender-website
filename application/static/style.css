@@ -55,6 +55,7 @@
 
   .container-flex {
     display: flex;
+    justify-content: space-between; 
   }
 
   .container-search-result {
@@ -102,7 +103,7 @@
     border: 20px;
   }
   
-  /* star rating */
+  /* star rating without user interaction */
   .stars-outer {
     position: relative;
     display: inline-block;
@@ -160,14 +161,14 @@
   }
   
   .sustainability-outer::before {
-    content: "\f06c \f06c \f06c \f06c \f06c"; /* "\f0c2 \f0c2 \f0c2 \f0c2 \f0c2"; */
+    content: "\f06c \f06c \f06c \f06c \f06c";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     color: #ccc;
   }
 
   .sustainability-inner::before {
-    content: "\f06c \f06c \f06c \f06c \f06c"; /* "\f0c2 \f0c2 \f0c2 \f0c2 \f0c2"; */
+    content: "\f06c \f06c \f06c \f06c \f06c";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     color: #12d800;
@@ -185,6 +186,24 @@
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     color: #1851f0;
+  }
+
+  .cookbook {
+    width: 40px;
+    height: 30px;
+    position: relative;
+    display: inline-block;
+}
+
+  .cookbook .img-top {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 99;
+  }
+  .cookbook:hover .img-top {
+      display: inline;
   }
   
 #form-group {
@@ -209,3 +228,83 @@
   width: 75px;
   height: 75px;
 }
+
+/* Like / dislike buttons */
+.btn-like-unrated {
+  color: #868e96;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-like-unrated:hover,
+.btn-like-unrated:active,
+.btn-like-unrated:focus,
+.btn-like-unrated.active {
+  color: #0275d8;
+}
+
+.btn-dislike-unrated {
+  color: #868e96;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-dislike-unrated:hover,
+.btn-dislike-unrated:active,
+.btn-dislike-unrated:focus,
+.btn-dislike-unrated.active {
+  color:#d9534f;
+}
+
+.btn-like-rated {
+  color: #0275d8;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-like-rated:hover,
+.btn-like-rated:active,
+.btn-like-rated:focus,
+.btn-like-rated.active {
+  color: #868e96;
+}
+
+.btn-dislike-rated {
+  color: #d9534f;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-dislike-rated:hover,
+.btn-dislike-rated:active,
+.btn-dislike-rated:focus,
+.btn-dislike-rated.active {
+  color: #868e96;
+}
+
+/* Delete button */
+.btn-delete {
+  color: #868e96;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.btn-delete:hover,
+.btn-delete:active,
+.btn-delete:focus,
+.btn-delete.active {
+  color:#dc3545;
+}
+
+
+/* eof */

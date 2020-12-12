@@ -1,12 +1,16 @@
 {% from 'field-macro.html' import displayField %}
 {% extends 'base.html' %}
 
-{% block meta %}{% endblock %}
+{% block meta %}
+<meta name="title" content="explore recipes">
+<meta name="route" content="main.search_results">
+<meta name="url" content="explore.html">
+{% endblock %}
 
 {% block title %} Recommended recipes {% endblock %}
 
 {% block navsearch %}
-    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search_results') }}" method="POST">
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.home') }}" method="POST">
         {{ search_form.search(class_='form-control', placeholder='Search') }}
         {{ search_form.csrf_token }}
     </form>
@@ -58,6 +62,7 @@
 
 </script>
 
+
 <div class="row">
 {% for recipeID, df in results.iterrows() %}
 
@@ -103,10 +108,6 @@
                 </tr>
             </div>
 
-            <div class="container">
-                <span id="rateMe3" class="rating-faces"></span>
-            </div>
-
             <!-- Image -->
             <div class="row">
                 <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
@@ -115,18 +116,84 @@
                 </a>
             </div>
 
-            <!-- Links -->
-            <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
-                target="_blank">
-                Visit recipe
-            </a>
-                | 
-            <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=page) }}">
-                Suggest similar
-            </a>
+            <!-- Below image -->
+            <div class="container-flex">
 
+                <!-- Links -->
+                <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" target="_blank">
+                    recipe
+                </a>
+                |
+                <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=0) }}">
+                    suggestions
+                </a>
+                |
+                <!-- Like / unlike recipe -->
+                {% if df['user_rating'] == 5 %}
+
+                    <!-- recipe was liked -->
+                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-like-rated btn-sm" title="Like recipe">
+                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                {% elif df['user_rating'] == 1 %}
+
+                    <!-- recipe was disliked -->
+                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-dislike-rated btn-sm" title="Dislike recipe">
+                            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                {% else %}
+                    
+                    <!-- recipe was neither liked nor disliked -->
+                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], sort_by=sort_by) }}" method="POST">
+                        {{ like_form.csrf_token }}
+                        <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                            <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                {% endif %}
+                |
+                <!-- bookmark / unbookmark-->
+                {% if df['bookmarked'] %}
+                    <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], origin='main.search_results') }}">
+                        <div class="cookbook">
+                            <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
+                            <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
+                        </div>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], origin='main.search_results') }}">
+                        <div class="cookbook">
+                            <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
+                            <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
+                        </div>
+                    </a>
+                {% endif %}
+            </div>
         </div>
-
     </div>
 {% endfor %}
 </div>
