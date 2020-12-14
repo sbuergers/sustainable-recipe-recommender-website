@@ -292,10 +292,4 @@ def blog():
     return render_template('blog.html', search_form=search_form)
 
 
-@bp.route("/google0b0bf18a1884c780.html")
-def google_site_verf():
-    ''' Helps website to be found by google bot '''
-    return render_template("google-provided.html")
-
-
 # eof
