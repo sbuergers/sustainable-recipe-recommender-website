@@ -28,7 +28,7 @@
 
     <body>
     
-        <nav class="navbar navbar-expand-lg navbar-dark bg-success"> <!-- sticky-top -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success">
             <div class="container  container-main">
             <a class="navbar-brand" href="{{ url_for('main.home') }}">
                 <img src="../static/logo_white.png" width="30" height="30" alt="Sustainable Recipe Recommender">
@@ -72,21 +72,47 @@
     </body>
     
 
-    <!-- Footer 
-    <footer class="page-footer font-small  bg-success">
-        <div class="col-md-12">
-            <div class="footer-copyright text-center text-light py-3"> 
-                <a class="text-light" href="mailto:sbuergers@gmail.com">
-                    <i class="far fa-envelope fa-lg white-text mr-md-5 mr-3 fa-1.5x"  aria-hidden="true"></i>
-                </a>
-                <a class="text-light mr-md-5 mr-3" href="https://www.linkedin.com/in/steffen-b%C3%BCrgers-b4248215b/", target="_blank">
-                    <i class="fab fa-linkedin-in fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true" ></i>
-                </a>
-                <a class="text-light" href="https://github.com/sbuergers/sustainable-recipe-recommender", target="_blank">
-                    <i class="fab fa-github fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true"></i>
-                </a>
-            </div>
-        </div>
-    </footer>
-    -->
+    <!-- Footer -->
+    <footer class="page-footer font-small bg-success bg-darken-3 text-light">
+
+    <!-- Footer Elements -->
+    <div class="container">
+  
+      <!-- Grid row-->
+      <div class="row bg-success">
+  
+        <!-- Grid column -->
+          <div class="mb-5 flex-center">
+
+            <a class="li-ic" href="https://www.linkedin.com/in/steffen-buergers-b4248215b/", target="_blank">
+                <i class="fab fa-linkedin-in fa-lg white-text mr-md-5 mr-3 fa-2x"> </i>
+            </a>
+
+            <!-- Linkedin -->
+            <a class="text-light mr-md-5 mr-3" href="https://www.linkedin.com/in/steffen-buergers-b4248215b/", target="_blank">
+                <i class="fab fa-linkedin-in fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true" ></i>
+            </a>
+            <!-- Github -->
+            <a class="text-light" href="https://github.com/sbuergers/sustainable-recipe-recommender-website", target="_blank">
+                <i class="fab fa-github fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true"></i>
+            </a>
+          </div>
+  
+      </div>
+  
+    </div>
+  
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3 success">© 2020 Copyright:
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+        </a>
+        <br/>
+        This work is licensed under a 
+        <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+            Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+        </a>.
+    </div>
+  </footer>
+    
 </html>
