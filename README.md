@@ -19,6 +19,12 @@ If you are curious about exploring the environmental impact of recipes and diffe
 # Give feedback
 I am happy to receive feedback on how to improve sustainable recipe recommender, both in terms of user experience and anything related to data sources and processing. Just drop me an [email](mailto:sbuergers@gmail.com) at sbuergers at gmail dot com or message me on github.
 
+# Contribute
+Feel free to browse the github issues if you would like to contribute. 
+
+# Code of Conduct
+This Code of Conduct is adapted from the Contributor Covenant, version 2.0, available at https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
+
 # References
 1. Hannah Ritchie (2020) - "Environmental impacts of food production". Published online at OurWorldInData.org. Retrieved from: 'https://ourworldindata.org/environmental-impacts-of-food' [Online Resource]
 2. Poore, J., and T. Nemecek. “Reducing Food’s Environmental Impacts through Producers and Consumers.” Science 360, no. 6392 (June 1, 2018): 987–92. https://doi.org/10.1126/science.aaq0216.
