@@ -317,7 +317,7 @@ html, body {
 
 #main {
   overflow:auto;
-  padding-bottom:50px; /* this needs to be bigger than footer height*/
+  padding-bottom:20px; /* this needs to be bigger than footer height*/
 }
 
 .footer {
