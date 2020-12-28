@@ -14,7 +14,7 @@ The idea for sustainable recipe recommender is heavily inspired by an excellent 
 
 To assess a recipe's sustainability score, ingredient labels were manually mapped to 42 fundamental food categories as identified by Poore and Nemecek (2018). 
 
-![Greenhouse gas emissions of basic food categories (from Poore & Nemecek, 2018)](../static/basic_category_emissions.png)
+<img src="../static/basic_category_emissions.png" alt="Greenhouse gas emissions of basic food categories (from Poore & Nemecek, 2018)" width=1100 height=800>
 
 # Dive deeper
 If you are curious about exploring the environmental impact of recipes and different food categories further, want to know more about how ingredient labels and quantities were parsed from text data, or are interested in how the recipe recommendation system works, have a look at [the blog](https://sustainable-recipe-recommender.herokuapp.com/blog). 
