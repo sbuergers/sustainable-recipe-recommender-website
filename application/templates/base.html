@@ -9,9 +9,7 @@
 
         <!-- Required meta tags -->
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="Helping people adopt more sustainable cooking habits.">
-        <meta name="keywords" content="sustainable recipes, recipe recomendations, recipe recommender, sustainable-recipe-recommender, sustainable food, recipes, recipe recommendations">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         {% block meta %}{% endblock %}
 
         <!-- Bootstrap CSS -->
@@ -29,8 +27,7 @@
     </head>
 
     <body>
-    
-        <nav class="navbar navbar-expand-lg navbar-dark bg-success"> <!-- sticky-top -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success">
             <div class="container  container-main">
             <a class="navbar-brand" href="{{ url_for('main.home') }}">
                 <img src="../static/logo_white.png" width="30" height="30" alt="Sustainable Recipe Recommender">
@@ -66,29 +63,50 @@
               {% endblock %}
             </div><!--/container-->
         </nav>
-        <div class="container container-main">
-        {% block body %}
-            Body block
-        {% endblock %}
-        </div><!--/container-->
+        <div id="wrap">
+            <div id="main" class="container container-main">
+                {% block body %}
+                    Body block
+                {% endblock %}
+            </div><!--/container-->
+        </div>
     </body>
     
 
-    <!-- Footer 
-    <footer class="page-footer font-small  bg-success">
-        <div class="col-md-12">
-            <div class="footer-copyright text-center text-light py-3"> 
-                <a class="text-light" href="mailto:sbuergers@gmail.com">
-                    <i class="far fa-envelope fa-lg white-text mr-md-5 mr-3 fa-1.5x"  aria-hidden="true"></i>
-                </a>
-                <a class="text-light mr-md-5 mr-3" href="https://www.linkedin.com/in/steffen-b%C3%BCrgers-b4248215b/", target="_blank">
-                    <i class="fab fa-linkedin-in fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true" ></i>
-                </a>
-                <a class="text-light" href="https://github.com/sbuergers/sustainable-recipe-recommender", target="_blank">
-                    <i class="fab fa-github fa-lg white-text mr-md-5 mr-3 fa-1.5x" aria-hidden="true"></i>
-                </a>
-            </div>
-        </div>
-    </footer>
-    -->
+    <!-- Footer -->
+    <footer class="page-footer font-small bg-light">
+
+    <!--Copyright and privacy policy-->
+    <div class="footer-copyright text-center bg-light py-2">
+        <p>
+            © 2020 Steffen Buergers |
+            Contact: sbuergers at gmail dot com |
+
+            <!-- Github -->
+
+            
+            <!-- LinkedIn -->
+
+
+            <!-- CREATIVE COMMONS LICENSE SHARE ALIKE 
+            I might want to use this instead in the future, but it's irrevocable, 
+            so for now I am keeping the rights to myself.
+
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+                <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+            </a>
+            This work is licensed under a 
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/", target="_blank">
+                Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+            </a> |
+            -->
+
+            <a rel="privacy-policy" href="https://www.websitepolicies.com/policies/view/BvEcJMft", target="_blank">
+                Privacy Policy
+            </a>
+            <a href="#" class="fa fa-twitter"></a>
+        </p>
+    </div>
+  </footer>
+    
 </html>

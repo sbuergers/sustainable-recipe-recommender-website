@@ -72,7 +72,7 @@ def bar_compare_emissions(reference_recipe, search_results, relative=True,
                 alt.value("palegreen")  # The negative color
             )
         ).properties(
-            width=250,
+            width=200,
             height=500,
             title='Similar recipes'
         ).configure_axis(
