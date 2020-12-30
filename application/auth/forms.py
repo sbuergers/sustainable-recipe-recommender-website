@@ -1,6 +1,6 @@
 """ authentication forms """
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Length, EqualTo,\
     ValidationError, Email
 from passlib.hash import pbkdf2_sha512
@@ -44,6 +44,8 @@ class RegistrationForm(FlaskForm):
                     EqualTo('password', message="Passwords \
                         must match")
                     ])
+    optin_terms = BooleanField('optin_terms')
+    optin_news = BooleanField('optin_news')
 
     def validate_username(self, username):
         user_obj = User.query.filter_by(username=username.data).first()

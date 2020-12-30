@@ -14,25 +14,42 @@
 {% block title %} Recipes searcher {% endblock %}
 {% block body %}
 <div class="row justify-content-center">
-    <div class="col-12 col-xl-6">
-        <center>
-            <br><br>
-            <h2>Create a new account</h2><br>
-            <div id="container">
-                <form action="{{ url_for('auth.signup') }}", method="POST">
+    <div class="col-12 col-xl-7">
+        <br>
+        <center><h2>Create a new account</h2><br></center>
+        <div id="container">
+            <form action="{{ url_for('auth.signup') }}", method="POST">
+                <center>
                     {{ displayField(reg_form.username, 'Username', autocomplete="off", autofocus=true) }}
                     {{ displayField(reg_form.email, 'Email', autocomplete="off", autofocus=true) }}
                     {{ displayField(reg_form.password, 'Password') }}
                     {{ displayField(reg_form.confirm_pswd, 'Retype Password') }}
+                </center>
+                
+                <!-- Terms and condition opt-in -->
+                Tick the box below to agree to the 
+                <a href="{{ url_for('auth.terms_and_conditions') }}" target="_blank">
+                    terms and conditions
+                </a> (required for sign-up).
+                <div class="col-1">{{ displayField(reg_form.optin_terms) }}</div>
+
+                <!-- Email newsletter opt-in -->
+                Do you want to receive news about sustainable-recipe-recommender?<br>
+                Tick the box below to subscribe to the email newsletter (optional).
+                <div class="col-1">{{ displayField(reg_form.optin_news)}}</div>
+                <center>
                     <div class="form-group">
                         <input type="submit" value="Create" class="btn btn-warning">
                     </div>
-                    {{ reg_form.csrf_token }}
-                </form> 
-            </div>
-            <hr>
+                </center>
+                {{ reg_form.csrf_token }}
+            </form> 
+        </div>
+        <hr>
+        <center>
             <p>Already registered? <a href="{{ url_for('auth.signin') }}">Login here</a>.</p>
         </center>
+        
     </div>
 </div>
 {% endblock %}        
