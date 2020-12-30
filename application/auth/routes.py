@@ -30,6 +30,8 @@ def signup():
         username = reg_form.username.data
         password = reg_form.password.data
         email = reg_form.email.data
+        optin_terms = reg_form.optin_terms.data
+        optin_news = reg_form.optin_news.data
 
         # Add username & hashed password to DB
         user = User(username=username,
