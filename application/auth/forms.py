@@ -44,7 +44,7 @@ class RegistrationForm(FlaskForm):
                     EqualTo('password', message="Passwords \
                         must match")
                     ])
-    optin_terms = BooleanField('optin_terms')
+    optin_terms = BooleanField('optin_terms', validators=[InputRequired()])
     optin_news = BooleanField('optin_news')
 
     def validate_username(self, username):
