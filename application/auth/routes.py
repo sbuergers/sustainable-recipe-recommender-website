@@ -30,7 +30,6 @@ def signup():
         username = reg_form.username.data
         password = reg_form.password.data
         email = reg_form.email.data
-        optin_terms = reg_form.optin_terms.data
         optin_news = reg_form.optin_news.data
 
         # Add username & hashed password to DB
@@ -38,7 +37,8 @@ def signup():
                     password=pbkdf2_sha512.hash(password),
                     email=email,
                     confirmed=False,
-                    created_on=datetime.datetime.utcnow())
+                    created_on=datetime.datetime.utcnow()
+                    optin_news=optin_news)
         db.session.add(user)
         db.session.commit()
 
