@@ -37,7 +37,7 @@ def signup():
                     password=pbkdf2_sha512.hash(password),
                     email=email,
                     confirmed=False,
-                    created_on=datetime.datetime.utcnow()
+                    created_on=datetime.datetime.utcnow(),
                     optin_news=optin_news)
         db.session.add(user)
         db.session.commit()
