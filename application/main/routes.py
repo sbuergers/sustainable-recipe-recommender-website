@@ -101,11 +101,14 @@ def compare_recipes(search_term, Np=20):
     if current_user.is_authenticated:
         urls = list(results['url'].values)
 
-        # User ratings
+        # Include user ratings in results
         user_results = sq.query_user_ratings(current_user.userID, urls)
         user_ratings = hf.predict_user_ratings(user_results)
+        results = results.merge(user_results[['user_rating', 'recipesID']],
+                                how='left', on='recipesID')
+        results['user_rating'].fillna(3, inplace=True)
 
-        # Bookmarked recipes
+        # Include bookmarks in results
         df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
         results = results.merge(df_bookmarks, how='left', on='recipesID')
         results['bookmarked'].fillna(False, inplace=True)
