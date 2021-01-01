@@ -524,10 +524,26 @@ class Sql_queries():
         # Find relevant likes row
         like = Like.query.filter_by(userID=userID,
                                     recipesID=recipeID).first()
-        # Add user rating and commit to DB
-        like.rating = rating
-        self.session.add(like)
-        self.session.commit()
+
+        # Like row found, modify
+        if like:
+            like.rating = rating
+            self.session.add(like)
+            self.session.commit()
+
+        # Like row not found, create new like entry (without bookmark)
+        else:
+            user = User.query.filter_by(userID=userID).first()
+            recipe = Recipe.query.filter_by(url=url).first()
+            if user and recipe:
+                like = Like(username=user.username,
+                            bookmarked=False,
+                            userID=userID,
+                            recipesID=recipe.recipesID,
+                            created=datetime.datetime.utcnow(),
+                            rating=rating)
+                self.session.add(like)
+                self.session.commit()
 
 
 # eof

@@ -53,7 +53,13 @@ def search_results(search_term):
         if current_user.is_authenticated:
             urls = list(results['url'].values)
 
-            # Bookmarked recipes
+            # Include user ratings in results
+            user_results = sq.query_user_ratings(current_user.userID, urls)
+            results = results.merge(user_results[['user_rating', 'recipesID']],
+                                    how='left', on='recipesID')
+            results['user_rating'].fillna(3, inplace=True)
+
+            # Include bookmarks in results
             df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
             results = results.merge(df_bookmarks, how='left', on='recipesID')
             results['bookmarked'].fillna(False, inplace=True)
@@ -101,11 +107,14 @@ def compare_recipes(search_term, Np=20):
     if current_user.is_authenticated:
         urls = list(results['url'].values)
 
-        # User ratings
+        # Include user ratings in results
         user_results = sq.query_user_ratings(current_user.userID, urls)
         user_ratings = hf.predict_user_ratings(user_results)
+        results = results.merge(user_results[['user_rating', 'recipesID']],
+                                how='left', on='recipesID')
+        results['user_rating'].fillna(3, inplace=True)
 
-        # Bookmarked recipes
+        # Include bookmarks in results
         df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
         results = results.merge(df_bookmarks, how='left', on='recipesID')
         results['bookmarked'].fillna(False, inplace=True)
@@ -246,37 +255,52 @@ def add_or_remove_bookmark(bookmark, origin):
 @bp.route('/like/<recipe_url>', methods=['POST'])
 @login_required
 def like_recipe(recipe_url):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        sort_by = request.form.get('sort_by')
-        sq.rate_recipe(current_user.userID, recipe_url, 5)
-        return redirect(url_for('main.profile', sort_by=sort_by))
-    else:
-        return redirect(url_for('main.profile', sort_by=sort_by))
+    sq.rate_recipe(current_user.userID, recipe_url, 5)
+    origin = request.args['origin']
+    sort_by = request.args['sort_by']
+    if origin == 'main.compare_recipes':
+        return redirect(url_for(origin, search_term=session['search_query'],
+                                sort_by=sort_by))
+    elif origin == 'main.search_results':
+        return redirect(url_for(origin, search_term=session['search_query'],
+                                sort_by=sort_by))
+    elif origin == 'main.profile':
+        return redirect(url_for(origin, sort_by=sort_by))
+    return redirect(url_for('main.home'))
 
 
 @bp.route('/dislike/<recipe_url>', methods=['POST'])
 @login_required
 def dislike_recipe(recipe_url):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        sort_by = request.form.get('sort_by')
-        sq.rate_recipe(current_user.userID, recipe_url, 1)
-        return redirect(url_for('main.profile', sort_by=sort_by))
-    else:
-        return redirect(url_for('main.profile', sort_by=sort_by))
+    sq.rate_recipe(current_user.userID, recipe_url, 1)
+    origin = request.args['origin']
+    sort_by = request.args['sort_by']
+    if origin == 'main.compare_recipes':
+        return redirect(url_for(origin, search_term=session['search_query'],
+                                sort_by=sort_by))
+    elif origin == 'main.search_results':
+        return redirect(url_for(origin, search_term=session['search_query'],
+                                sort_by=sort_by))
+    elif origin == 'main.profile':
+        return redirect(url_for(origin, sort_by=sort_by))
+    return redirect(url_for('main.home'))
 
 
 @bp.route('/unlike/<recipe_url>', methods=['POST'])
 @login_required
 def unlike_recipe(recipe_url):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        sort_by = request.form.get('sort_by')
-        sq.rate_recipe(current_user.userID, recipe_url, 3)
-        return redirect(url_for('main.profile', sort_by=sort_by))
-    else:
-        return redirect(url_for('main.profile', sort_by=sort_by))
+    sq.rate_recipe(current_user.userID, recipe_url, 3)
+    origin = request.args['origin']
+    sort_by = request.args['sort_by']
+    if origin == 'main.compare_recipes':
+        return redirect(url_for(origin, search_term=session['search_query'],
+                                sort_by=sort_by))
+    elif origin == 'main.search_results':
+        return redirect(url_for(origin, search_term=session['search_query'],
+                                sort_by=sort_by))
+    elif origin == 'main.profile':
+        return redirect(url_for(origin, sort_by=sort_by))
+    return redirect(url_for('main.home'))
 
 
 @bp.route('/about')
