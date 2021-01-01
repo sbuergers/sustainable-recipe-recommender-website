@@ -175,7 +175,7 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data)
+        soup = BeautifulSoup(r.data, features="html.parser")
         route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
         assert route == "main.compare_recipes"
 
@@ -194,7 +194,7 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data)
+        soup = BeautifulSoup(r.data, features="html.parser")
         route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
         assert route == "main.search_results"
 
@@ -209,7 +209,7 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data)
+        soup = BeautifulSoup(r.data, features="html.parser")
         route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
         assert route == "main.profile"
 
