@@ -84,7 +84,7 @@
         // ALTAIR FIGURES
         vegaEmbed(
             "#bar-compare-emissions", 
-            JSON.parse({{ bp | tojson | safe}}),
+            JSON.parse( {{ bp | tojson | safe}} ),
             {
                 renderer: 'svg', 
                 ast: true,
@@ -117,27 +117,79 @@
         <!-- Title -->
         <h3>{{ reference_recipe['title'] }}</h3> 
 
-        <!-- Header -->
-        {% if reference_recipe['bookmarked'] %}
-            <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=reference_recipe['url'], origin='main.compare_recipes') }}">
-                <div class="cookbook">
-                    <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
-                    <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
-                </div>
+        <!-- Above image -->
+        <div class="col-5 container-flex">
+
+            <!-- Header -->
+            {% if reference_recipe['bookmarked'] %}
+                <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=reference_recipe['url'], origin='main.compare_recipes') }}">
+                    <div class="cookbook">
+                        <img src="../static/cookbook_icon.png" alt="bookmark" title="Remove recipe from cookbook">
+                        <img src="../static/cookbook_icon_inactive.png" class="cookbook img-top" alt="bookmarked" title="Remove recipe from cookbook">
+                    </div>
+                </a>
+            {% else %}
+                <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=reference_recipe['url'], origin='main.compare_recipes') }}">
+                    <div class="cookbook">
+                        <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
+                        <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
+                    </div>
+                </a>
+            {% endif %}
+            |
+            <!-- Like / unlike recipe -->
+            {% if reference_recipe['user_rating'] == 5 %}
+
+                <!-- recipe was liked -->
+                <form action="{{ url_for('main.dislike_recipe', recipe_url=reference_recipe['url'], sort_by=sort_by) }}" method="POST">
+                    {{ like_form.csrf_token }}
+                    <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                        <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                    </button>
+                </form>
+                <form action="{{ url_for('main.unlike_recipe', recipe_url=reference_recipe['url'], sort_by=sort_by) }}" method="POST">
+                    {{ like_form.csrf_token }}
+                    <button type="submit" class="btn btn-like-rated btn-sm" title="Like recipe">
+                        <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                    </button>
+                </form>
+            {% elif reference_recipe['user_rating'] == 1 %}
+
+                <!-- recipe was disliked -->
+                <form action="{{ url_for('main.unlike_recipe', recipe_url=reference_recipe['url'], sort_by=sort_by) }}" method="POST">
+                    {{ like_form.csrf_token }}
+                    <button type="submit" class="btn btn-dislike-rated btn-sm" title="Dislike recipe">
+                        <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                    </button>
+                </form>
+                <form action="{{ url_for('main.like_recipe', recipe_url=reference_recipe['url'], sort_by=sort_by) }}" method="POST">
+                    {{ like_form.csrf_token }}
+                    <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                        <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                    </button>
+                </form>
+            {% else %}
+                
+                <!-- recipe was neither liked nor disliked -->
+                <form action="{{ url_for('main.dislike_recipe', recipe_url=reference_recipe['url'], sort_by=sort_by) }}" method="POST">
+                    {{ like_form.csrf_token }}
+                    <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                        <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                    </button>
+                </form>
+                <form action="{{ url_for('main.like_recipe', recipe_url=reference_recipe['url'], sort_by=sort_by) }}" method="POST">
+                    {{ like_form.csrf_token }}
+                    <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                        <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                    </button>
+                </form>
+            {% endif %}
+            |&nbsp;&nbsp; 
+            <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + reference_recipe['url']}}" 
+                target="_blank">
+                visit recipe
             </a>
-        {% else %}
-            <a href="{{ url_for('main.add_or_remove_bookmark', bookmark=reference_recipe['url'], origin='main.compare_recipes') }}">
-                <div class="cookbook">
-                    <img src="../static/cookbook_icon_inactive.png" alt="bookmark" title="Add recipe to cookbook">
-                    <img src="../static/cookbook_icon.png" class="cookbook img-top" alt="bookmarked" title="Add recipe to cookbook">
-                </div>
-            </a>
-        {% endif %}
-        |
-        <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + reference_recipe['url']}}" 
-            target="_blank">
-            Visit recipe
-        </a>
+        </div>
     </div>
 </div>
 <div class="row">
