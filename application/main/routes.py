@@ -53,7 +53,13 @@ def search_results(search_term):
         if current_user.is_authenticated:
             urls = list(results['url'].values)
 
-            # Bookmarked recipes
+            # Include user ratings in results
+            user_results = sq.query_user_ratings(current_user.userID, urls)
+            results = results.merge(user_results[['user_rating', 'recipesID']],
+                                    how='left', on='recipesID')
+            results['user_rating'].fillna(3, inplace=True)
+
+            # Include bookmarks in results
             df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
             results = results.merge(df_bookmarks, how='left', on='recipesID')
             results['bookmarked'].fillna(False, inplace=True)
