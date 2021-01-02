@@ -86,7 +86,7 @@ def terms_and_conditions():
     return render_template('terms-and-conditions.html')
 
 
-@bp.route('/reset_password', methods=['GET', 'POST'])
+@bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
@@ -96,8 +96,8 @@ def reset_password_request():
         if user:
             send_password_reset_email(user)
         flash('Check your email for the instructions to reset your password')
-        return redirect(url_for('login'))
-    return render_template('reset_password_request.html',
+        return redirect(url_for('auth.signin'))
+    return render_template('reset-password-request.html',
                            title='Reset Password', form=form)
 
 
@@ -113,8 +113,8 @@ def reset_password(token):
         user.set_password(form.password.data)
         db.session.commit()
         flash('Your password has been reset.')
-        return redirect(url_for('login'))
-    return render_template('reset_password.html', form=form)
+        return redirect(url_for('auth.signin'))
+    return render_template('reset-password.html', form=form)
 
 
 # eof
