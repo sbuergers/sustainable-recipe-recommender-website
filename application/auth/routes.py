@@ -9,13 +9,17 @@ from flask_login import login_required
 from passlib.hash import pbkdf2_sha512
 
 # User made modules
-from application.auth.forms import RegistrationForm, LoginForm
+from application.auth.forms import RegistrationForm, LoginForm, \
+    ResetPasswordRequestForm
 
 # Database
 from application import db
 from application.models import User
 from application.auth import bp
 import datetime
+
+# Email
+from application.email import send_password_reset_email
 
 
 @bp.route('/signup', methods=['GET', 'POST'])
@@ -79,7 +83,22 @@ def logout():
 
 @bp.route("/terms_and_conditions")
 def terms_and_conditions():
-    return render_template('terms_and_conditions.html')
+    return render_template('terms-and-conditions.html')
+
+
+@bp.route('/reset_password', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html',
+                           title='Reset Password', form=form)
 
 
 # eof
