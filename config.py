@@ -22,6 +22,16 @@ class Config:
                                  'pool_timeout': 100,
                                  'pool_pre_ping': True}
 
+    # Email (TSL errors out)
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465  # for TSL use 587, for ssl use 465
+    MAIL_USE_TSL = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = environ.get('MAIL_PASSWORD')
+    MAIL_SUPPRESS_SEND = False
+    ADMINS = ['sustainable.recipe.recommender@gmail.com']
+
 
 class ProdConfig(Config):
     """Production config"""

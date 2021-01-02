@@ -9,13 +9,17 @@ from flask_login import login_required
 from passlib.hash import pbkdf2_sha512
 
 # User made modules
-from application.auth.forms import RegistrationForm, LoginForm
+from application.auth.forms import RegistrationForm, LoginForm, \
+    ResetPasswordRequestForm, ResetPasswordForm
 
 # Database
 from application import db
 from application.models import User
 from application.auth import bp
 import datetime
+
+# Email
+from application.auth.email import send_password_reset_email
 
 
 @bp.route('/signup', methods=['GET', 'POST'])
@@ -60,7 +64,6 @@ def signin():
         user_obj = User.query.filter_by(
                        username=login_form.username.data).first()
         login_user(user_obj, remember=False)
-        flash('You have logged in successfully.', 'success')
         return redirect(url_for('main.home'))
 
     return render_template('signin.html', login_form=login_form)
@@ -73,13 +76,43 @@ def logout():
         return redirect(url_for('main.home'))
 
     logout_user()
-    flash('You have logged out successfully.', 'success')
     return redirect(url_for('main.home'))
 
 
 @bp.route("/terms_and_conditions")
 def terms_and_conditions():
-    return render_template('terms_and_conditions.html')
+    return render_template('terms-and-conditions.html')
+
+
+@bp.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('auth.signin'))
+    return render_template('reset-password-request.html',
+                           title='Reset Password', form=form)
+
+
+@bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('main.home'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.password = pbkdf2_sha512.hash(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('auth.signin'))
+    return render_template('reset-password.html', form=form)
 
 
 # eof

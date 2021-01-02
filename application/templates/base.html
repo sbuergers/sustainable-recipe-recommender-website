@@ -1,5 +1,20 @@
 <!-- inspired by https://rapidapi.com/blog/build-food-website/ -->
 {% from 'field-macro.html' import displayField %}
+
+<!-- Flask flash messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
 <!doctype html>
 <html lang="en">
 
@@ -69,6 +84,7 @@
                 {% endblock %}
             </div><!--/container-->
         </div>
+
     </body>
     
 

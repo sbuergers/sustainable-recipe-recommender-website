@@ -253,5 +253,10 @@ class TestRoutesAuth:
         assert b'Cookbook' not in r.data
         assert b'Login' in r.data
 
+    def test_password_reset(self, test_client):
+        """ test reset_password_request() and reset_password() """
+        # TODO ...
+        pass
+
 
 # eof
