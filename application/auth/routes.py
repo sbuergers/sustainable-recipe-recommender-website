@@ -64,7 +64,6 @@ def signin():
         user_obj = User.query.filter_by(
                        username=login_form.username.data).first()
         login_user(user_obj, remember=False)
-        flash('You have logged in successfully.', 'success')
         return redirect(url_for('main.home'))
 
     return render_template('signin.html', login_form=login_form)
@@ -77,7 +76,6 @@ def logout():
         return redirect(url_for('main.home'))
 
     logout_user()
-    flash('You have logged out successfully.', 'success')
     return redirect(url_for('main.home'))
 
 
