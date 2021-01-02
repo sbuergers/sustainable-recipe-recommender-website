@@ -6,6 +6,7 @@ from csp import csp
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from config import DevConfig, ProdConfig
+from flask_mail import Mail
 
 
 # Database
@@ -18,6 +19,9 @@ talisman = Talisman()
 # Login Manager
 login = LoginManager()
 login.login_view = 'auth.signin'
+
+# Mail
+mail = Mail()
 
 
 def create_app(testing=True, debug=True):
@@ -49,6 +53,7 @@ def create_app(testing=True, debug=True):
             force_https=True
         )
     login.init_app(app)
+    mail.init_app(app)
 
     with app.app_context():
 
