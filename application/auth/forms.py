@@ -1,6 +1,6 @@
 """ authentication forms """
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import InputRequired, Length, EqualTo,\
     ValidationError, Email
 from passlib.hash import pbkdf2_sha512
@@ -68,6 +68,13 @@ class LoginForm(FlaskForm):
     password = PasswordField('password', validators=[
                 InputRequired(message="Password required"),
                 invalid_credentials])
+
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Email', validators=[
+                InputRequired(message="Email required"),
+                Email(message="Please enter a valid email address")])
+    submit = SubmitField('Request Password Reset')
 
 
 # eof
