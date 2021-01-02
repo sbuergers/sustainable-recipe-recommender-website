@@ -2,6 +2,7 @@ altair==4.1.0
 attrs==19.3.0
 awscli==1.18.125
 beautifulsoup4==4.9.3
+blinker==1.4
 bokeh==2.1.1
 boto3==1.14.48
 botocore==1.17.48
@@ -11,7 +12,7 @@ cffi==1.14.3
 click==7.1.2
 colorama==0.4.3
 coverage==5.2.1
-cryptography==3.2
+cryptography==3.1.1
 dnspython==2.0.0
 docutils==0.15.2
 email-validator==1.1.1
@@ -19,6 +20,7 @@ entrypoints==0.3
 Flask==1.1.2
 Flask-Compress==1.5.0
 Flask-Login==0.5.0
+Flask-Mail==0.9.1
 Flask-SQLAlchemy==2.4.4
 flask-talisman==0.7.0
 Flask-Testing==0.8.0
