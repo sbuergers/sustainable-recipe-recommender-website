@@ -77,4 +77,18 @@ class ResetPasswordRequestForm(FlaskForm):
     submit = SubmitField('Request Password Reset')
 
 
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('password', validators=[
+                    InputRequired(message="Password required"),
+                    Length(min=8, max=25, message="Password must be \
+                        between 8 and 25 characters")
+                    ])
+    confirm_pswd = PasswordField('confirm_pswd', validators=[
+                    InputRequired(message="Password required"),
+                    EqualTo('password', message="Passwords \
+                        must match")
+                    ])
+    submit = SubmitField('Request Password Reset')
+
+
 # eof
