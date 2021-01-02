@@ -19,7 +19,7 @@ from application.auth import bp
 import datetime
 
 # Email
-from application.email import send_password_reset_email
+from application.auth.email import send_password_reset_email
 
 
 @bp.route('/signup', methods=['GET', 'POST'])
