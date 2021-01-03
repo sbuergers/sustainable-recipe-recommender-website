@@ -1,5 +1,5 @@
 # Flask modules and forms
-from flask import request, redirect, url_for
+from flask import redirect, url_for, flash
 from flask_login import current_user
 
 
@@ -66,6 +66,7 @@ def add_or_remove_bookmark(sq, bookmark):
     '''
     if bookmark:
         if current_user.is_anonymous:
+            flash('You need to sign in to be able to bookmark recipes.')
             return redirect(url_for('auth.signin'))
         if sq.is_in_cookbook(current_user.userID, bookmark):
             sq.remove_from_cookbook(current_user.userID, bookmark)
