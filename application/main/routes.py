@@ -101,15 +101,12 @@ def compare_recipes(search_term, Np=20):
     # Get top 199 most similar recipes
     results = sq.content_based_search(search_term)
 
-    # Retrieve or predict user ratings
-    # TODO: Currently user_ratings isn't used at all
-    # - put in helper fun, used in compare_recipes and search_results
+    # Retrieve bookmarks and likes
     if current_user.is_authenticated:
         urls = list(results['url'].values)
 
         # Include user ratings in results
         user_results = sq.query_user_ratings(current_user.userID, urls)
-        user_ratings = hf.predict_user_ratings(user_results)
         results = results.merge(user_results[['user_rating', 'recipesID']],
                                 how='left', on='recipesID')
         results['user_rating'].fillna(3, inplace=True)
@@ -118,8 +115,6 @@ def compare_recipes(search_term, Np=20):
         df_bookmarks = sq.query_bookmarks(current_user.userID, urls)
         results = results.merge(df_bookmarks, how='left', on='recipesID')
         results['bookmarked'].fillna(False, inplace=True)
-    else:
-        user_ratings = None
 
     # Disentangle reference recipe and similar recipes
     ref_recipe = results.iloc[0]
@@ -145,7 +140,6 @@ def compare_recipes(search_term, Np=20):
                            reference_recipe=ref_recipe,
                            results=results,
                            ratings=ratings,
-                           user_ratings=user_ratings,
                            emissions=emissions,
                            similarity=similarity,
                            like_form=like_form,
