@@ -528,7 +528,6 @@ class Sql_queries():
         # Like row found, modify
         if like:
             like.rating = rating
-            self.session.add(like)
             self.session.commit()
 
         # Like row not found, create new like entry (without bookmark)
