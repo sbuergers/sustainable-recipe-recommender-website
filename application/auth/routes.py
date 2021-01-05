@@ -14,7 +14,7 @@ from application.auth.forms import RegistrationForm, LoginForm, \
 
 # Database
 from application import db
-from application.models import User
+from application.models import User, Consent
 from application.auth import bp
 import datetime
 
@@ -36,7 +36,7 @@ def signup():
         email = reg_form.email.data
         optin_news = reg_form.optin_news.data
 
-        # Add username & hashed password to DB
+        # Add user to DB
         user = User(username=username,
                     password=pbkdf2_sha512.hash(password),
                     email=email,
@@ -46,7 +46,16 @@ def signup():
         db.session.add(user)
         db.session.commit()
 
-        flash('Registered successfully. Please login.', 'success')
+        # Add consent to DB (if given)
+        if optin_news:
+            consent = Consent(userID=user.userID,
+                              consent_type='news',
+                              consent_given_on=datetime.datetime.utcnow(),
+                              consent_given_via='signup_form')
+            db.session.add(consent)
+            db.session.commit()
+
+        flash('Account registered successfully. Please login.', 'success')
         return redirect(url_for('auth.signin'))
 
     return render_template('signup.html', reg_form=reg_form)
