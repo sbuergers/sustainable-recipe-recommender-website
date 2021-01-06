@@ -91,10 +91,12 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Request Password Reset')
 
 
-class DeleteAccountForm(FlaskForm):
-    password = PasswordField('password', validators=[
-                InputRequired(message="Password required"),
-                invalid_credentials])
+class NewsletterForm(FlaskForm):
+    submit_newsletter = SubmitField('Change newsletter subscription')
 
+
+class DeleteAccountForm(FlaskForm):
+    username = StringField('username', validators=[])
+    submit_delete_account = SubmitField('DELETE ACCOUNT')
 
 # eof

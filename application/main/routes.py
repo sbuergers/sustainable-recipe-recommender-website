@@ -2,13 +2,14 @@
 
 # Flask modules and forms
 from flask import render_template, request, redirect, url_for
-from flask import session
+from flask import session, flash
 from flask_login import login_required, current_user
 
 # User made modules
 import application.main.helper_functions as hf
 import application.main.altair_plots as ap
 from application.main.forms import SearchForm, EmptyForm
+from application.auth.forms import DeleteAccountForm, NewsletterForm
 from application.sql_queries import Sql_queries
 
 # Database
@@ -232,27 +233,34 @@ def cookbook(Np=20):
 @login_required
 def profile():
 
-    # navbar-search
+    # flask forms
     search_form = SearchForm()
+    delete_account_form = DeleteAccountForm()
+    newsletter_form = NewsletterForm()
 
-    if request.method == 'POST':
+    # subscribing / unsubscribing
+    if newsletter_form.submit_newsletter.data and \
+       newsletter_form.validate_on_submit():
+        newsletter = request.form['newsletter']
+        if newsletter == 'Subscribe':
+            redirect(url_for('main.cookbook'))
+        elif newsletter == 'Unsubscribe':
+            redirect(url_for('main.home'))
 
-        # subscribing / unsubscribing
-        if 'newsletter' in request.form:
-            newsletter = request.form['newsletter']
-            if newsletter == 'Subscribe':
-                redirect(url_for('main.cookbook'))
-            elif newsletter == 'Unsubscribe':
-                redirect(url_for('main.home'))
+    # delete account
+    if delete_account_form.submit_delete_account.data and \
+       delete_account_form.validate_on_submit():
+        if delete_account_form.username.data == current_user.username:
+            sq.delete_account(current_user.userID)
+            flash('Your account has been deleted successfully.')
+            redirect(url_for('main.home'))
+        else:
+            flash('You need to confirm your username to delete your account.')
 
-        # delete account
-        if 'delete_account' in request.form:
-            delete_account = request.form['delete_account']
-            if delete_account == 'DELETE_ACCOUNT':
-                sq.delete_account(current_user.userID)
-                redirect(url_for('main.home'))
     return render_template('profile.html',
-                           search_form=search_form)
+                           search_form=search_form,
+                           newsletter_form=newsletter_form,
+                           delete_account_form=delete_account_form)
 
 
 @bp.route('/add_or_remove_bookmark/<bookmark>/<origin>', methods=['GET'])

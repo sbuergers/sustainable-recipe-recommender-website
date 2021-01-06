@@ -22,34 +22,41 @@
         <h3>{{ current_user.username }}'s profile</h3>
     </div>
 
+    <div class="col-6">
     <br>
-    <div>
-        <form action="{{ url_for('main.profile') }}", method="POST">
+        <div>
+            <form action="{{ url_for('main.profile') }}", method="POST">
 
-            <!-- Email newsletter opt-in / opt-out -->
-            <h5>Newsletter subscription</h5>
-            {% if current_user.optin_news %}
-                Unsubscribe from email newsletter (you can re-subscribe anytime).
-                <div class="form-group">
-                    <input type="submit" name="newsletter" value="Unsubscribe" class="btn btn-warning">
-                </div>
-            {% else %}
-                Subscribe to email newsletter (you can unsubscribe anytime).
-                <div class="form-group">
-                    <input type="submit" name="newsletter" value="Subscribe" class="btn btn-success">
-                </div>
-            {% endif %}
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <!-- Email newsletter opt-in / opt-out -->
+                <h5>Newsletter subscription</h5>
+                {% if current_user.optin_news %}
+                    <p>Unsubscribe from email newsletter (you can re-subscribe anytime).</p>
+                    <div class="form-group">
+                        <input type="submit" name="newsletter" value="Unsubscribe" class="btn btn-warning">
+                    </div>
+                {% else %}
+                    <p>Subscribe to email newsletter (you can unsubscribe anytime).</p>
+                    <div class="form-group">
+                        <input type="submit" name="newsletter" value="Subscribe" class="btn btn-success">
+                    </div>
+                {% endif %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            </form> 
 
             <!-- Delete account -->
             <br>
             <h5>Delete account</h5>
-            Permanently delete my account (you will not be able to undo this).
-            <div class="form-group">
-                <input type="submit" name="delete_account" value="DELETE ACCOUNT" class="btn btn-danger">
-            </div>
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        </form> 
+            <p>Permanently delete account (you will not be able to undo this).</p>
+            
+            <form action="{{ url_for('main.home') }}", method="POST">
+                {{ displayField(delete_account_form.username, 'Type username to confirm account deletion') }}
+                <div class="form-group">
+                    <input type="submit" name="delete_account" value="DELETE ACCOUNT" class="btn btn-danger">
+                </div>
+                {{ delete_account_form.csrf_token }}
+            </form>
+        </div>
+
     </div>
 
 {% else %}
