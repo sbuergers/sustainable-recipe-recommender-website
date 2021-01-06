@@ -544,5 +544,24 @@ class Sql_queries():
                 self.session.add(like)
                 self.session.commit()
 
+    def delete_account(self, userID):
+        """
+        DESCRIPTION:
+            Removes an existing user entry.
+        INPUT:
+            userID (Integer): userID from users table
+        OUTPUT:
+            String: Feedback message
+        NOTE: I am not sure if rows in other tables, such
+        as the likes table, referring to this user should
+        also be deleted. It seems unneccessary.
+        """
+        user = User.query.filter_by(userID=userID.first()
+        if user:
+            self.session.delete(user)
+            self.session.commit()
+            return 'Removed user account successfully'
+        return 'User not found. Nothing was removed.'
+
 
 # eof
