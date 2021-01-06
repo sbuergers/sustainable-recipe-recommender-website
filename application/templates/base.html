@@ -58,7 +58,10 @@
                 </li>
                 {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-item nav-link" href="{{ url_for('main.profile') }}">Cookbook</a>
+                        <a class="nav-item nav-link" href="{{ url_for('main.cookbook') }}">Cookbook</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-item nav-link" href="{{ url_for('main.profile') }}">Profile</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-item nav-link" href="{{ url_for('auth.logout') }}">Logout</a>

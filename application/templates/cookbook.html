@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <meta name="google-site-verification" content="WRexSdtkVxKqi_C2lhGTsA_iXc8ryXlhewi7eBQGbsI" />
+    <meta name="title" content="Cookbook | SRR">
+    <meta name="route" content="main.cookbook">
+    <meta name="url" content="cookbook.html">
+    <meta name="author" content="Steffen Buergers">
+    <meta name="description" content="Personal cookbook on sustainable recipe recommender.">
+    <title>Cookbook | SRR</title>
+{% endblock %}
+
+{% block title %} Recipes searcher {% endblock %}
+
+{% block navsearch %}
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.home') }}" method="POST">
+        {{ search_form.search(class_='form-control', placeholder='Search') }}
+        {{ search_form.csrf_token }}
+    </form>
+{% endblock %}
+
+{% block body %}
+
+<!-- Get CDNs -->
+<link href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" rel="stylesheet">
+
+<!-- Get Vega for importing Altair plots -->
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-interpreter@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+<!---------------------------------------------------->
+<!--                      JS                        -->
+<!---------------------------------------------------->
+
+<!-- JS actions -->
+<!-- TODO: Ideally, JS should be in a separate file altogether.
+     However, I don't know how to then pass the Jinja2 vars -->
+<script nonce="{{ csp_nonce() }}">
+    // RATING SCALES 
+    function setRating(perc_ratings, class_selector, icon_selector='') {
+
+        // Set width of stars-inner 
+        var starElements = document.querySelectorAll(
+            class_selector.concat(icon_selector))
+        var i;
+        for (i = 0; i < starElements.length; i++) {
+            starElements[i].style.width = `${perc_ratings[i]}%`;
+        }
+        // Add rating as number next to it 
+        var starElements = document.querySelectorAll(
+            class_selector.concat(".number-rating"))
+        var i;
+        for (i = 0; i < starElements.length; i++) {
+            starElements[i].innerHTML = `${perc_ratings[i]}%`;
+        }
+    }  
+    
+    // Wait for DOM to load before fetching div elements
+    document.addEventListener("DOMContentLoaded", function(event) { 
+
+        // RATING SCALES
+        var avg_ratings = {{ avg_ratings | safe }};
+        var emissions = {{ emissions | safe }};
+        
+        // Render average user rating
+        setRating(perc_ratings=avg_ratings, 
+                  class_selector=".rating", 
+                  icon_selector=".stars-inner");
+        
+        // Render emissions
+        setRating(perc_ratings=emissions, 
+                  class_selector=".emissions", 
+                  icon_selector=".sustainability-inner");
+
+        // ALTAIR FIGURES
+        vegaEmbed(
+            "#hist-emissions", 
+            JSON.parse({{ hist_emissions | tojson | safe}}),
+            {
+                renderer: 'svg', 
+                ast: true,
+                tooltip: false,
+                actions: false
+            }
+        );
+
+        // ONCHANGE EVENTS
+        // Sort_by dropdown menu
+        $(function() {
+            $('#sort_by_form').change(function() {
+                this.form.submit();
+            });
+        });
+    });
+
+</script>
+
+<!------------------------------------->
+<!--           Recipes               -->
+<!------------------------------------->
+
+<br>
+
+{% if current_user.is_authenticated %}
+    <div class="row">
+
+        <!-- Section Title -->
+        <div class="col"><h3>{{ current_user.username }}'s cookbook</h3></div>
+    </div>
+
+    <br>
+
+    <!-- Figure 1: Histogram of emission scores -->
+    <div class="row">
+        <div class="col-8" id='hist-emissions'></div>  
+        <div class="col-1"></div>
+        <div class="col-3">
+            <p><h5> </h5></p>
+            <p>Recipes in cookbook: {{ Nrecipes }} </p>
+            <p>Liked recipes: {{ Nliked }} </p>
+            <p>Disliked recipes: {{ Ndisliked }} </p>
+            <p>Favorite recipes: 
+                {% for fav_rec_id, fav_rec in fav_recipes.iterrows() %}
+                <a href="{{ url_for('main.compare_recipes', search_term=fav_rec['url'], page=0) }}">
+                    {{ fav_rec['title'] }}
+                </a>
+                .
+                {% endfor %}
+            </p>
+            <p>Favorite categories: {{ ", ".join(fav_categ) }} </p>  <!-- add counts in parantheses? -->
+            <p>Mean emissions per recipe: {{ mean_cookbook_emissions }} kg </p>
+        </div> 
+    </div>
+
+    <!-- Sort by dropdown menu -->
+    <div class="row">
+        <div class="col sort_by">
+            <form action="{{ url_for('main.cookbook', page=page, sort_by=sort_by) }}" method="GET">
+                <label for="sort_by">Sort by </label>
+                <select id="sort_by_form" name="sort_by">
+                    <option value=sort_by></option>
+                    <option value="Sustainability">Sustainability </option>
+                    <option value="User_Rating">My rating </option>
+                    <option value="Perc_Rating">Average rating </option>
+                </select>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+    {% for recipeID, df in cookbook.iterrows() %}
+
+        <!-- maximum of 4 columns of search results (irrespective of display size) -->
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3"> <!--First column of search results-->
+
+            <div class="container-search-result"> <!-- do I need this?? -->
+                
+                <!-- Title -->
+                <div class="search-title"> 
+                    {{ df['title'] }}
+                </div>
+
+                <!-- User rating -->
+                <!-- TODO: Retrieve user rating or predict user rating
+                <div>
+                    <tr class="user-rating">
+                        <td></td>
+                        <td>
+                            <img src="../static/like_icon.png" class="icon" title="User rating">
+                            <div class="stars-outer">
+                            <div class="user-rating stars-inner" title="User rating"></div>
+                            </div>
+                            <span class="user-rating number-rating"></span>
+                        </td>
+                    </tr>
+                </div>
+                -->
+
+                <!-- Average rating -->
+                <div>
+                    <tr class="rating">
+                        <td></td>
+                        <td>
+                            <img src="../static/like_icon.png" class="icon" title="Average user rating">
+                            <div class="stars-outer">
+                            <div class="rating stars-inner" title="Average user rating"></div>
+                            </div>
+                            <span class="rating number-rating"></span>
+                            ({{'%i' | format(df['review_count']|int) }} votes)
+                        </td>
+                    </tr>
+                </div>
+
+                <!-- Emission score -->
+                <div>
+                    <tr class="emissions">
+                        <td></td>
+                        <td>
+                            <img src="../static/sustainability_icon.png" class="icon" title="Relative green house gas emissions">
+                            <div class="sustainability-outer">
+                            <div class="emissions sustainability-inner" title="Relative green house gas emissions"></div>
+                            </div>
+                            <span class="emissions number-rating"></span>
+                            (<span  title="Estimated amount of CO2 emissions in kg">
+                                {{'%0.2f'| format(df['emissions']|float) }}
+                            </span> kg)
+                        </td>
+                    </tr>
+                </div>
+
+                <div class="container">
+                    <span id="rateMe3" class="rating-faces"></span>
+                </div>
+
+                <!-- Image -->
+                <div class="row">
+                    <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" 
+                        target="_blank">
+                        <img src="{{ df['image_url'] }}" alt="">
+                    </a>
+                </div>
+
+                <!-- Below image -->
+                <div class="container-flex">
+                    
+                    <!-- Links -->
+                    <a href="{{ 'https://www.epicurious.com/recipes/food/views/' + df['url']}}" target="_blank">
+                        recipe
+                    </a>
+                    |
+                    <a href="{{ url_for('main.compare_recipes', search_term=df['url'], page=0) }}">
+                        suggestions
+                    </a>
+                    |
+                    <!-- Like / unlike recipe -->
+                    {% if df['user_rating'] == 5 %}
+
+                        <!-- recipe was liked -->
+                        <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], origin='main.cookbook', sort_by=sort_by) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                                <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                        <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], origin='main.cookbook', sort_by=sort_by) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-like-rated btn-sm" title="Like recipe">
+                                <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% elif df['user_rating'] == 1 %}
+
+                        <!-- recipe was disliked -->
+                        <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], origin='main.cookbook', sort_by=sort_by) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-dislike-rated btn-sm" title="Dislike recipe">
+                                <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                        <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], origin='main.cookbook', sort_by=sort_by) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                                <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% else %}
+                        
+                        <!-- recipe was neither liked nor disliked -->
+                        <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], origin='main.cookbook', sort_by=sort_by) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
+                                <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                        <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], origin='main.cookbook', sort_by=sort_by) }}" method="POST">
+                            {{ like_form.csrf_token }}
+                            <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
+                                <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                    |
+                    <!-- Remove recipe from cookbook -->
+                    <form action="{{ url_for('main.add_or_remove_bookmark', bookmark=df['url'], sort_by=sort_by, origin='main.cookbook') }}" method="GET">
+                        {{ bookmark_form.csrf_token }}
+                        <button type="submit" class="btn btn-delete btn-sm" title="Remove from cookbook">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    {% endfor %}
+    </div>
+
+{% else %}
+    <!-- This should not be reachable, but just to be safe -->
+    You need to sign in before being able to view this page. 
+{% endif %}
+
+<!-- Page navigation -->
+<!-- TODO: Highlight currently selected website. Disable buttons when appropriate -->
+<br>
+<nav aria-label="Search results pages">
+    <ul class="pagination justify-content-center">
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.cookbook', page=page-1) }}">Previous</a>
+        </li>
+        {% for i in range(0,Npages) %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.cookbook', page=i) }}">{{ i }}</a>
+        </li>
+        {% endfor %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('main.cookbook', page=page+1) }}">Next</a>
+        </li>
+    </ul>
+</nav>
+
+{% endblock %}
+
+
+<!-- eof -->

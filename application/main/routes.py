@@ -149,9 +149,9 @@ def compare_recipes(search_term, Np=20):
                            bp=bp)
 
 
-@bp.route('/profile', methods=['GET', 'POST'])
+@bp.route('/cookbook', methods=['GET', 'POST'])
 @login_required
-def profile(Np=20):
+def cookbook(Np=20):
 
     # navbar-search
     search_form = SearchForm()
@@ -164,7 +164,7 @@ def profile(Np=20):
     page = request.args.get('page')
     page = int(page) if page else 0
 
-    # TODO profile search
+    # TODO cookbook search
 
     # Get bookmarked recipes
     cookbook = sq.query_cookbook(current_user.userID)
@@ -208,7 +208,7 @@ def profile(Np=20):
     hist_title = "Emissions distribution of cookbook recipes"
     hist_emissions = ap.histogram_emissions(df_hist, hist_title)
 
-    return render_template('profile.html',
+    return render_template('cookbook.html',
                            search_form=search_form,
                            cookbook=cookbook,
                            Nrecipes=Nrecipes,
@@ -228,6 +228,14 @@ def profile(Np=20):
                            hist_emissions=hist_emissions)
 
 
+@bp.route('/profile', methods=['POST'])
+@login_required
+def profile():
+    search_form = SearchForm()
+    return render_template('profile.html',
+                           search_form=search_form)
+
+
 @bp.route('/add_or_remove_bookmark/<bookmark>/<origin>', methods=['GET'])
 @login_required
 def add_or_remove_bookmark(bookmark, origin):
@@ -240,7 +248,7 @@ def add_or_remove_bookmark(bookmark, origin):
         search_term = session['search_query']
         return redirect(url_for(origin, search_term=search_term,
                                 sort_by='Sustainability'))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         sort_by = request.form.get('sort_by')
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
@@ -258,7 +266,7 @@ def like_recipe(recipe_url):
     elif origin == 'main.search_results':
         return redirect(url_for(origin, search_term=session['search_query'],
                                 sort_by=sort_by))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
 
@@ -275,7 +283,7 @@ def dislike_recipe(recipe_url):
     elif origin == 'main.search_results':
         return redirect(url_for(origin, search_term=session['search_query'],
                                 sort_by=sort_by))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
 
@@ -292,7 +300,7 @@ def unlike_recipe(recipe_url):
     elif origin == 'main.search_results':
         return redirect(url_for(origin, search_term=session['search_query'],
                                 sort_by=sort_by))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
 
