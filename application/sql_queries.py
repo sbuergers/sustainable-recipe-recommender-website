@@ -556,7 +556,7 @@ class Sql_queries():
         as the likes table, referring to this user should
         also be deleted. It seems unneccessary.
         """
-        user = User.query.filter_by(userID=userID.first()
+        user = User.query.filter_by(userID=userID).first()
         if user:
             self.session.delete(user)
             self.session.commit()

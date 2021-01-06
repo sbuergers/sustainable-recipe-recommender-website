@@ -235,19 +235,22 @@ def profile():
     # navbar-search
     search_form = SearchForm()
 
-    # subscribing / unsubscribing
     if request.method == 'POST':
-        newsletter = request.form['newsletter']
-        if newsletter == 'Subscribe':
-            redirect(url_for('main.cookbook'))
-        elif newsletter == 'Unsubscribe':
-            redirect(url_for('main.home'))
 
-        delete_account = request.form['delete_account']
-        if delete_account == 'DELETE_ACCOUNT':
-            
-            
+        # subscribing / unsubscribing
+        if 'newsletter' in request.form:
+            newsletter = request.form['newsletter']
+            if newsletter == 'Subscribe':
+                redirect(url_for('main.cookbook'))
+            elif newsletter == 'Unsubscribe':
+                redirect(url_for('main.home'))
 
+        # delete account
+        if 'delete_account' in request.form:
+            delete_account = request.form['delete_account']
+            if delete_account == 'DELETE_ACCOUNT':
+                sq.delete_account(current_user.userID)
+                redirect(url_for('main.home'))
     return render_template('profile.html',
                            search_form=search_form)
 
