@@ -228,10 +228,26 @@ def cookbook(Np=20):
                            hist_emissions=hist_emissions)
 
 
-@bp.route('/profile', methods=['POST'])
+@bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+
+    # navbar-search
     search_form = SearchForm()
+
+    # subscribing / unsubscribing
+    if request.method == 'POST':
+        newsletter = request.form['newsletter']
+        if newsletter == 'Subscribe':
+            redirect(url_for('main.cookbook'))
+        elif newsletter == 'Unsubscribe':
+            redirect(url_for('main.home'))
+
+        delete_account = request.form['delete_account']
+        if delete_account == 'DELETE_ACCOUNT':
+            
+            
+
     return render_template('profile.html',
                            search_form=search_form)
 
