@@ -236,11 +236,10 @@ def profile():
     # flask forms
     search_form = SearchForm()
     delete_account_form = DeleteAccountForm()
-    newsletter_form = NewsletterForm()
+    # newsletter_form = NewsletterForm()
 
     # subscribing / unsubscribing
-    if newsletter_form.submit_newsletter.data and \
-       newsletter_form.validate_on_submit():
+    if request.method == 'POST':
         newsletter = request.form['newsletter']
         if newsletter == 'Subscribe':
             redirect(url_for('main.cookbook'))
@@ -259,7 +258,7 @@ def profile():
 
     return render_template('profile.html',
                            search_form=search_form,
-                           newsletter_form=newsletter_form,
+                           # newsletter_form=newsletter_form,
                            delete_account_form=delete_account_form)
 
 
