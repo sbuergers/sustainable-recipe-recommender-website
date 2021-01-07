@@ -101,9 +101,5 @@ class DeleteAccountForm(FlaskForm):
     username = StringField('username', validators=[])
     submit_delete_account = SubmitField('DELETE ACCOUNT')
 
-    def validate_username(self, username):
-        if current_user.username != username:
-            raise ValidationError("Wrong username. Please confirm \
-                account deletion by entering your username.")
 
 # eof

@@ -25,9 +25,9 @@
     <div class="col-6">
     <br>
         <div>
+            
+            <!-- Email newsletter opt-in / opt-out -->
             <form action="{{ url_for('main.profile') }}", method="POST">
-
-                <!-- Email newsletter opt-in / opt-out -->
                 <h5>Newsletter subscription</h5>
                 {% if current_user.optin_news %}
                     <p>Unsubscribe from email newsletter (you can re-subscribe anytime).</p>
@@ -36,14 +36,14 @@
                     <p>Subscribe to email newsletter (you can unsubscribe anytime).</p>
                     {{ newsletter_form.submit_newsletter(class_="btn btn-success") }}
                 {% endif %}
-                {{ delete_account_form.csrf_token }}
+                {{ newsletter_form.csrf_token }}
             </form> 
 
             <!-- Delete account -->
             <br>
             <h5>Delete account</h5>
             <p>Permanently delete account (you will not be able to undo this).</p>
-            <form action="{{ url_for('main.home') }}", method="POST">
+            <form action="{{ url_for('main.profile') }}", method="POST">
                 {{ displayField(delete_account_form.username, 'Type username to confirm account deletion') }}
                 {{ delete_account_form.submit_delete_account(class_="btn btn-danger") }}
                 {{ delete_account_form.csrf_token }}

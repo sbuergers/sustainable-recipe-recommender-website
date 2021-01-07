@@ -241,14 +241,12 @@ def profile():
     # subscribing / unsubscribing
     if newsletter_form.submit_newsletter.data and \
        newsletter_form.validate_on_submit():
+        sq.change_newsletter_subscription(current_user.userID)
         if current_user.optin_news:
-            sq.change_newsletter_subscription(current_user.userID)
-            flash('Successfully unsubscribed from email newsletter.')
-            redirect(url_for('main.cookbook'))
-        else:
-            sq.change_newsletter_subscription(current_user.userID)
             flash('Successfully subscribed to email newsletter.')
-            redirect(url_for('main.about'))
+        else:
+            flash('Successfully unsubscribed from email newsletter.')
+        redirect(url_for('main.profile'))
 
     # delete account
     if delete_account_form.submit_delete_account.data and \
@@ -258,7 +256,8 @@ def profile():
             flash('Your account has been deleted successfully.')
             redirect(url_for('main.home'))
         else:
-            flash('You need to confirm your username to delete your account.')
+            flash('You need to confirm account deletion by entering \
+                  your username.')
             redirect(url_for('main.profile'))
 
     return render_template('profile.html',
