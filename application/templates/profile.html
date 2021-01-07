@@ -31,16 +31,12 @@
                 <h5>Newsletter subscription</h5>
                 {% if current_user.optin_news %}
                     <p>Unsubscribe from email newsletter (you can re-subscribe anytime).</p>
-                    <div class="form-group">
-                        <input type="submit" name="newsletter" value="Unsubscribe" class="btn btn-warning">
-                    </div>
+                    {{ newsletter_form.submit_newsletter(class_="btn btn-warning") }}
                 {% else %}
                     <p>Subscribe to email newsletter (you can unsubscribe anytime).</p>
-                    <div class="form-group">
-                        <input type="submit" name="newsletter" value="Subscribe" class="btn btn-success">
-                    </div>
+                    {{ newsletter_form.submit_newsletter(class_="btn btn-success") }}
                 {% endif %}
-                <!-- {{ newsletter_form.csrf_token }} -->
+                {{ delete_account_form.csrf_token }}
             </form> 
 
             <!-- Delete account -->
@@ -49,7 +45,7 @@
             <p>Permanently delete account (you will not be able to undo this).</p>
             <form action="{{ url_for('main.home') }}", method="POST">
                 {{ displayField(delete_account_form.username, 'Type username to confirm account deletion') }}
-                {{ delete_account_form.submit_delete_account }}
+                {{ delete_account_form.submit_delete_account(class_="btn btn-danger") }}
                 {{ delete_account_form.csrf_token }}
             </form>
         </div>

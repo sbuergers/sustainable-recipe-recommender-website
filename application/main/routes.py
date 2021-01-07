@@ -236,15 +236,19 @@ def profile():
     # flask forms
     search_form = SearchForm()
     delete_account_form = DeleteAccountForm()
-    # newsletter_form = NewsletterForm()
+    newsletter_form = NewsletterForm()
 
     # subscribing / unsubscribing
-    if request.method == 'POST':
-        newsletter = request.form['newsletter']
-        if newsletter == 'Subscribe':
+    if newsletter_form.submit_newsletter.data and \
+       newsletter_form.validate_on_submit():
+        if current_user.optin_news:
+            sq.change_newsletter_subscription(current_user.userID)
+            flash('Successfully unsubscribed from email newsletter.')
             redirect(url_for('main.cookbook'))
-        elif newsletter == 'Unsubscribe':
-            redirect(url_for('main.home'))
+        else:
+            sq.change_newsletter_subscription(current_user.userID)
+            flash('Successfully subscribed to email newsletter.')
+            redirect(url_for('main.about'))
 
     # delete account
     if delete_account_form.submit_delete_account.data and \
@@ -255,10 +259,11 @@ def profile():
             redirect(url_for('main.home'))
         else:
             flash('You need to confirm your username to delete your account.')
+            redirect(url_for('main.profile'))
 
     return render_template('profile.html',
                            search_form=search_form,
-                           # newsletter_form=newsletter_form,
+                           newsletter_form=newsletter_form,
                            delete_account_form=delete_account_form)
 
 
