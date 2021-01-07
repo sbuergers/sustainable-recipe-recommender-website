@@ -563,5 +563,26 @@ class Sql_queries():
             return 'Removed user account successfully'
         return 'User not found. Nothing was removed.'
 
+    def change_newsletter_subscription(self, userID):
+        """
+        DESCRIPTION:
+            Negates current newsletter subscription status of user.
+        INPUT:
+            userID (Integer): userID from users table
+        OUTPUT:
+            String: Feedback message
+        """
+        user = User.query.filter_by(userID=userID).first()
+        if user:
+            new_subscription_status = True
+            if user.optin_news:
+                new_subscription_status = False
+            user.optin_news = new_subscription_status
+            self.session.commit()
+            if new_subscription_status:
+                return 'Changed newsletter subscription to "subscribed"'
+            return 'Changed newsletter subscription to "unsubscribed"'
+        return 'User not found'
+
 
 # eof
