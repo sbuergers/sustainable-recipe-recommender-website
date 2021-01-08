@@ -50,6 +50,13 @@ class Like(db.Model):
         return '<Like {}>'.format(self.likeID)
 
 
+class Consent(db.Model):
+    __table__ = db.Model.metadata.tables['consent']
+
+    def __repr__(self):
+        return '<Consent {}>'.format(self.consentID)
+
+
 class ContentSimilarity(db.Model):
     __table__ = db.Model.metadata.tables['content_similarity200']
 

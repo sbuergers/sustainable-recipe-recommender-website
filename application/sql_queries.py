@@ -1,7 +1,7 @@
 """ Class for advanced SQL queries without DB changes """
 import pandas as pd
 from sqlalchemy import text, bindparam, String, Integer, Numeric
-from application.models import User, Recipe, Like
+from application.models import User, Recipe, Like, Consent
 import datetime
 
 
@@ -543,6 +543,52 @@ class Sql_queries():
                             rating=rating)
                 self.session.add(like)
                 self.session.commit()
+
+    def delete_account(self, userID):
+        """
+        DESCRIPTION:
+            Removes an existing user entry from users table,
+            and corresponding rows in consent and likes tables.
+        INPUT:
+            userID (Integer): userID from users table
+        OUTPUT:
+            String: Feedback message
+        """
+        user = User.query.filter_by(userID=userID).first()
+        if user:
+
+            # delete likes of user (in likes table)
+            Like.query.filter_by(userID=userID).delete()
+
+            # delete consent of user (in consent table)
+            Consent.query.filter_by(userID=userID).delete()
+
+            # delete user (in users table)
+            self.session.delete(user)
+            self.session.commit()
+            return 'Removed user account successfully'
+        return 'User not found. Nothing was removed.'
+
+    def change_newsletter_subscription(self, userID):
+        """
+        DESCRIPTION:
+            Negates current newsletter subscription status of user.
+        INPUT:
+            userID (Integer): userID from users table
+        OUTPUT:
+            String: Feedback message
+        """
+        user = User.query.filter_by(userID=userID).first()
+        if user:
+            new_subscription_status = True
+            if user.optin_news:
+                new_subscription_status = False
+            user.optin_news = new_subscription_status
+            self.session.commit()
+            if new_subscription_status:
+                return 'Changed newsletter subscription to "subscribed"'
+            return 'Changed newsletter subscription to "unsubscribed"'
+        return 'User not found'
 
 
 # eof

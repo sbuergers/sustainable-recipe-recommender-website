@@ -5,6 +5,7 @@ from wtforms.validators import InputRequired, Length, EqualTo,\
     ValidationError, Email
 from passlib.hash import pbkdf2_sha512
 from application.models import User
+from flask_login import current_user
 
 
 def invalid_credentials(form, field):
@@ -89,6 +90,16 @@ class ResetPasswordForm(FlaskForm):
                         must match")
                     ])
     submit = SubmitField('Request Password Reset')
+
+
+class NewsletterForm(FlaskForm):
+    submit_newsletter = SubmitField('Change newsletter subscription',
+                                    validators=[])
+
+
+class DeleteAccountForm(FlaskForm):
+    username = StringField('username', validators=[])
+    submit_delete_account = SubmitField('DELETE ACCOUNT')
 
 
 # eof

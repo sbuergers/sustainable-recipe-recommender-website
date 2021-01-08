@@ -2,13 +2,14 @@
 
 # Flask modules and forms
 from flask import render_template, request, redirect, url_for
-from flask import session
+from flask import session, flash
 from flask_login import login_required, current_user
 
 # User made modules
 import application.main.helper_functions as hf
 import application.main.altair_plots as ap
 from application.main.forms import SearchForm, EmptyForm
+from application.auth.forms import DeleteAccountForm, NewsletterForm
 from application.sql_queries import Sql_queries
 
 # Database
@@ -149,9 +150,9 @@ def compare_recipes(search_term, Np=20):
                            bp=bp)
 
 
-@bp.route('/profile', methods=['GET', 'POST'])
+@bp.route('/cookbook', methods=['GET', 'POST'])
 @login_required
-def profile(Np=20):
+def cookbook(Np=20):
 
     # navbar-search
     search_form = SearchForm()
@@ -164,7 +165,7 @@ def profile(Np=20):
     page = request.args.get('page')
     page = int(page) if page else 0
 
-    # TODO profile search
+    # TODO cookbook search
 
     # Get bookmarked recipes
     cookbook = sq.query_cookbook(current_user.userID)
@@ -208,7 +209,7 @@ def profile(Np=20):
     hist_title = "Emissions distribution of cookbook recipes"
     hist_emissions = ap.histogram_emissions(df_hist, hist_title)
 
-    return render_template('profile.html',
+    return render_template('cookbook.html',
                            search_form=search_form,
                            cookbook=cookbook,
                            Nrecipes=Nrecipes,
@@ -228,6 +229,43 @@ def profile(Np=20):
                            hist_emissions=hist_emissions)
 
 
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+
+    # flask forms
+    search_form = SearchForm()
+    delete_account_form = DeleteAccountForm()
+    newsletter_form = NewsletterForm()
+
+    # subscribing / unsubscribing
+    if newsletter_form.submit_newsletter.data and \
+       newsletter_form.validate_on_submit():
+        sq.change_newsletter_subscription(current_user.userID)
+        if current_user.optin_news:
+            flash('Successfully subscribed to email newsletter.')
+        else:
+            flash('Successfully unsubscribed from email newsletter.')
+        redirect(url_for('main.profile'))
+
+    # delete account
+    if delete_account_form.submit_delete_account.data and \
+       delete_account_form.validate_on_submit():
+        if delete_account_form.username.data == current_user.username:
+            sq.delete_account(current_user.userID)
+            flash('Your account has been deleted successfully.')
+            redirect(url_for('main.home'))
+        else:
+            flash('You need to confirm account deletion by entering \
+                  your username.')
+            redirect(url_for('main.profile'))
+
+    return render_template('profile.html',
+                           search_form=search_form,
+                           newsletter_form=newsletter_form,
+                           delete_account_form=delete_account_form)
+
+
 @bp.route('/add_or_remove_bookmark/<bookmark>/<origin>', methods=['GET'])
 @login_required
 def add_or_remove_bookmark(bookmark, origin):
@@ -240,7 +278,7 @@ def add_or_remove_bookmark(bookmark, origin):
         search_term = session['search_query']
         return redirect(url_for(origin, search_term=search_term,
                                 sort_by='Sustainability'))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         sort_by = request.form.get('sort_by')
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
@@ -258,7 +296,7 @@ def like_recipe(recipe_url):
     elif origin == 'main.search_results':
         return redirect(url_for(origin, search_term=session['search_query'],
                                 sort_by=sort_by))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
 
@@ -275,7 +313,7 @@ def dislike_recipe(recipe_url):
     elif origin == 'main.search_results':
         return redirect(url_for(origin, search_term=session['search_query'],
                                 sort_by=sort_by))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
 
@@ -292,7 +330,7 @@ def unlike_recipe(recipe_url):
     elif origin == 'main.search_results':
         return redirect(url_for(origin, search_term=session['search_query'],
                                 sort_by=sort_by))
-    elif origin == 'main.profile':
+    elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
 
