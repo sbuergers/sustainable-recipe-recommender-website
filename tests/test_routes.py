@@ -205,13 +205,13 @@ class TestRoutesMain:
         # coming from main.profile
         r = test_client.get(url_for('main.add_or_remove_bookmark',
                                     bookmark=search_term,
-                                    origin='main.profile'),
+                                    origin='main.cookbook'),
                             follow_redirects=True)
 
         # Are we redirected back correctly?
         soup = BeautifulSoup(r.data, features="html.parser")
         route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
-        assert route == "main.profile"
+        assert route == "main.cookbook"
 
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
