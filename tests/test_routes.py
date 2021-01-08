@@ -217,6 +217,20 @@ class TestRoutesMain:
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
         bookmark_status = pg.is_in_cookbook(user.userID, search_term)
 
+    def test_cookbook(self, test_client):
+        """ Endpoint check """
+
+        # Logged out (redirects to signin)
+        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
+        assert r.status_code == 200
+        assert b'Sign in' in r.data
+
+        # Logged in (accesses profile)
+        login(test_client, user.name, user.pw)
+        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
+        assert r.status_code == 200
+        assert b'Cookbook' in r.data
+
 
 class TestRoutesAuth:
 
