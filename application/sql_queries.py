@@ -1,7 +1,7 @@
 """ Class for advanced SQL queries without DB changes """
 import pandas as pd
 from sqlalchemy import text, bindparam, String, Integer, Numeric
-from application.models import User, Recipe, Like
+from application.models import User, Recipe, Like, Consent
 import datetime
 
 
@@ -547,17 +547,23 @@ class Sql_queries():
     def delete_account(self, userID):
         """
         DESCRIPTION:
-            Removes an existing user entry.
+            Removes an existing user entry from users table,
+            and corresponding rows in consent and likes tables.
         INPUT:
             userID (Integer): userID from users table
         OUTPUT:
             String: Feedback message
-        NOTE: I am not sure if rows in other tables, such
-        as the likes table, referring to this user should
-        also be deleted. It seems unneccessary.
         """
         user = User.query.filter_by(userID=userID).first()
         if user:
+
+            # delete likes of user (in likes table)
+            Like.query.filter_by(userID=userID).delete()
+
+            # delete consent of user (in consent table)
+            Consent.query.filter_by(userID=userID).delete()
+
+            # delete user (in users table)
             self.session.delete(user)
             self.session.commit()
             return 'Removed user account successfully'
