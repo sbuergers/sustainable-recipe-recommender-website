@@ -137,7 +137,7 @@ def compare_recipes(search_term, Np=20):
     # make figures
     bp = ap.bar_compare_emissions(ref_recipe, results, sort_by=sort_by)
 
-    return render_template('results.html',
+    return render_template('compare_recipes.html',
                            reference_recipe=ref_recipe,
                            results=results,
                            ratings=ratings,
