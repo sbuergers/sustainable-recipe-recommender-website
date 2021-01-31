@@ -33,7 +33,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        pytest --verbose --color=yes --cov=application --assert=plain
       env:
         AWS_POSTGRES_ADDRESS: ${{secrets.AWS_POSTGRES_ADDRESS}}
         AWS_POSTGRES_DBNAME: ${{secrets.AWS_POSTGRES_DBNAME}}
