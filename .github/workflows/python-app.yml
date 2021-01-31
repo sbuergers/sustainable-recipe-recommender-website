@@ -34,3 +34,14 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+      env:
+        AWS_POSTGRES_ADDRESS: ${{secrets.AWS_POSTGRES_ADDRESS}}
+        AWS_POSTGRES_DBNAME: ${{secrets.AWS_POSTGRES_DBNAME}}
+        AWS_POSTGRES_PASSWORD: ${{secrets.AWS_POSTGRES_PASSWORD}}
+        AWS_POSTGRES_PORT: ${{secrets.AWS_POSTGRES_PORT}}
+        AWS_POSTGRES_USERNAME: ${{secrets.AWS_POSTGRES_USERNAME}}
+        DATABASE_URL: ${{secrets.DATABASE_URL}}
+        MAIL_PASSWORD: ${{secrets.MAIL_PASSWORD}}
+        MAIL_USERNAME: ${{secrets.MAIL_USERNAME}}
+        SALT_EMAIL: ${{secrets.SALT_EMAIL}}
+        SECRET: ${{secrets.SECRET}}
