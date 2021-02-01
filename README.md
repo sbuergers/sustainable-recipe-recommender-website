@@ -1,4 +1,4 @@
-![Build Status](https://github.com/sbuergers/sustainable-recipe-recommender-website/workflows/Python application/badge.svg)
+![Build Status]("https://github.com/sbuergers/sustainable-recipe-recommender-website/workflows/Python application/badge.svg")
 
 # Sustainable-recipe-recommender
 A recipe recommendation engine suggesting similar recipes that are more sustainable. This is the repository for the website. If you are interested in fetching and preprocessing of the data have a look at [this repo](https://github.com/sbuergers/sustainable-recipe-recommender). 
