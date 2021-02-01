@@ -1,5 +1,5 @@
 ![Build Status](https://github.com/sbuergers/sustainable-recipe-recommender-website/workflows/pytest-cov/badge.svg)
-![codecov](https://codecov.io/gh/sbuergers/sustainable-recipe-recommender-website)
+[![codecov](https://codecov.io/gh/sbuergers/sustainable-recipe-recommender-website/branch/master/graph/badge.svg?token=4FGOT90LCE)](https://codecov.io/gh/sbuergers/sustainable-recipe-recommender-website)
 
 # Sustainable-recipe-recommender
 A recipe recommendation engine suggesting similar recipes that are more sustainable. This is the repository for the website. If you are interested in fetching and preprocessing of the data have a look at [this repo](https://github.com/sbuergers/sustainable-recipe-recommender). 
