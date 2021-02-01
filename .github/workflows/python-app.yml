@@ -33,7 +33,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        pytest --cov=./ tests/ --cov-report=xml --verbose
       env:
         AWS_POSTGRES_ADDRESS: ${{secrets.AWS_POSTGRES_ADDRESS}}
         AWS_POSTGRES_DBNAME: ${{secrets.AWS_POSTGRES_DBNAME}}
@@ -45,3 +45,13 @@ jobs:
         MAIL_USERNAME: ${{secrets.MAIL_USERNAME}}
         SALT_EMAIL: ${{secrets.SALT_EMAIL}}
         SECRET: ${{secrets.SECRET}}
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
+        directory: ./coverage/reports/
+        env_vars: OS,PYTHON
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        path_to_write_report: ./coverage/codecov_report.txt
+        verbose: true
