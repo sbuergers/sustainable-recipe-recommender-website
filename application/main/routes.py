@@ -24,18 +24,19 @@ sq = Sql_queries(db.session)
 @bp.route('/')
 @bp.route('/home', methods=['GET', 'POST'])
 def home():
+    session['search_query'] = ""
     search_form = SearchForm()
     if request.method == 'POST':
         if search_form.search.data:
-            session['search_query'] = search_form.search.data
             return redirect((url_for('main.search_results',
-                            search_term=session['search_query'])))
+                            search_term=search_form.search.data)))
     return render_template('home.html', search_form=search_form)
 
 
 @bp.route('/search/<search_term>', methods=['GET', 'POST'])
 def search_results(search_term):
 
+    session['search_query'] = search_term
     like_form = EmptyForm()
     search_form = SearchForm()
 
@@ -303,11 +304,12 @@ def like_recipe(recipe_url):
     sq.rate_recipe(current_user.userID, recipe_url, 5)
     origin = request.args['origin']
     sort_by = request.args['sort_by']
+    search_query = request.args['search_query']
     if origin == 'main.compare_recipes':
-        return redirect(url_for(origin, search_term=session['search_query'],
+        return redirect(url_for(origin, search_term=search_query,
                                 sort_by=sort_by))
     elif origin == 'main.search_results':
-        return redirect(url_for(origin, search_term=session['search_query'],
+        return redirect(url_for(origin, search_term=search_query,
                                 sort_by=sort_by))
     elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
@@ -320,11 +322,12 @@ def dislike_recipe(recipe_url):
     sq.rate_recipe(current_user.userID, recipe_url, 1)
     origin = request.args['origin']
     sort_by = request.args['sort_by']
+    search_query = request.args['search_query']
     if origin == 'main.compare_recipes':
-        return redirect(url_for(origin, search_term=session['search_query'],
+        return redirect(url_for(origin, search_term=search_query,
                                 sort_by=sort_by))
     elif origin == 'main.search_results':
-        return redirect(url_for(origin, search_term=session['search_query'],
+        return redirect(url_for(origin, search_term=search_query,
                                 sort_by=sort_by))
     elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
@@ -337,11 +340,12 @@ def unlike_recipe(recipe_url):
     sq.rate_recipe(current_user.userID, recipe_url, 3)
     origin = request.args['origin']
     sort_by = request.args['sort_by']
+    search_query = request.args['search_query']
     if origin == 'main.compare_recipes':
-        return redirect(url_for(origin, search_term=session['search_query'],
+        return redirect(url_for(origin, search_term=search_query,
                                 sort_by=sort_by))
     elif origin == 'main.search_results':
-        return redirect(url_for(origin, search_term=session['search_query'],
+        return redirect(url_for(origin, search_term=search_query,
                                 sort_by=sort_by))
     elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
