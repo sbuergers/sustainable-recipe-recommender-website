@@ -252,7 +252,7 @@ class TestRoutesAuth:
         r = test_client.get(url_for('auth.signup'), follow_redirects=True)
         assert r.status_code == 200
 
-    def test_login(self, test_client):
+    def test_signin(self, test_client):
         """ Endpoint check, failed credentials check """
 
         r = test_client.get(url_for('auth.signin'), follow_redirects=True)
