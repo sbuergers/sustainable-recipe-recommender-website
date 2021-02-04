@@ -80,6 +80,15 @@ def logout(test_client):
     return test_client.get(url_for('auth.logout'), follow_redirects=True)
 
 
+def route_meta_tag(r):
+    """
+    Given the html output from a test_client get or post call
+    (in r.data), retrieve the route name given in the meta tags.
+    """
+    soup = BeautifulSoup(r.data, features="html.parser")
+    return soup.find_all("meta", attrs={'name': 'route'})[0]['content']
+
+
 # TESTS
 class TestRoutesMain:
 
@@ -152,7 +161,7 @@ class TestRoutesMain:
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
-    
+
     def test_about(self, test_client):
         """ Endpoint check """
 
@@ -189,9 +198,7 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data, features="html.parser")
-        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
-        assert route == "main.compare_recipes"
+        assert route_meta_tag(r) == "main.compare_recipes"
 
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
@@ -208,9 +215,7 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data, features="html.parser")
-        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
-        assert route == "main.search_results"
+        assert route_meta_tag(r) == "main.search_results"
 
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
@@ -223,25 +228,164 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data, features="html.parser")
-        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
-        assert route == "main.cookbook"
+        assert route_meta_tag(r) == "main.cookbook"
 
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
         bookmark_status = pg.is_in_cookbook(user.userID, search_term)
 
-    def test_like_recipe(self, test_client):
-        """ Endpoint check """
-        # TODO...
+    def test_like_recipe(self, test_client, pg, par):
+        """
+        Check that routing works and rating changes correctly.
+        """
 
-    def test_dislike_recipe(self, test_client):
-        """ Endpoint check """
-        # TODO...
+        # Ensure recipe rating is 3 (default = unrated)
+        pg.rate_recipe(user.userID, par.recipe_tag, 3)
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
 
-    def test_unlike_recipe(self, test_client):
-        """ Endpoint check """
-        # TODO...
+        # logged out: Redirect to auth.login
+        test_client.get(url_for('auth.logout'), follow_redirects=True)
+
+        origins = ['main.cookbook', 'main.search_results',
+                   'main.compare_recipes']
+        sort_bys = ['Sustainability']*3
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            r = test_client.post(url_for('main.like_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == 'auth.login'
+
+        # Assert rating is still 3
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
+
+        # logged in: Redirect back to origin
+        login(test_client, user.name, user.pw)
+
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            pg.rate_recipe(user.userID, par.recipe_tag, 3)
+            r = test_client.post(url_for('main.like_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == origin
+            rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                       .user_rating[0]
+            assert rating == 5
+
+    def test_dislike_recipe(self, test_client, pg, par):
+        """
+        Check that routing works and rating changes correctly.
+        """
+
+        # Ensure recipe rating is 3 (default = unrated)
+        pg.rate_recipe(user.userID, par.recipe_tag, 3)
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
+
+        # logged out: Redirect to auth.login
+        test_client.get(url_for('auth.logout'), follow_redirects=True)
+
+        origins = ['main.cookbook', 'main.search_results',
+                   'main.compare_recipes']
+        sort_bys = ['Sustainability']*3
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            r = test_client.post(url_for('main.dislike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == 'auth.login'
+
+        # Assert rating is still 3
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
+
+        # logged in: Redirect back to origin
+        login(test_client, user.name, user.pw)
+
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            pg.rate_recipe(user.userID, par.recipe_tag, 3)
+            r = test_client.post(url_for('main.dislike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == origin
+            rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                       .user_rating[0]
+            assert rating == 1
+
+    def test_unlike_recipe(self, test_client, pg, par):
+        """
+        Check that routing works and rating changes correctly.
+        """
+
+        # Ensure recipe rating is 1 (disliked)
+        pg.rate_recipe(user.userID, par.recipe_tag, 1)
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 1
+
+        # logged out: Redirect to auth.login
+        test_client.get(url_for('auth.logout'), follow_redirects=True)
+
+        origins = ['main.cookbook', 'main.search_results',
+                   'main.compare_recipes']
+        sort_bys = ['Sustainability']*3
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            r = test_client.post(url_for('main.unlike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == 'auth.login'
+
+        # Assert rating is still 3
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 1
+
+        # logged in: Redirect back to origin
+        login(test_client, user.name, user.pw)
+
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            pg.rate_recipe(user.userID, par.recipe_tag, 1)
+            r = test_client.post(url_for('main.unlike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == origin
+            rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                       .user_rating[0]
+            assert rating == 3
 
 
 class TestRoutesAuth:
