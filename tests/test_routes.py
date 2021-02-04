@@ -125,17 +125,19 @@ class TestRoutesMain:
                                     follow_redirects=True)
                 assert r.status_code == 200
 
-    def test_about(self, test_client):
+    def test_cookbook(self, test_client):
         """ Endpoint check """
 
-        r = test_client.get(url_for('main.about'), follow_redirects=True)
+        # Logged out (redirects to signin)
+        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
         assert r.status_code == 200
+        assert b'Sign in' in r.data
 
-    def test_blog(self, test_client):
-        """ Endpoint check """
-
-        r = test_client.get(url_for('main.blog'), follow_redirects=True)
+        # Logged in (accesses profile)
+        login(test_client, user.name, user.pw)
+        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
         assert r.status_code == 200
+        assert b'Cookbook' in r.data
 
     def test_profile(self, test_client, user):
         """ Endpoint check """
@@ -150,6 +152,18 @@ class TestRoutesMain:
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
+    
+    def test_about(self, test_client):
+        """ Endpoint check """
+
+        r = test_client.get(url_for('main.about'), follow_redirects=True)
+        assert r.status_code == 200
+
+    def test_blog(self, test_client):
+        """ Endpoint check """
+
+        r = test_client.get(url_for('main.blog'), follow_redirects=True)
+        assert r.status_code == 200
 
     def test_add_or_remove_bookmark(self, test_client, pg, user, par):
         '''
@@ -216,20 +230,6 @@ class TestRoutesMain:
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
         bookmark_status = pg.is_in_cookbook(user.userID, search_term)
-
-    def test_cookbook(self, test_client):
-        """ Endpoint check """
-
-        # Logged out (redirects to signin)
-        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
-        assert r.status_code == 200
-        assert b'Sign in' in r.data
-
-        # Logged in (accesses profile)
-        login(test_client, user.name, user.pw)
-        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
-        assert r.status_code == 200
-        assert b'Cookbook' in r.data
 
 
 class TestRoutesAuth:

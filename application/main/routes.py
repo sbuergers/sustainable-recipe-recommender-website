@@ -266,6 +266,19 @@ def profile():
                            delete_account_form=delete_account_form)
 
 
+@bp.route('/about')
+def about():
+    search_form = SearchForm()
+    return render_template('about.html', search_form=search_form)
+
+
+# insecure, avoid user input!
+@bp.route('/blog')
+def blog():
+    search_form = SearchForm()
+    return render_template('blog.html', search_form=search_form)
+
+
 @bp.route('/add_or_remove_bookmark/<bookmark>/<origin>', methods=['GET'])
 @login_required
 def add_or_remove_bookmark(bookmark, origin):
@@ -333,19 +346,6 @@ def unlike_recipe(recipe_url):
     elif origin == 'main.cookbook':
         return redirect(url_for(origin, sort_by=sort_by))
     return redirect(url_for('main.home'))
-
-
-@bp.route('/about')
-def about():
-    search_form = SearchForm()
-    return render_template('about.html', search_form=search_form)
-
-
-# insecure, avoid user input!
-@bp.route('/blog')
-def blog():
-    search_form = SearchForm()
-    return render_template('blog.html', search_form=search_form)
 
 
 # eof
