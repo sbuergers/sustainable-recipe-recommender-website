@@ -264,9 +264,25 @@ class TestRoutesAuth:
         r = login(test_client, user.name, user.pw + 'x13fhszlfo')
         assert b'Username or password is incorrect' in r.data
 
-    def test_login_logout(self, test_client, user):
-        """ Does the navbar change appropriately when logged in? """
+    def test_logout(self, test_client, user):
+        """ Enpoint check """
+        # TODO...
 
+    def test_terms_and_conditions(self, test_client, user):
+        """ Enpoint check """
+        # TODO...
+
+    def test_reset_password_request(self, test_client, user):
+        """ Enpoint check """
+        # TODO...
+
+    def test_reset_password(self, test_client, user):
+        """ Enpoint check """
+        # TODO...
+
+    def test_login_logout(self, test_client, user):
+        """ Test navbar changes appropriate to logins status """
+        
         # Logged in
         login(test_client, user.name, user.pw)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
@@ -280,7 +296,7 @@ class TestRoutesAuth:
         assert b'Login' in r.data
 
     def test_password_reset(self, test_client):
-        """ test reset_password_request() and reset_password() """
+        """ Test reset_password_request() and reset_password() """
         # TODO ...
         pass
 
