@@ -141,13 +141,13 @@
             {% if reference_recipe['user_rating'] == 5 %}
 
                 <!-- recipe was liked -->
-                <form action="{{ url_for('main.dislike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                <form action="{{ url_for('main.dislike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                     {{ like_form.csrf_token }}
                     <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
                         <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                     </button>
                 </form>
-                <form action="{{ url_for('main.unlike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                <form action="{{ url_for('main.unlike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                     {{ like_form.csrf_token }}
                     <button type="submit" class="btn btn-like-rated btn-sm" title="Like recipe">
                         <i class="fa fa-thumbs-up" aria-hidden="true"></i>
@@ -156,13 +156,13 @@
             {% elif reference_recipe['user_rating'] == 1 %}
 
                 <!-- recipe was disliked -->
-                <form action="{{ url_for('main.unlike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                <form action="{{ url_for('main.unlike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                     {{ like_form.csrf_token }}
                     <button type="submit" class="btn btn-dislike-rated btn-sm" title="Dislike recipe">
                         <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                     </button>
                 </form>
-                <form action="{{ url_for('main.like_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                <form action="{{ url_for('main.like_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                     {{ like_form.csrf_token }}
                     <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
                         <i class="fa fa-thumbs-up" aria-hidden="true"></i>
@@ -171,13 +171,13 @@
             {% else %}
                 
                 <!-- recipe was neither liked nor disliked -->
-                <form action="{{ url_for('main.dislike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                <form action="{{ url_for('main.dislike_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                     {{ like_form.csrf_token }}
                     <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
                         <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                     </button>
                 </form>
-                <form action="{{ url_for('main.like_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                <form action="{{ url_for('main.like_recipe', recipe_url=reference_recipe['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                     {{ like_form.csrf_token }}
                     <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
                         <i class="fa fa-thumbs-up" aria-hidden="true"></i>
@@ -408,13 +408,13 @@
                 {% if df['user_rating'] == 5 %}
 
                     <!-- recipe was liked -->
-                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                         {{ like_form.csrf_token }}
                         <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
                             <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                         </button>
                     </form>
-                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                         {{ like_form.csrf_token }}
                         <button type="submit" class="btn btn-like-rated btn-sm" title="Like recipe">
                             <i class="fa fa-thumbs-up" aria-hidden="true"></i>
@@ -423,13 +423,13 @@
                 {% elif df['user_rating'] == 1 %}
 
                     <!-- recipe was disliked -->
-                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                    <form action="{{ url_for('main.unlike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                         {{ like_form.csrf_token }}
                         <button type="submit" class="btn btn-dislike-rated btn-sm" title="Dislike recipe">
                             <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                         </button>
                     </form>
-                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                         {{ like_form.csrf_token }}
                         <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
                             <i class="fa fa-thumbs-up" aria-hidden="true"></i>
@@ -438,13 +438,13 @@
                 {% else %}
                     
                     <!-- recipe was neither liked nor disliked -->
-                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                    <form action="{{ url_for('main.dislike_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                         {{ like_form.csrf_token }}
                         <button type="submit" class="btn btn-dislike-unrated btn-sm" title="Dislike recipe">
                             <i class="fa fa-thumbs-down" aria-hidden="true"></i>
                         </button>
                     </form>
-                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by) }}" method="POST">
+                    <form action="{{ url_for('main.like_recipe', recipe_url=df['url'], origin='main.compare_recipes', sort_by=sort_by, search_query=session['search_query']) }}" method="POST">
                         {{ like_form.csrf_token }}
                         <button type="submit" class="btn btn-like-unrated btn-sm" title="Like recipe">
                             <i class="fa fa-thumbs-up" aria-hidden="true"></i>
