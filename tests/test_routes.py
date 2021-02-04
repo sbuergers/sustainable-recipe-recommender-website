@@ -125,7 +125,7 @@ class TestRoutesMain:
                                     follow_redirects=True)
                 assert r.status_code == 200
 
-    def test_cookbook(self, test_client):
+    def test_cookbook(self, test_client, user):
         """ Endpoint check """
 
         # Logged out (redirects to signin)
@@ -282,7 +282,7 @@ class TestRoutesAuth:
 
     def test_login_logout(self, test_client, user):
         """ Test navbar changes appropriate to logins status """
-        
+
         # Logged in
         login(test_client, user.name, user.pw)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
