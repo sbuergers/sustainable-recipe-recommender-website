@@ -231,6 +231,18 @@ class TestRoutesMain:
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
         bookmark_status = pg.is_in_cookbook(user.userID, search_term)
 
+    def test_like_recipe(self, test_client):
+        """ Endpoint check """
+        # TODO...
+
+    def test_dislike_recipe(self, test_client):
+        """ Endpoint check """
+        # TODO...
+
+    def test_unlike_recipe(self, test_client):
+        """ Endpoint check """
+        # TODO...
+
 
 class TestRoutesAuth:
 
