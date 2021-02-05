@@ -92,13 +92,22 @@ def route_meta_tag(r):
 # TESTS
 class TestRoutesMain:
 
-    def test_home(self, test_client):
-        """ Endpoint checks """
+    def test_home(self, test_client, par):
 
+        # Endpoint checks
         r = test_client.get('/')
         assert r.status_code == 200
         r = test_client.get(url_for('main.home'))
         assert r.status_code == 200
+
+        # Post search terms
+        endpoints = ['main.home', 'main.search_results',
+                     'main.compare_recipes']
+        for (search_term, endpoint) in zip(par.search_terms, endpoints):
+            form_data = {'search': search_term}
+            r = test_client.post(url_for('main.home'),
+                                 follow_redirects=True, json=form_data)
+            assert route_meta_tag(r) == endpoint
 
     def test_search_results(self, test_client, par):
         """ Endpoint checks """
