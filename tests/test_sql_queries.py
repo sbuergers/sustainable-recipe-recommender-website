@@ -95,7 +95,7 @@ def create_dummy_account(pg):
 class TestSqlQueries:
 
     def test_fuzzy_search(self, app, pg):
-        
+
         # normal querries
         result = pg.fuzzy_search(pg.fuzzy_search_term, N=2)  # substr of "url"
         assert len(result) == 2
