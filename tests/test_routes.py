@@ -419,7 +419,9 @@ class TestRoutesAuth:
 
     def test_logout(self, test_client, user):
         """ Enpoint check """
-        # TODO...
+
+        r = test_client.get(url_for('auth.logout'), follow_redirects=True)
+        assert r.status_code == 200
 
     def test_login_logout(self, test_client, user):
         """ Test navbar changes appropriate to login status """
@@ -428,13 +430,19 @@ class TestRoutesAuth:
         login(test_client, user.name, user.pw)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
         assert b'Cookbook' in r.data
+        assert b'Logout' in r.data
+        assert b'Profile' in r.data
         assert b'Login' not in r.data
+        assert b'Sign up' not in r.data
 
         # Logged out
         test_client.get(url_for('auth.logout'), follow_redirects=True)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
         assert b'Cookbook' not in r.data
+        assert b'Logout' not in r.data
+        assert b'Profile' not in r.data
         assert b'Login' in r.data
+        assert b'Sign up' in r.data
 
     def test_terms_and_conditions(self, test_client, user):
         """ Enpoint check """
