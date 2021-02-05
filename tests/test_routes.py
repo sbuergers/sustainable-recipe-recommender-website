@@ -110,28 +110,29 @@ class TestRoutesMain:
             assert route_meta_tag(r) == endpoint
 
     def test_search_results(self, test_client, par):
-        """ Endpoint checks """
 
-        for search_term in par.search_terms:
+        # Assess three different types of search terms
+        endpoints = ['main.home', 'main.search_results',
+                     'main.compare_recipes']
+        for (search_term, endpoint) in zip(par.search_terms, endpoints):
+
+            # An empty search_term yields 404
             if search_term:
-                r = test_client.get(url_for('main.search_results',
-                                            search_term=search_term),
-                                    follow_redirects=True)
-                assert r.status_code == 200
+                r = test_client.post(url_for('main.search_results',
+                                             search_term=search_term),
+                                     follow_redirects=True)
+                assert route_meta_tag(r) == endpoint
 
     def test_compare_recipes(self, test_client, par):
-        """ Endpoint checks """
-
-        search_term = par.recipe_tag
+        # TODO currently does not check if sorting or pagination works
 
         # Default request
+        search_term = par.recipe_tag
         r = test_client.get(url_for('main.compare_recipes',
                                     search_term=search_term),
                             data={},
                             follow_redirects=True)
-        assert r.status_code == 200
-        assert request.args.get('sort_by') is None
-        assert request.args.get('page') is None
+        assert route_meta_tag(r) == 'main.compare_recipes'
 
         # Specifying <sort_by> and <page> args
         for sort_by in par.sort_bys:
@@ -141,7 +142,15 @@ class TestRoutesMain:
                                     data={'sort_by': sort_by,
                                           'page': page},
                                     follow_redirects=True)
-                assert r.status_code == 200
+                assert route_meta_tag(r) == 'main.compare_recipes'
+
+        # There is no exact recipe match
+        search_term = par.search_terms[1]
+        r = test_client.get(url_for('main.compare_recipes',
+                                    search_term=search_term),
+                            data={},
+                            follow_redirects=True)
+        assert route_meta_tag(r) == 'main.search_results'
 
     def test_cookbook(self, test_client, user):
         """ Endpoint check """
