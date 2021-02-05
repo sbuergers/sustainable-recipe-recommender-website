@@ -39,13 +39,63 @@ def pg(app):
     pg.sql_inj2 = "'; SELECT true; --"
     pg.userID = 3
     pg.recipesID = 563  # 'pineapple-shrimp-noodle-bowls'
+    pg.dummy_name = 'dummy938471948'
+    pg.dummy_email = 'dummyEmail@dummy12394821.com'
+    pg.dummy_password = 'dummyPassword129482'
     return pg
+
+
+# HELPER FUNCTIONS
+def get_model_columns(model):
+    """
+    Allows quick view of table columns in sqlalchemy model.
+
+    Example:
+    user = User.query.filter_by(userID=pg.userID).first()
+    get_model_columns(user)
+    """
+    from sqlalchemy import inspect
+
+    inst = inspect(model)
+    return [c_attr.key for c_attr in inst.mapper.column_attrs]
+
+
+def create_dummy_account(pg):
+    """ Create dummy account with liked and bookmarked recipes """
+
+    from application.models import User
+    from passlib.hash import pbkdf2_sha512
+    import datetime
+
+    # If user entry already exists, do nothing, otherwise create it
+    user = User.query.filter_by(username=pg.dummy_name).first()
+
+    if not user:
+        user = User(username=pg.dummy_name,
+                    password=pbkdf2_sha512.hash(pg.dummy_password),
+                    email=pg.dummy_email,
+                    confirmed=False,
+                    created_on=datetime.datetime.utcnow(),
+                    optin_news=True)
+        pg.session.add(user)
+        pg.session.commit()
+        user = User.query.filter_by(username=pg.dummy_name).first()
+
+    # Add item to cookbook
+    pg.add_to_cookbook(user.userID, pg.url)
+
+    # Like a recipe
+    pg.rate_recipe(user.userID, pg.url, 5)
+
+    user = User.query.filter_by(username=pg.dummy_name).first()
+    assert user.email == pg.dummy_email
 
 
 # TESTS
 class TestSqlQueries:
 
     def test_fuzzy_search(self, app, pg):
+
         # normal querries
         result = pg.fuzzy_search(pg.fuzzy_search_term, N=2)  # substr of "url"
         assert len(result) == 2
@@ -61,6 +111,7 @@ class TestSqlQueries:
             pg.fuzzy_search(pg.fuzzy_search_term, N=pg.sql_inj1)
 
     def test_phrase_search(self, pg):
+
         # normal querries
         result = pg.phrase_search(pg.phrase_search_term, N=2)
         assert len(result) == 2
@@ -73,6 +124,7 @@ class TestSqlQueries:
                              N=pg.sql_inj1)
 
     def test_free_search(self, pg):
+
         # normal querries
         result = pg.free_search(pg.phrase_search_term, N=2)
         assert len(result) >= 2
@@ -84,6 +136,7 @@ class TestSqlQueries:
             pg.free_search(pg.phrase_search_term, N=pg.sql_inj1)
 
     def test_query_content_similarity_ids(self, pg):
+
         # normal querries
         result = pg.query_content_similarity_ids(pg.search_term)
         assert result[0:10] == (563, 2326, 343, 19957, 927,
@@ -96,6 +149,7 @@ class TestSqlQueries:
             pg.query_content_similarity_ids(pg.sql_inj2)
 
     def test_query_content_similarity(self, pg):
+
         # normal querries
         result = pg.query_content_similarity(pg.search_term)
         assert result[0:10] == (1.0, 0.452267, 0.43301266, 0.4166667,
@@ -109,44 +163,42 @@ class TestSqlQueries:
             pg.query_content_similarity(pg.sql_inj2)
 
     def test_query_similar_recipes(self, pg):
+
         CS_ids = pg.query_content_similarity_ids(pg.search_term)
         result = pg.query_similar_recipes(CS_ids[0:2])
         assert len(result) == 2
 
+    def test_exact_recipe_match(self, pg):
+
+        assert pg.exact_recipe_match(pg.url) is True
+        assert pg.exact_recipe_match(pg.urls_dont_exist[0]) is False
+
     def test_content_based_search(self, pg):
+
         result = pg.content_based_search(pg.search_term)
         assert result.iloc[0]['similarity'] == 1.
         assert result.iloc[1]['similarity'] > 0.45
 
     def test_search_recipes(self, pg):
         # TODO what is being tested here?
+
         pg.content_based_search(pg.search_term)
         pg.fuzzy_search(pg.fuzzy_search_term)
 
     def test_query_all_recipe_emissions(self, pg):
+
         df = pg.query_all_recipe_emissions()
         assert sorted(list(df.columns.values)) == \
                ['emissions', 'emissions_log10', 'recipesID', 'title', 'url']
         assert df.shape[0] > 36000
 
     def test_query_cookbook(self, pg):
+
         result = pg.query_cookbook(pg.userID)
         assert result['username'][0] == 'asdfjlq;weruioasdnf'
         assert len(result) < 50
         result = pg.query_cookbook(999999999)
         assert len(result) == 0
-
-    def test_is_in_cookbook(self, pg):
-
-        # there is an entry
-        result = pg.is_in_cookbook(pg.userID, pg.url)
-        assert result
-
-        # there is no entry
-        result = pg.is_in_cookbook(pg.userID, pg.url + '123')
-        assert not result
-        result = pg.is_in_cookbook(pg.userID + 999999999, pg.url)
-        assert not result
 
     def test_query_bookmarks(self, pg):
 
@@ -160,7 +212,20 @@ class TestSqlQueries:
         df = pg.query_bookmarks(pg.userID, [pg.url_bookmark])
         assert df['bookmarked'][0]
 
+    def test_is_in_cookbook(self, pg):
+
+        # there is an entry
+        result = pg.is_in_cookbook(pg.userID, pg.url)
+        assert result
+
+        # there is no entry
+        result = pg.is_in_cookbook(pg.userID, pg.url + '123')
+        assert not result
+        result = pg.is_in_cookbook(pg.userID + 999999999, pg.url)
+        assert not result
+
     def test_add_to_and_delete_from_cookbook(self, pg):
+        """ Tests both <remove_from_cookbook> and <add_to_cookbook> """
 
         # Try adding existing entry
         result = pg.add_to_cookbook(pg.userID, pg.url)
@@ -207,6 +272,34 @@ class TestSqlQueries:
         df = pg.query_user_ratings(pg.userID, [pg.url])
         assert df.loc[df['recipesID'] == pg.recipesID, 'user_rating'].\
             values == 5
+
+    def test_delete_account(self, pg):
+        """ First create account, then check if deletion works """
+
+        from application.models import User
+
+        create_dummy_account(pg)
+        userID = User.query.filter_by(username=pg.dummy_name).first().userID
+        assert userID > 0
+
+        msg = pg.delete_account(userID)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        assert user is None
+        assert msg == 'Removed user account successfully'
+
+    def test_change_newsletter_subscription(self, pg):
+        """ Can we successfully change newsleetter subscription status? """
+
+        from application.models import User
+
+        old_status = User.query.filter_by(userID=pg.userID).first().optin_news
+        msg = pg.change_newsletter_subscription(pg.userID)
+        new_status = User.query.filter_by(userID=pg.userID).first().optin_news
+        assert old_status != new_status
+        if new_status:
+            assert msg == 'Changed newsletter subscription to "subscribed"'
+        else:
+            assert msg == 'Changed newsletter subscription to "unsubscribed"'
 
 
 # eof

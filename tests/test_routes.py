@@ -80,6 +80,15 @@ def logout(test_client):
     return test_client.get(url_for('auth.logout'), follow_redirects=True)
 
 
+def route_meta_tag(r):
+    """
+    Given the html output from a test_client get or post call
+    (in r.data), retrieve the route name given in the meta tags.
+    """
+    soup = BeautifulSoup(r.data, features="html.parser")
+    return soup.find_all("meta", attrs={'name': 'route'})[0]['content']
+
+
 # TESTS
 class TestRoutesMain:
 
@@ -125,17 +134,19 @@ class TestRoutesMain:
                                     follow_redirects=True)
                 assert r.status_code == 200
 
-    def test_about(self, test_client):
+    def test_cookbook(self, test_client, user):
         """ Endpoint check """
 
-        r = test_client.get(url_for('main.about'), follow_redirects=True)
+        # Logged out (redirects to signin)
+        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
         assert r.status_code == 200
+        assert b'Sign in' in r.data
 
-    def test_blog(self, test_client):
-        """ Endpoint check """
-
-        r = test_client.get(url_for('main.blog'), follow_redirects=True)
+        # Logged in (accesses profile)
+        login(test_client, user.name, user.pw)
+        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
         assert r.status_code == 200
+        assert b'Cookbook' in r.data
 
     def test_profile(self, test_client, user):
         """ Endpoint check """
@@ -150,6 +161,18 @@ class TestRoutesMain:
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
+
+    def test_about(self, test_client):
+        """ Endpoint check """
+
+        r = test_client.get(url_for('main.about'), follow_redirects=True)
+        assert r.status_code == 200
+
+    def test_blog(self, test_client):
+        """ Endpoint check """
+
+        r = test_client.get(url_for('main.blog'), follow_redirects=True)
+        assert r.status_code == 200
 
     def test_add_or_remove_bookmark(self, test_client, pg, user, par):
         '''
@@ -175,9 +198,7 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data, features="html.parser")
-        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
-        assert route == "main.compare_recipes"
+        assert route_meta_tag(r) == "main.compare_recipes"
 
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
@@ -194,9 +215,7 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data, features="html.parser")
-        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
-        assert route == "main.search_results"
+        assert route_meta_tag(r) == "main.search_results"
 
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
@@ -209,27 +228,173 @@ class TestRoutesMain:
                             follow_redirects=True)
 
         # Are we redirected back correctly?
-        soup = BeautifulSoup(r.data, features="html.parser")
-        route = soup.find_all("meta", attrs={'name': 'route'})[0]['content']
-        assert route == "main.cookbook"
+        assert route_meta_tag(r) == "main.cookbook"
 
         # The bookmark status should have changed, did it?
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
         bookmark_status = pg.is_in_cookbook(user.userID, search_term)
 
-    def test_cookbook(self, test_client):
-        """ Endpoint check """
+    def test_like_recipe(self, test_client, pg, par):
+        """
+        Changes a recipe's user_rating to 5.
+        We can get here from various routes - the user clicks on a
+        like button and this view handles the database changes and
+        then redirects back to the route we came from ("origin").
+        """
 
-        # Logged out (redirects to signin)
-        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
-        assert r.status_code == 200
-        assert b'Sign in' in r.data
+        # Ensure recipe rating is 3 (default = unrated)
+        pg.rate_recipe(user.userID, par.recipe_tag, 3)
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
 
-        # Logged in (accesses profile)
+        # logged out: Redirect to auth.signin
+        logout(test_client)
+
+        origins = ['main.cookbook', 'main.search_results',
+                   'main.compare_recipes']
+        sort_bys = ['Sustainability']*3
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            r = test_client.post(url_for('main.like_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == 'auth.signin'
+
+        # Assert rating is still 3
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
+
+        # logged in: Redirect back to origin
         login(test_client, user.name, user.pw)
-        r = test_client.get(url_for('main.cookbook'), follow_redirects=True)
-        assert r.status_code == 200
-        assert b'Cookbook' in r.data
+
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            pg.rate_recipe(user.userID, par.recipe_tag, 3)
+            r = test_client.post(url_for('main.like_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == origin
+            rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                       .user_rating[0]
+            assert rating == 5
+
+    def test_dislike_recipe(self, test_client, pg, par):
+        """
+        Changes a recipe's user_rating to 1.
+        We can get here from various routes - the user clicks on a
+        like button and this view handles the database changes and
+        then redirects back to the route we came from ("origin").
+        """
+
+        # Ensure recipe rating is 3 (default = unrated)
+        pg.rate_recipe(user.userID, par.recipe_tag, 3)
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
+
+        # logged out: Redirect to auth.signin
+        logout(test_client)
+
+        origins = ['main.cookbook', 'main.search_results',
+                   'main.compare_recipes']
+        sort_bys = ['Sustainability']*3
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            r = test_client.post(url_for('main.dislike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == 'auth.signin'
+
+        # Assert rating is still 3
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 3
+
+        # logged in: Redirect back to origin
+        login(test_client, user.name, user.pw)
+
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            pg.rate_recipe(user.userID, par.recipe_tag, 3)
+            r = test_client.post(url_for('main.dislike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == origin
+            rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                       .user_rating[0]
+            assert rating == 1
+
+    def test_unlike_recipe(self, test_client, pg, par):
+        """
+        Changes a recipe's user_rating to 3.
+        We can get here from various routes - the user clicks on a
+        like button and this view handles the database changes and
+        then redirects back to the route we came from ("origin").
+        """
+
+        # Ensure recipe rating is 1 (disliked)
+        pg.rate_recipe(user.userID, par.recipe_tag, 1)
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 1
+
+        # logged out: Redirect to auth.signin
+        logout(test_client)
+
+        origins = ['main.cookbook', 'main.search_results',
+                   'main.compare_recipes']
+        sort_bys = ['Sustainability']*3
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            r = test_client.post(url_for('main.unlike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == 'auth.signin'
+
+        # Assert rating is still 3
+        rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                   .user_rating[0]
+        assert rating == 1
+
+        # logged in: Redirect back to origin
+        login(test_client, user.name, user.pw)
+
+        for (origin, sort_by, search_term) in zip(origins, sort_bys,
+                                                  par.search_terms):
+            pg.rate_recipe(user.userID, par.recipe_tag, 1)
+            r = test_client.post(url_for('main.unlike_recipe',
+                                         recipe_url=par.recipe_tag,
+                                         origin=origin,
+                                         sort_by=sort_by,
+                                         search_query=search_term),
+                                 follow_redirects=True)
+            assert r.status_code == 200
+            assert route_meta_tag(r) == origin
+            rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
+                       .user_rating[0]
+            assert rating == 3
 
 
 class TestRoutesAuth:
@@ -240,7 +405,7 @@ class TestRoutesAuth:
         r = test_client.get(url_for('auth.signup'), follow_redirects=True)
         assert r.status_code == 200
 
-    def test_login(self, test_client):
+    def test_signin(self, test_client):
         """ Endpoint check, failed credentials check """
 
         r = test_client.get(url_for('auth.signin'), follow_redirects=True)
@@ -252,25 +417,95 @@ class TestRoutesAuth:
         r = login(test_client, user.name, user.pw + 'x13fhszlfo')
         assert b'Username or password is incorrect' in r.data
 
+    def test_logout(self, test_client, user):
+        """ Enpoint check """
+
+        r = logout(test_client)
+        assert r.status_code == 200
+
     def test_login_logout(self, test_client, user):
-        """ Does the navbar change appropriately when logged in? """
+        """ Test navbar changes appropriate to login status """
 
         # Logged in
         login(test_client, user.name, user.pw)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
         assert b'Cookbook' in r.data
+        assert b'Logout' in r.data
+        assert b'Profile' in r.data
         assert b'Login' not in r.data
+        assert b'Sign up' not in r.data
 
         # Logged out
-        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        logout(test_client)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
         assert b'Cookbook' not in r.data
+        assert b'Logout' not in r.data
+        assert b'Profile' not in r.data
         assert b'Login' in r.data
+        assert b'Sign up' in r.data
 
-    def test_password_reset(self, test_client):
-        """ test reset_password_request() and reset_password() """
-        # TODO ...
-        pass
+    def test_terms_and_conditions(self, test_client, user):
+        """ Redirects to external website with SRR's tac """
+
+        r = test_client.get(url_for('auth.terms_and_conditions'),
+                            follow_redirects=True)
+        assert r.status_code == 200
+
+    def test_reset_password_request(self, test_client, user):
+        """ Receives email from user and sends password reset link """
+
+        # if user is already logged in, we should redirect home
+        login(test_client, user.name, user.pw)
+        r = test_client.post(url_for('auth.reset_password_request'),
+                             follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'main.home'
+
+        # when not logged in, with invalid email
+        logout(test_client)
+        form_data = {'email': 'not-a-valid-email.com'}
+        r = test_client.post(url_for('auth.reset_password_request'),
+                             follow_redirects=True, json=form_data)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.reset_password_request'
+
+        # when not logged in, with valid email
+        form_data = {'email': 'sustainable-recipe-recommender@gmail.com'}
+        r = test_client.post(url_for('auth.reset_password_request'),
+                             follow_redirects=True, json=form_data)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.signin'
+
+    def test_reset_password(self, test_client, user):
+        """
+        When given a valid reset password token, resets the password
+        given by user.
+        """
+        from application.models import User
+
+        # if user is already logged in, we should redirect home
+        login(test_client, user.name, user.pw)
+        r = test_client.get(url_for('auth.reset_password',
+                                    token='some_token'),
+                            follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'main.home'
+
+        # when not logged in, with invalid token
+        logout(test_client)
+        r = test_client.get(url_for('auth.reset_password',
+                                    token='bad_token'),
+                            follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'main.home'
+
+        # when not logged in, with valid token
+        user = User.query.filter_by(userID=user.userID).first()
+        r = test_client.get(url_for('auth.reset_password',
+                                    token=user.get_reset_password_token()),
+                            follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.reset_password'
 
 
 # eof
