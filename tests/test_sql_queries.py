@@ -39,7 +39,56 @@ def pg(app):
     pg.sql_inj2 = "'; SELECT true; --"
     pg.userID = 3
     pg.recipesID = 563  # 'pineapple-shrimp-noodle-bowls'
+    pg.dummy_name = 'dummy938471948'
+    pg.dummy_email = 'dummyEmail@dummy12394821.com'
+    pg.dummy_password = 'dummyPassword129482'
     return pg
+
+
+# HELPER FUNCTIONS
+def get_model_columns(model):
+    """
+    Allows quick view of table columns in sqlalchemy model.
+
+    Example:
+    user = User.query.filter_by(userID=pg.userID).first()
+    get_model_columns(user)
+    """
+    from sqlalchemy import inspect
+
+    inst = inspect(model)
+    return [c_attr.key for c_attr in inst.mapper.column_attrs]
+
+
+def create_dummy_account(pg):
+    """ Create dummy account with liked and bookmarked recipes """
+
+    from application.models import User
+    from passlib.hash import pbkdf2_sha512
+    import datetime
+
+    # If user entry already exists, do nothing, otherwise create it
+    user = User.query.filter_by(username=pg.dummy_name).first()
+
+    if not user:
+        user = User(username=pg.dummy_name,
+                    password=pbkdf2_sha512.hash(pg.dummy_password),
+                    email=pg.dummy_email,
+                    confirmed=False,
+                    created_on=datetime.datetime.utcnow(),
+                    optin_news=True)
+        pg.session.add(user)
+        pg.session.commit()
+        user = User.query.filter_by(username=pg.dummy_name).first()
+
+    # Add item to cookbook
+    pg.add_to_cookbook(user.userID, pg.url)
+
+    # Like a recipe
+    pg.rate_recipe(user.userID, pg.url, 5)
+
+    user = User.query.filter_by(username=pg.dummy_name).first()
+    assert user.email == pg.dummy_email
 
 
 # TESTS
@@ -213,12 +262,32 @@ class TestSqlQueries:
             values == 5
 
     def test_delete_account(self, pg):
-        # TODO
-        pass
+        """ First create account, then check if deletion works """
+
+        from application.models import User
+
+        create_dummy_account(pg)
+        userID = User.query.filter_by(username=pg.dummy_name).first().userID
+        assert userID > 0
+
+        msg = pg.delete_account(userID)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        assert user is None
+        assert msg == 'Removed user account successfully'
 
     def test_change_newsletter_subscription(self, pg):
-        # TODO
-        pass
+        """ Can we successfully change newsleetter subscription status? """
+
+        from application.models import User
+
+        old_status = User.query.filter_by(userID=pg.userID).first().optin_news
+        msg = pg.change_newsletter_subscription(pg.userID)
+        new_status = User.query.filter_by(userID=pg.userID).first().optin_news
+        assert old_status != new_status
+        if new_status:
+            assert msg == 'Changed newsletter subscription to "subscribed"'
+        else:
+            assert msg == 'Changed newsletter subscription to "unsubscribed"'
 
 
 # eof
