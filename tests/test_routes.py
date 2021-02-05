@@ -446,7 +446,10 @@ class TestRoutesAuth:
 
     def test_terms_and_conditions(self, test_client, user):
         """ Enpoint check """
-        # TODO...
+
+        r = test_client.get(url_for('auth.terms_and_conditions'),
+                            follow_redirects=True)
+        assert r.status_code == 200
 
     def test_reset_password_request(self, test_client, user):
         """ Enpoint check """
