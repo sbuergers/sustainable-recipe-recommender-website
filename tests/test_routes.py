@@ -248,8 +248,8 @@ class TestRoutesMain:
                    .user_rating[0]
         assert rating == 3
 
-        # logged out: Redirect to auth.login
-        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        # logged out: Redirect to auth.signin
+        logout(test_client)
 
         origins = ['main.cookbook', 'main.search_results',
                    'main.compare_recipes']
@@ -263,7 +263,7 @@ class TestRoutesMain:
                                          search_query=search_term),
                                  follow_redirects=True)
             assert r.status_code == 200
-            assert route_meta_tag(r) == 'auth.login'
+            assert route_meta_tag(r) == 'auth.signin'
 
         # Assert rating is still 3
         rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
@@ -302,8 +302,8 @@ class TestRoutesMain:
                    .user_rating[0]
         assert rating == 3
 
-        # logged out: Redirect to auth.login
-        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        # logged out: Redirect to auth.signin
+        logout(test_client)
 
         origins = ['main.cookbook', 'main.search_results',
                    'main.compare_recipes']
@@ -317,7 +317,7 @@ class TestRoutesMain:
                                          search_query=search_term),
                                  follow_redirects=True)
             assert r.status_code == 200
-            assert route_meta_tag(r) == 'auth.login'
+            assert route_meta_tag(r) == 'auth.signin'
 
         # Assert rating is still 3
         rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
@@ -356,8 +356,8 @@ class TestRoutesMain:
                    .user_rating[0]
         assert rating == 1
 
-        # logged out: Redirect to auth.login
-        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        # logged out: Redirect to auth.signin
+        logout(test_client)
 
         origins = ['main.cookbook', 'main.search_results',
                    'main.compare_recipes']
@@ -371,7 +371,7 @@ class TestRoutesMain:
                                          search_query=search_term),
                                  follow_redirects=True)
             assert r.status_code == 200
-            assert route_meta_tag(r) == 'auth.login'
+            assert route_meta_tag(r) == 'auth.signin'
 
         # Assert rating is still 3
         rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
@@ -420,7 +420,7 @@ class TestRoutesAuth:
     def test_logout(self, test_client, user):
         """ Enpoint check """
 
-        r = test_client.get(url_for('auth.logout'), follow_redirects=True)
+        r = logout(test_client)
         assert r.status_code == 200
 
     def test_login_logout(self, test_client, user):
@@ -436,7 +436,7 @@ class TestRoutesAuth:
         assert b'Sign up' not in r.data
 
         # Logged out
-        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        logout(test_client)
         r = test_client.get(url_for('main.home'), follow_redirects=True)
         assert b'Cookbook' not in r.data
         assert b'Logout' not in r.data
@@ -445,14 +445,14 @@ class TestRoutesAuth:
         assert b'Sign up' in r.data
 
     def test_terms_and_conditions(self, test_client, user):
-        """ Enpoint check """
+        """ Redirects to external website with SRR's tac """
 
         r = test_client.get(url_for('auth.terms_and_conditions'),
                             follow_redirects=True)
         assert r.status_code == 200
 
     def test_reset_password_request(self, test_client, user):
-        """ Enpoint check """
+        """ Receives email from user and sends password reset link """
 
         # if user is already logged in, we should redirect home
         login(test_client, user.name, user.pw)
@@ -462,7 +462,7 @@ class TestRoutesAuth:
         assert route_meta_tag(r) == 'main.home'
 
         # when not logged in, with invalid email
-        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        logout(test_client)
         form_data = {'email': 'not-a-valid-email.com'}
         r = test_client.post(url_for('auth.reset_password_request'),
                              follow_redirects=True, json=form_data)
@@ -470,7 +470,6 @@ class TestRoutesAuth:
         assert route_meta_tag(r) == 'auth.reset_password_request'
 
         # when not logged in, with valid email
-        test_client.get(url_for('auth.logout'), follow_redirects=True)
         form_data = {'email': 'sustainable-recipe-recommender@gmail.com'}
         r = test_client.post(url_for('auth.reset_password_request'),
                              follow_redirects=True, json=form_data)
@@ -478,13 +477,35 @@ class TestRoutesAuth:
         assert route_meta_tag(r) == 'auth.signin'
 
     def test_reset_password(self, test_client, user):
-        """ Enpoint check """
-        # TODO...
+        """
+        When given a valid reset password token, resets the password
+        given by user.
+        """
+        from application.models import User
 
-    def test_password_reset(self, test_client):
-        """ Test reset_password_request() and reset_password() """
-        # TODO ...
-        pass
+        # if user is already logged in, we should redirect home
+        login(test_client, user.name, user.pw)
+        r = test_client.get(url_for('auth.reset_password',
+                                    token='some_token'),
+                            follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'main.home'
+
+        # when not logged in, with invalid token
+        logout(test_client)
+        r = test_client.get(url_for('auth.reset_password',
+                                    token='bad_token'),
+                            follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'main.home'
+
+        # when not logged in, with valid token
+        user = User.query.filter_by(userID=user.userID).first()
+        r = test_client.get(url_for('auth.reset_password',
+                                    token=user.get_reset_password_token()),
+                            follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.reset_password'
 
 
 # eof
