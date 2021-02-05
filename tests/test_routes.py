@@ -236,7 +236,10 @@ class TestRoutesMain:
 
     def test_like_recipe(self, test_client, pg, par):
         """
-        Check that routing works and rating changes correctly.
+        Changes a recipe's user_rating to 5.
+        We can get here from various routes - the user clicks on a
+        like button and this view handles the database changes and
+        then redirects back to the route we came from ("origin").
         """
 
         # Ensure recipe rating is 3 (default = unrated)
@@ -287,7 +290,10 @@ class TestRoutesMain:
 
     def test_dislike_recipe(self, test_client, pg, par):
         """
-        Check that routing works and rating changes correctly.
+        Changes a recipe's user_rating to 1.
+        We can get here from various routes - the user clicks on a
+        like button and this view handles the database changes and
+        then redirects back to the route we came from ("origin").
         """
 
         # Ensure recipe rating is 3 (default = unrated)
@@ -338,7 +344,10 @@ class TestRoutesMain:
 
     def test_unlike_recipe(self, test_client, pg, par):
         """
-        Check that routing works and rating changes correctly.
+        Changes a recipe's user_rating to 3.
+        We can get here from various routes - the user clicks on a
+        like button and this view handles the database changes and
+        then redirects back to the route we came from ("origin").
         """
 
         # Ensure recipe rating is 1 (disliked)
