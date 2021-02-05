@@ -113,6 +113,10 @@ class TestSqlQueries:
         result = pg.query_similar_recipes(CS_ids[0:2])
         assert len(result) == 2
 
+    def test_exact_recipe_match(self, pg):
+        # TODO
+        pass
+
     def test_content_based_search(self, pg):
         result = pg.content_based_search(pg.search_term)
         assert result.iloc[0]['similarity'] == 1.
@@ -136,18 +140,6 @@ class TestSqlQueries:
         result = pg.query_cookbook(999999999)
         assert len(result) == 0
 
-    def test_is_in_cookbook(self, pg):
-
-        # there is an entry
-        result = pg.is_in_cookbook(pg.userID, pg.url)
-        assert result
-
-        # there is no entry
-        result = pg.is_in_cookbook(pg.userID, pg.url + '123')
-        assert not result
-        result = pg.is_in_cookbook(pg.userID + 999999999, pg.url)
-        assert not result
-
     def test_query_bookmarks(self, pg):
 
         # un-bookmark url
@@ -160,8 +152,20 @@ class TestSqlQueries:
         df = pg.query_bookmarks(pg.userID, [pg.url_bookmark])
         assert df['bookmarked'][0]
 
-    def test_add_to_and_delete_from_cookbook(self, pg):
+    def test_is_in_cookbook(self, pg):
 
+        # there is an entry
+        result = pg.is_in_cookbook(pg.userID, pg.url)
+        assert result
+
+        # there is no entry
+        result = pg.is_in_cookbook(pg.userID, pg.url + '123')
+        assert not result
+        result = pg.is_in_cookbook(pg.userID + 999999999, pg.url)
+        assert not result
+
+    def test_add_to_and_delete_from_cookbook(self, pg):
+        """ Tests both <remove_from_cookbook> and <add_to_cookbook> """
         # Try adding existing entry
         result = pg.add_to_cookbook(pg.userID, pg.url)
         assert result == 'Cookbook entry already exists'
@@ -207,6 +211,14 @@ class TestSqlQueries:
         df = pg.query_user_ratings(pg.userID, [pg.url])
         assert df.loc[df['recipesID'] == pg.recipesID, 'user_rating'].\
             values == 5
+
+    def test_delete_account(self, pg):
+        # TODO
+        pass
+
+    def test_change_newsletter_subscription(self, pg):
+        # TODO
+        pass
 
 
 # eof
