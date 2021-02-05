@@ -453,7 +453,29 @@ class TestRoutesAuth:
 
     def test_reset_password_request(self, test_client, user):
         """ Enpoint check """
-        # TODO...
+
+        # if user is already logged in, we should redirect home
+        login(test_client, user.name, user.pw)
+        r = test_client.post(url_for('auth.reset_password_request'),
+                             follow_redirects=True)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'main.home'
+
+        # when not logged in, with invalid email
+        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        form_data = {'email': 'not-a-valid-email.com'}
+        r = test_client.post(url_for('auth.reset_password_request'),
+                             follow_redirects=True, json=form_data)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.reset_password_request'
+
+        # when not logged in, with valid email
+        test_client.get(url_for('auth.logout'), follow_redirects=True)
+        form_data = {'email': 'sustainable-recipe-recommender@gmail.com'}
+        r = test_client.post(url_for('auth.reset_password_request'),
+                             follow_redirects=True, json=form_data)
+        assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.signin'
 
     def test_reset_password(self, test_client, user):
         """ Enpoint check """
