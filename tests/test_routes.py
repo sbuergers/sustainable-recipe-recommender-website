@@ -421,20 +421,8 @@ class TestRoutesAuth:
         """ Enpoint check """
         # TODO...
 
-    def test_terms_and_conditions(self, test_client, user):
-        """ Enpoint check """
-        # TODO...
-
-    def test_reset_password_request(self, test_client, user):
-        """ Enpoint check """
-        # TODO...
-
-    def test_reset_password(self, test_client, user):
-        """ Enpoint check """
-        # TODO...
-
     def test_login_logout(self, test_client, user):
-        """ Test navbar changes appropriate to logins status """
+        """ Test navbar changes appropriate to login status """
 
         # Logged in
         login(test_client, user.name, user.pw)
@@ -447,6 +435,18 @@ class TestRoutesAuth:
         r = test_client.get(url_for('main.home'), follow_redirects=True)
         assert b'Cookbook' not in r.data
         assert b'Login' in r.data
+
+    def test_terms_and_conditions(self, test_client, user):
+        """ Enpoint check """
+        # TODO...
+
+    def test_reset_password_request(self, test_client, user):
+        """ Enpoint check """
+        # TODO...
+
+    def test_reset_password(self, test_client, user):
+        """ Enpoint check """
+        # TODO...
 
     def test_password_reset(self, test_client):
         """ Test reset_password_request() and reset_password() """
