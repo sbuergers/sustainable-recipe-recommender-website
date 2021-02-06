@@ -201,10 +201,9 @@ class TestRoutesMain:
         assert r.status_code == 200
         assert b'Cookbook' in r.data
 
-    def test_profile(self, test_client, user):
+    def test_profile(self, test_client, user, pg):
 
         from application.models import User
-        from flask_login import current_user
 
         # Logged out (redirects to signin)
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
@@ -330,6 +329,13 @@ class TestRoutesMain:
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
         bookmark_status = pg.is_in_cookbook(user.userID, search_term)
 
+        # coming from a random page that is not expected
+        r = test_client.get(url_for('main.add_or_remove_bookmark',
+                                    bookmark=search_term,
+                                    origin='main.about'),
+                            follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+
     def test_like_recipe(self, test_client, pg, par):
         """
         Changes a recipe's user_rating to 5.
@@ -383,6 +389,13 @@ class TestRoutesMain:
             rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
                        .user_rating[0]
             assert rating == 5
+
+        # coming from a random page that is not expected
+        r = test_client.get(url_for('main.like_recipe',
+                                    bookmark=search_term,
+                                    origin='main.about'),
+                            follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
 
     def test_dislike_recipe(self, test_client, pg, par):
         """
@@ -438,6 +451,13 @@ class TestRoutesMain:
                        .user_rating[0]
             assert rating == 1
 
+        # coming from a random page that is not expected
+        r = test_client.get(url_for('main.dislike_recipe',
+                                    bookmark=search_term,
+                                    origin='main.about'),
+                            follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+
     def test_unlike_recipe(self, test_client, pg, par):
         """
         Changes a recipe's user_rating to 3.
@@ -491,6 +511,13 @@ class TestRoutesMain:
             rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
                        .user_rating[0]
             assert rating == 3
+
+        # coming from a random page that is not expected
+        r = test_client.get(url_for('main.unlike_recipe',
+                                    bookmark=search_term,
+                                    origin='main.about'),
+                            follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
 
 
 class TestRoutesAuth:
