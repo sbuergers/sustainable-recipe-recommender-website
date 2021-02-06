@@ -5,7 +5,6 @@ from wtforms.validators import InputRequired, Length, EqualTo,\
     ValidationError, Email
 from passlib.hash import pbkdf2_sha512
 from application.models import User
-from flask_login import current_user
 
 
 def invalid_credentials(form, field):
@@ -100,10 +99,6 @@ class NewsletterForm(FlaskForm):
 class DeleteAccountForm(FlaskForm):
     username = StringField('username', validators=[])
     submit_delete_account = SubmitField('DELETE ACCOUNT')
-
-    def validate_username(self, username):
-        if username != current_user.username:
-            raise ValidationError("Wrong username")
 
 
 # eof

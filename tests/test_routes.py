@@ -8,7 +8,7 @@ https://www.patricksoftwareblog.com/testing-a-flask-application-using-pytest/
 https://stackoverflow.com/questions/17375340/testing-code-that-requires-a-flask-app-or-request-context
 """
 import pytest
-from flask import url_for, request
+from flask import url_for
 from application import create_app
 from bs4 import BeautifulSoup
 
@@ -39,6 +39,9 @@ def pg(app):
     from application import db
     from application.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
+    pg.dummy_name = 'dummy938471948'
+    pg.dummy_email = 'dummyEmail@dummy12394821.com'
+    pg.dummy_password = 'dummyPassword129482'
     return pg
 
 
@@ -87,6 +90,37 @@ def route_meta_tag(r):
     """
     soup = BeautifulSoup(r.data, features="html.parser")
     return soup.find_all("meta", attrs={'name': 'route'})[0]['content']
+
+
+def create_dummy_account(pg):
+    """ Create dummy account with liked and bookmarked recipes """
+
+    from application.models import User
+    from passlib.hash import pbkdf2_sha512
+    import datetime
+
+    # If user entry already exists, do nothing, otherwise create it
+    user = User.query.filter_by(username=pg.dummy_name).first()
+
+    if not user:
+        user = User(username=pg.dummy_name,
+                    password=pbkdf2_sha512.hash(pg.dummy_password),
+                    email=pg.dummy_email,
+                    confirmed=False,
+                    created_on=datetime.datetime.utcnow(),
+                    optin_news=True)
+        pg.session.add(user)
+        pg.session.commit()
+        user = User.query.filter_by(username=pg.dummy_name).first()
+
+    # Add item to cookbook
+    pg.add_to_cookbook(user.userID, pg.url)
+
+    # Like a recipe
+    pg.rate_recipe(user.userID, pg.url, 5)
+
+    user = User.query.filter_by(username=pg.dummy_name).first()
+    assert user.email == pg.dummy_email
 
 
 # TESTS
@@ -167,7 +201,8 @@ class TestRoutesMain:
         assert b'Cookbook' in r.data
 
     def test_profile(self, test_client, user):
-        """ Endpoint check """
+
+        from application.models import User
 
         # Logged out (redirects to signin)
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
@@ -179,6 +214,46 @@ class TestRoutesMain:
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
+
+        # Newsletter subscription form
+        old_status = User.query.filter_by(userID=user.userID).first() \
+                         .optin_news
+        r = test_client.post(url_for('main.profile'),
+                             data={'submit_newsletter': True},
+                             follow_redirects=True)
+        new_status = User.query.filter_by(userID=user.userID).first() \
+                         .optin_news
+        assert old_status != new_status
+        assert route_meta_tag(r) == 'main.profile'
+
+        # Create and login dummy account
+        logout(test_client)
+        create_dummy_account(pg)
+        login(test_client, pg.dummy_name, pg.dummy_password)
+
+        # Delete account form (invalid)
+        userID = User.query.filter_by(username=pg.dummy_name).first().userID
+        assert userID > 0
+        r = test_client.post(url_for('main.profile'),
+                             data={'username': pg.dummy_name + 'asdfjkl;',
+                                   'submit_delete_account': True},
+                             follow_redirects=True)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        assert b'Wrong username' in r.data
+        assert user is not None
+        assert route_meta_tag(r) == 'main.profile'
+
+        # Delete account form (invalid)
+        userID = User.query.filter_by(username=pg.dummy_name).first().userID
+        assert userID > 0
+        form_data = {'username': pg.dummy_name,
+                     'submit_delete_account': True}
+        r = test_client.post(url_for('main.profile'),
+                             follow_redirects=True, json=form_data)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        assert b'Your account has been deleted successfully.' in r.data
+        assert user is None
+        assert route_meta_tag(r) == 'main.home'
 
     def test_about(self, test_client):
         """ Endpoint check """
