@@ -391,10 +391,12 @@ class TestRoutesMain:
             assert rating == 5
 
         # coming from a random page that is not expected
-        r = test_client.get(url_for('main.like_recipe',
-                                    bookmark=search_term,
-                                    origin='main.about'),
-                            follow_redirects=True)
+        r = test_client.post(url_for('main.like_recipe',
+                                     recipe_url=par.recipe_tag,
+                                     origin='main.about',
+                                     sort_by=sort_by,
+                                     search_query=search_term),
+                             follow_redirects=True)
         assert route_meta_tag(r) == 'main.home'
 
     def test_dislike_recipe(self, test_client, pg, par):
@@ -452,10 +454,12 @@ class TestRoutesMain:
             assert rating == 1
 
         # coming from a random page that is not expected
-        r = test_client.get(url_for('main.dislike_recipe',
-                                    bookmark=search_term,
-                                    origin='main.about'),
-                            follow_redirects=True)
+        r = test_client.post(url_for('main.dislike_recipe',
+                                     recipe_url=par.recipe_tag,
+                                     origin='main.about',
+                                     sort_by=sort_by,
+                                     search_query=search_term),
+                             follow_redirects=True)
         assert route_meta_tag(r) == 'main.home'
 
     def test_unlike_recipe(self, test_client, pg, par):
@@ -513,10 +517,12 @@ class TestRoutesMain:
             assert rating == 3
 
         # coming from a random page that is not expected
-        r = test_client.get(url_for('main.unlike_recipe',
-                                    bookmark=search_term,
-                                    origin='main.about'),
-                            follow_redirects=True)
+        r = test_client.post(url_for('main.unlike_recipe',
+                                     recipe_url=par.recipe_tag,
+                                     origin='main.about',
+                                     sort_by=sort_by,
+                                     search_query=search_term),
+                             follow_redirects=True)
         assert route_meta_tag(r) == 'main.home'
 
 
