@@ -46,20 +46,6 @@ def pg(app):
 
 
 # HELPER FUNCTIONS
-def get_model_columns(model):
-    """
-    Allows quick view of table columns in sqlalchemy model.
-
-    Example:
-    user = User.query.filter_by(userID=pg.userID).first()
-    get_model_columns(user)
-    """
-    from sqlalchemy import inspect
-
-    inst = inspect(model)
-    return [c_attr.key for c_attr in inst.mapper.column_attrs]
-
-
 def create_dummy_account(pg):
     """ Create dummy account with liked and bookmarked recipes """
 
@@ -292,14 +278,18 @@ class TestSqlQueries:
 
         from application.models import User
 
-        old_status = User.query.filter_by(userID=pg.userID).first().optin_news
-        msg = pg.change_newsletter_subscription(pg.userID)
-        new_status = User.query.filter_by(userID=pg.userID).first().optin_news
-        assert old_status != new_status
-        if new_status:
-            assert msg == 'Changed newsletter subscription to "subscribed"'
-        else:
-            assert msg == 'Changed newsletter subscription to "unsubscribed"'
+        for i in range(0, 1):
+            old_status = User.query.filter_by(userID=pg.userID).first() \
+                             .optin_news
+            msg = pg.change_newsletter_subscription(pg.userID)
+            new_status = User.query.filter_by(userID=pg.userID).first() \
+                             .optin_news
+            assert old_status != new_status
+            if new_status:
+                assert msg == 'Changed newsletter subscription to "subscribed"'
+            else:
+                assert msg == 'Changed newsletter subscription to \
+                               "unsubscribed"'
 
 
 # eof
