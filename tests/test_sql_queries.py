@@ -293,7 +293,7 @@ class TestSqlQueries:
         from application.models import User
 
         # Change newsletter subscription back and forth
-        for i in range(0, 1):
+        for i in range(0, 2):
             old_status = User.query.filter_by(userID=pg.userID).first() \
                              .optin_news
             msg = pg.change_newsletter_subscription(pg.userID)
