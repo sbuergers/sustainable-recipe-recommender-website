@@ -8,7 +8,7 @@ https://www.patricksoftwareblog.com/testing-a-flask-application-using-pytest/
 https://stackoverflow.com/questions/17375340/testing-code-that-requires-a-flask-app-or-request-context
 """
 import pytest
-from flask import url_for, request
+from flask import url_for
 from application import create_app
 from bs4 import BeautifulSoup
 
@@ -39,6 +39,12 @@ def pg(app):
     from application import db
     from application.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
+
+    # TODO move parameters to par or user
+    pg.url = 'pineapple-shrimp-noodle-bowls'
+    pg.dummy_name = 'dummy938471948'
+    pg.dummy_email = 'dummyEmail@dummy12394821.com'
+    pg.dummy_password = 'dummyPassword129482'
     return pg
 
 
@@ -57,18 +63,11 @@ def user():
     user.name = 'test_user123'
     user.pw = 'zvnwkf[ejDSdEvn;1wfj-'
     user.userID = 2
+    user.email = 'test123@email123.com'
     return user
 
 
 # HELPER FUNCTIONS
-def signup(test_client, email, username, password):
-    return test_client.post(url_for('auth.signup'), data={
-        'email': email,
-        'username': username,
-        'password': password
-        }, follow_redirects=True)
-
-
 def login(test_client, username, password):
     return test_client.post(url_for('auth.signin'), data={
         'username': username,
@@ -89,40 +88,81 @@ def route_meta_tag(r):
     return soup.find_all("meta", attrs={'name': 'route'})[0]['content']
 
 
+def create_dummy_account(pg):
+    """ Create dummy account with liked and bookmarked recipes """
+
+    from application.models import User
+    from passlib.hash import pbkdf2_sha512
+    import datetime
+
+    # If user entry already exists, do nothing, otherwise create it
+    user = User.query.filter_by(username=pg.dummy_name).first()
+
+    if not user:
+        user = User(username=pg.dummy_name,
+                    password=pbkdf2_sha512.hash(pg.dummy_password),
+                    email=pg.dummy_email,
+                    confirmed=False,
+                    created_on=datetime.datetime.utcnow(),
+                    optin_news=True)
+        pg.session.add(user)
+        pg.session.commit()
+        user = User.query.filter_by(username=pg.dummy_name).first()
+
+    # Add item to cookbook
+    pg.add_to_cookbook(user.userID, pg.url)
+
+    # Like a recipe
+    pg.rate_recipe(user.userID, pg.url, 5)
+
+    user = User.query.filter_by(username=pg.dummy_name).first()
+    assert user.email == pg.dummy_email
+
+
 # TESTS
 class TestRoutesMain:
 
-    def test_home(self, test_client):
-        """ Endpoint checks """
+    def test_home(self, test_client, par):
 
+        # Endpoint checks
         r = test_client.get('/')
         assert r.status_code == 200
         r = test_client.get(url_for('main.home'))
         assert r.status_code == 200
 
-    def test_search_results(self, test_client, par):
-        """ Endpoint checks """
+        # Post search terms
+        endpoints = ['main.home', 'main.search_results',
+                     'main.compare_recipes']
+        for (search_term, endpoint) in zip(par.search_terms, endpoints):
+            form_data = {'search': search_term}
+            r = test_client.post(url_for('main.home'),
+                                 follow_redirects=True, json=form_data)
+            assert route_meta_tag(r) == endpoint
 
-        for search_term in par.search_terms:
+    def test_search_results(self, test_client, par):
+
+        # Assess three different types of search terms
+        endpoints = ['main.home', 'main.search_results',
+                     'main.compare_recipes']
+        for (search_term, endpoint) in zip(par.search_terms, endpoints):
+
+            # An empty search_term yields 404
             if search_term:
-                r = test_client.get(url_for('main.search_results',
-                                            search_term=search_term),
-                                    follow_redirects=True)
-                assert r.status_code == 200
+                r = test_client.post(url_for('main.search_results',
+                                             search_term=search_term),
+                                     follow_redirects=True)
+                assert route_meta_tag(r) == endpoint
 
     def test_compare_recipes(self, test_client, par):
-        """ Endpoint checks """
-
-        search_term = par.recipe_tag
+        # TODO currently does not check if sorting or pagination works
 
         # Default request
+        search_term = par.recipe_tag
         r = test_client.get(url_for('main.compare_recipes',
                                     search_term=search_term),
                             data={},
                             follow_redirects=True)
-        assert r.status_code == 200
-        assert request.args.get('sort_by') is None
-        assert request.args.get('page') is None
+        assert route_meta_tag(r) == 'main.compare_recipes'
 
         # Specifying <sort_by> and <page> args
         for sort_by in par.sort_bys:
@@ -132,7 +172,15 @@ class TestRoutesMain:
                                     data={'sort_by': sort_by,
                                           'page': page},
                                     follow_redirects=True)
-                assert r.status_code == 200
+                assert route_meta_tag(r) == 'main.compare_recipes'
+
+        # There is no exact recipe match
+        search_term = par.search_terms[1]
+        r = test_client.get(url_for('main.compare_recipes',
+                                    search_term=search_term),
+                            data={},
+                            follow_redirects=True)
+        assert route_meta_tag(r) == 'main.search_results'
 
     def test_cookbook(self, test_client, user):
         """ Endpoint check """
@@ -148,8 +196,9 @@ class TestRoutesMain:
         assert r.status_code == 200
         assert b'Cookbook' in r.data
 
-    def test_profile(self, test_client, user):
-        """ Endpoint check """
+    def test_profile(self, test_client, user, pg):
+
+        from application.models import User
 
         # Logged out (redirects to signin)
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
@@ -161,6 +210,47 @@ class TestRoutesMain:
         r = test_client.get(url_for('main.profile'), follow_redirects=True)
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
+
+        # Newsletter subscription form
+        old_status = User.query.filter_by(userID=user.userID).first() \
+                         .optin_news
+        r = test_client.post(url_for('main.profile'),
+                             data={'submit_newsletter': True},
+                             follow_redirects=True)
+        new_status = User.query.filter_by(userID=user.userID).first() \
+                         .optin_news
+        assert old_status != new_status
+        assert route_meta_tag(r) == 'main.profile'
+
+        # Create and login dummy account
+        logout(test_client)
+        create_dummy_account(pg)
+        login(test_client, pg.dummy_name, pg.dummy_password)
+
+        # Delete account form (invalid)
+        userID = User.query.filter_by(username=pg.dummy_name).first().userID
+        assert userID > 0
+        r = test_client.post(url_for('main.profile'),
+                             data={'username': pg.dummy_name + 'asdfjkl;',
+                                   'submit_delete_account': True},
+                             follow_redirects=True)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        assert user is not None
+        assert route_meta_tag(r) == 'main.profile'
+
+        # Delete account form (valid)
+        userID = User.query.filter_by(username=pg.dummy_name).first().userID
+        assert userID > 0
+        form_data = {'username': pg.dummy_name,
+                     'submit_delete_account': True}
+        r = test_client.post(url_for('main.profile'),
+                             follow_redirects=True, json=form_data)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        assert b'Your account has been deleted successfully.' in r.data
+        assert user is None
+
+        # TODO Redirectig home does not work,  why?!
+        # assert route_meta_tag(r) == 'main.home'
 
     def test_about(self, test_client):
         """ Endpoint check """
@@ -234,6 +324,13 @@ class TestRoutesMain:
         assert bookmark_status != pg.is_in_cookbook(user.userID, search_term)
         bookmark_status = pg.is_in_cookbook(user.userID, search_term)
 
+        # coming from a random page that is not expected
+        r = test_client.get(url_for('main.add_or_remove_bookmark',
+                                    bookmark=search_term,
+                                    origin='main.about'),
+                            follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+
     def test_like_recipe(self, test_client, pg, par):
         """
         Changes a recipe's user_rating to 5.
@@ -287,6 +384,15 @@ class TestRoutesMain:
             rating = pg.query_user_ratings(user.userID, [par.recipe_tag])\
                        .user_rating[0]
             assert rating == 5
+
+        # coming from a random page that is not expected
+        r = test_client.post(url_for('main.like_recipe',
+                                     recipe_url=par.recipe_tag,
+                                     origin='main.about',
+                                     sort_by=sort_by,
+                                     search_query=search_term),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
 
     def test_dislike_recipe(self, test_client, pg, par):
         """
@@ -342,6 +448,15 @@ class TestRoutesMain:
                        .user_rating[0]
             assert rating == 1
 
+        # coming from a random page that is not expected
+        r = test_client.post(url_for('main.dislike_recipe',
+                                     recipe_url=par.recipe_tag,
+                                     origin='main.about',
+                                     sort_by=sort_by,
+                                     search_query=search_term),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+
     def test_unlike_recipe(self, test_client, pg, par):
         """
         Changes a recipe's user_rating to 3.
@@ -396,20 +511,106 @@ class TestRoutesMain:
                        .user_rating[0]
             assert rating == 3
 
+        # coming from a random page that is not expected
+        r = test_client.post(url_for('main.unlike_recipe',
+                                     recipe_url=par.recipe_tag,
+                                     origin='main.about',
+                                     sort_by=sort_by,
+                                     search_query=search_term),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+
 
 class TestRoutesAuth:
 
-    def test_signup(self, test_client):
-        """ Endpoint check """
+    def test_signup(self, test_client, user, pg):
 
-        r = test_client.get(url_for('auth.signup'), follow_redirects=True)
-        assert r.status_code == 200
+        from application.models import User
+
+        # We are already logged in
+        login(test_client, user.name, user.pw)
+        r = test_client.post(url_for('auth.signup'), follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+
+        # We are not logged in
+        logout(test_client)
+        r = test_client.post(url_for('auth.signup'), follow_redirects=True)
+        assert route_meta_tag(r) == 'auth.signup'
+
+        # Username already exists
+        r = test_client.post(url_for('auth.signup'), data={
+            'username': user.name
+            }, follow_redirects=True)
+        assert b'Username already exists.' in r.data
+        assert b'Please select a different username.' in r.data
+
+        # Email already exists
+        r = test_client.post(url_for('auth.signup'), data={
+            'email': user.email
+            }, follow_redirects=True)
+        assert b'There is already an account' in r.data
+        assert b'registered with this email address.' in r.data
+
+        # Invalid username
+        r = test_client.post(url_for('auth.signup'), data={
+            'username': 'abc'
+            }, follow_redirects=True)
+        assert b'Username must' in r.data
+        assert b'be between 4 and 25 characters' in r.data
+
+        # Invalid email
+        r = test_client.post(url_for('auth.signup'), data={
+            'email': 'asdjkflaevzmekfj.com'
+            }, follow_redirects=True)
+        assert b'Please enter a valid email address' in r.data
+
+        # Invalid password
+        r = test_client.post(url_for('auth.signup'), data={
+            'password': 'abc'
+            }, follow_redirects=True)
+        assert b'Password must be' in r.data
+        assert b'between 8 and 25 characters' in r.data
+
+        # Invalid password confirmation
+        r = test_client.post(url_for('auth.signup'), data={
+            'password': user.pw,
+            'confirm_pswd': user.pw + 'a'
+            }, follow_redirects=True)
+        assert b'Passwords' in r.data
+        assert b'must match' in r.data
+
+        # Terms and conditions not ticked
+        r = test_client.post(url_for('auth.signup'), data={
+            'optin_terms': []
+            }, follow_redirects=True)
+        assert b'You have to accept the terms' in r.data
+        assert b'and conditions to create an account.' in r.data
+
+        # Valid submission
+        u = User.query.filter_by(username=pg.dummy_name).first()
+        if u:
+            pg.delete_account(u.userID)
+
+        r = test_client.post(url_for('auth.signup'), data={
+            'email': pg.dummy_email,
+            'username': pg.dummy_name,
+            'password': pg.dummy_password,
+            'confirm_pswd': pg.dummy_password,
+            'optin_terms': True,
+            'optin_news': False
+            }, follow_redirects=True)
+        assert b'Account registered successfully. Please login.' in r.data
+
+        # Clean up: Delete dummy account
+        u = User.query.filter_by(username=pg.dummy_name).first()
+        if u:
+            pg.delete_account(u.userID)
 
     def test_signin(self, test_client):
-        """ Endpoint check, failed credentials check """
 
         r = test_client.get(url_for('auth.signin'), follow_redirects=True)
         assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.signin'
 
         r = login(test_client, user.name + 'x290fdsjkl', user.pw)
         assert b'Username or password is incorrect' in r.data
@@ -418,10 +619,10 @@ class TestRoutesAuth:
         assert b'Username or password is incorrect' in r.data
 
     def test_logout(self, test_client, user):
-        """ Enpoint check """
 
         r = logout(test_client)
         assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.signin'
 
     def test_login_logout(self, test_client, user):
         """ Test navbar changes appropriate to login status """
@@ -470,11 +671,13 @@ class TestRoutesAuth:
         assert route_meta_tag(r) == 'auth.reset_password_request'
 
         # when not logged in, with valid email
-        form_data = {'email': 'sustainable-recipe-recommender@gmail.com'}
+        form_data = {'email': user.email}
         r = test_client.post(url_for('auth.reset_password_request'),
                              follow_redirects=True, json=form_data)
         assert r.status_code == 200
         assert route_meta_tag(r) == 'auth.signin'
+        assert b'Check your email for the instructions to reset your password'\
+            in r.data
 
     def test_reset_password(self, test_client, user):
         """

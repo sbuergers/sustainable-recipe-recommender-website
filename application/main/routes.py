@@ -76,7 +76,6 @@ def search_results(search_term):
                                results=results,
                                ratings=ratings,
                                emissions=emissions)
-    return redirect('/')
 
 
 @bp.route('/recipe/<search_term>', methods=['GET', 'POST'])

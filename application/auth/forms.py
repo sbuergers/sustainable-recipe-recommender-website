@@ -5,7 +5,6 @@ from wtforms.validators import InputRequired, Length, EqualTo,\
     ValidationError, Email
 from passlib.hash import pbkdf2_sha512
 from application.models import User
-from flask_login import current_user
 
 
 def invalid_credentials(form, field):
@@ -72,10 +71,15 @@ class LoginForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField('Email', validators=[
+    email = StringField('email', validators=[
                 InputRequired(message="Email required"),
                 Email(message="Please enter a valid email address")])
     submit = SubmitField('Request Password Reset')
+
+    def validate_email(self, email):
+        user_obj = User.query.filter_by(email=email.data).first()
+        if user_obj is None:
+            raise ValidationError("Email not linked to any account.")
 
 
 class ResetPasswordForm(FlaskForm):
