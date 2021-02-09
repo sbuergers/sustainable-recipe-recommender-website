@@ -166,10 +166,19 @@ class TestSqlQueries:
         assert result.iloc[1]['similarity'] > 0.45
 
     def test_search_recipes(self, pg):
-        # TODO what is being tested here?
+        # TODO test proper function of N parameter
 
-        pg.content_based_search(pg.search_term)
-        pg.fuzzy_search(pg.fuzzy_search_term)
+        # exact match
+        res = pg.search_recipes(pg.search_term)
+        assert res is not None
+        assert res['title'].tolist()[0].lower() == \
+            pg.search_term.replace('-', ' ')
+
+        # fuzzy match
+        pg.search_recipes(pg.fuzzy_search_term)
+        assert res is not None
+        assert res['title'].tolist()[0].lower() != \
+            pg.fuzzy_search_term.replace('-', ' ')
 
     def test_query_all_recipe_emissions(self, pg):
 
@@ -264,6 +273,7 @@ class TestSqlQueries:
 
         from application.models import User
 
+        # Create dummy user account and delete it
         create_dummy_account(pg)
         userID = User.query.filter_by(username=pg.dummy_name).first().userID
         assert userID > 0
@@ -273,11 +283,16 @@ class TestSqlQueries:
         assert user is None
         assert msg == 'Removed user account successfully'
 
+        # Try removing user that doesn't exist
+        msg = pg.delete_account(userID)
+        assert msg == 'User not found. Nothing was removed.'
+
     def test_change_newsletter_subscription(self, pg):
         """ Can we successfully change newsleetter subscription status? """
 
         from application.models import User
 
+        # Change newsletter subscription back and forth
         for i in range(0, 1):
             old_status = User.query.filter_by(userID=pg.userID).first() \
                              .optin_news
@@ -288,8 +303,12 @@ class TestSqlQueries:
             if new_status:
                 assert msg == 'Changed newsletter subscription to "subscribed"'
             else:
-                assert msg == 'Changed newsletter subscription to \
-                               "unsubscribed"'
+                assert msg == \
+                    'Changed newsletter subscription to "unsubscribed"'
+
+        # User does not exist
+        msg = pg.change_newsletter_subscription(999999999999)
+        assert msg == 'User not found'
 
 
 # eof
