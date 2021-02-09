@@ -81,9 +81,6 @@ def signin():
 @bp.route("/logout", methods=['GET'])
 @login_required
 def logout():
-    if current_user.is_anonymous:
-        return redirect(url_for('main.home'))
-
     logout_user()
     return redirect(url_for('main.home'))
 
