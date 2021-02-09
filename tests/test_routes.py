@@ -671,11 +671,13 @@ class TestRoutesAuth:
         assert route_meta_tag(r) == 'auth.reset_password_request'
 
         # when not logged in, with valid email
-        form_data = {'email': 'sustainable-recipe-recommender@gmail.com'}
+        form_data = {'email': user.email}
         r = test_client.post(url_for('auth.reset_password_request'),
                              follow_redirects=True, json=form_data)
         assert r.status_code == 200
         assert route_meta_tag(r) == 'auth.signin'
+        assert b'Check your email for the instructions to reset your password'\
+            in r.data
 
     def test_reset_password(self, test_client, user):
         """
