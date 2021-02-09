@@ -71,10 +71,15 @@ class LoginForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField('Email', validators=[
+    email = StringField('email', validators=[
                 InputRequired(message="Email required"),
                 Email(message="Please enter a valid email address")])
     submit = SubmitField('Request Password Reset')
+
+    def validate_email(self, email):
+        user_obj = User.query.filter_by(email=email.data).first()
+        if user_obj is None:
+            raise ValidationError("Email not linked to any account.")
 
 
 class ResetPasswordForm(FlaskForm):
