@@ -256,6 +256,8 @@ class TestSqlQueries:
 
     def test_rate_recipe(self, pg):
 
+        from application.models import User, Recipe
+
         # Change recipe rating to 4
         pg.rate_recipe(pg.userID, pg.url, 4)
         df = pg.query_user_ratings(pg.userID, [pg.url])
@@ -267,6 +269,17 @@ class TestSqlQueries:
         df = pg.query_user_ratings(pg.userID, [pg.url])
         assert df.loc[df['recipesID'] == pg.recipesID, 'user_rating'].\
             values == 5
+
+        # Add rating for new account (entry does not exist yet)
+        create_dummy_account(pg)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        pg.rate_recipe(user.userID, pg.urls_exist[1], 5)
+        recipesID = Recipe.query.filter_by(url=pg.urls_exist[1])\
+                          .first().recipesID
+        df = pg.query_user_ratings(user.userID, [pg.urls_exist[1]])
+        assert df.loc[df['recipesID'] == recipesID, 'user_rating'].\
+            values == 5
+        pg.delete_account(user.userID)
 
     def test_delete_account(self, pg):
         """ First create account, then check if deletion works """
