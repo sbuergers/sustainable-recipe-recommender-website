@@ -709,5 +709,33 @@ class TestRoutesAuth:
         assert r.status_code == 200
         assert route_meta_tag(r) == 'auth.reset_password'
 
+        # resetting password (invalid pwd)
+        r = test_client.post(url_for('auth.reset_password',
+                                     token=user.get_reset_password_token()),
+                             data={'password': 'abc',
+                                   'confirm_pswd': 'abc'},
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'auth.reset_password'
+        assert b'Password must be' in r.data
+        assert b'between 8 and 25 characters' in r.data
+
+        # resetting password (empty password)
+        r = test_client.post(url_for('auth.reset_password',
+                                     token=user.get_reset_password_token()),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'auth.reset_password'
+        assert b'Password required' in r.data
+
+        # resetting password (use dummy account)
+        create_dummy_account(pg)
+        user = User.query.filter_by(username=pg.dummy_name).first()
+        r = test_client.post(url_for('auth.reset_password',
+                                     token=user.get_reset_password_token()),
+                             data={'password': 'some_valid_password',
+                                   'confirm_pswd': 'some_valid_password'},
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'auth.signin'
+        assert b'Your password has been reset.' in r.data
+
 
 # eof
