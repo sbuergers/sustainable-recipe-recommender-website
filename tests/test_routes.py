@@ -39,6 +39,8 @@ def pg(app):
     from application import db
     from application.sql_queries import Sql_queries
     pg = Sql_queries(db.session)
+
+    # TODO move parameters to par or user
     pg.url = 'pineapple-shrimp-noodle-bowls'
     pg.dummy_name = 'dummy938471948'
     pg.dummy_email = 'dummyEmail@dummy12394821.com'
@@ -61,18 +63,11 @@ def user():
     user.name = 'test_user123'
     user.pw = 'zvnwkf[ejDSdEvn;1wfj-'
     user.userID = 2
+    user.email = 'test123@email123.com'
     return user
 
 
 # HELPER FUNCTIONS
-def signup(test_client, email, username, password):
-    return test_client.post(url_for('auth.signup'), data={
-        'email': email,
-        'username': username,
-        'password': password
-        }, follow_redirects=True)
-
-
 def login(test_client, username, password):
     return test_client.post(url_for('auth.signin'), data={
         'username': username,
@@ -243,7 +238,7 @@ class TestRoutesMain:
         assert user is not None
         assert route_meta_tag(r) == 'main.profile'
 
-        # Delete account form (invalid)
+        # Delete account form (valid)
         userID = User.query.filter_by(username=pg.dummy_name).first().userID
         assert userID > 0
         form_data = {'username': pg.dummy_name,
@@ -528,11 +523,88 @@ class TestRoutesMain:
 
 class TestRoutesAuth:
 
-    def test_signup(self, test_client):
-        """ Endpoint check """
+    def test_signup(self, test_client, user, pg):
 
-        r = test_client.get(url_for('auth.signup'), follow_redirects=True)
-        assert r.status_code == 200
+        from application.models import User
+
+        # We are already logged in
+        login(test_client, user.name, user.pw)
+        r = test_client.post(url_for('auth.signup'), follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+
+        # We are not logged in
+        logout(test_client)
+        r = test_client.post(url_for('auth.signup'), follow_redirects=True)
+        assert route_meta_tag(r) == 'main.signup'
+
+        # Username already exists
+        r = test_client.post(url_for('auth.signup'), data={
+            'username': user.name
+            }, follow_redirects=True)
+        assert b'Username already exists.' in r.data
+        assert b'Please select a different username.' in r.data
+
+        # Email already exists
+        r = test_client.post(url_for('auth.signup'), data={
+            'email': user.email
+            }, follow_redirects=True)
+        assert b'There is already an account' in r.data
+        assert b'registered with this email address.' in r.data
+
+        # Invalid username
+        r = test_client.post(url_for('auth.signup'), data={
+            'username': 'abc'
+            }, follow_redirects=True)
+        assert b'Username must' in r.data
+        assert b'be between 4 and 25 characters' in r.data
+
+        # Invalid email
+        r = test_client.post(url_for('auth.signup'), data={
+            'email': 'asdjkflaevzmekfj.com'
+            }, follow_redirects=True)
+        assert b'Please enter a valid email address' in r.data
+
+        # Invalid password
+        r = test_client.post(url_for('auth.signup'), data={
+            'password': 'abc'
+            }, follow_redirects=True)
+        assert b'Password must be' in r.data
+        assert b'between 8 and 25 characters' in r.data
+
+        # Invalid password confirmation
+        r = test_client.post(url_for('auth.signup'), data={
+            'password': user.pw,
+            'confirm_pswd': user.pw + 'a'
+            }, follow_redirects=True)
+        assert b'Passwords' in r.data
+        assert b'must match' in r.data
+
+        # Terms and conditions not ticked
+        r = test_client.post(url_for('auth.signup'), data={
+            'optin_terms': []
+            }, follow_redirects=True)
+        assert b'You have to accept the terms' in r.data
+        assert b'and conditions to create an account.' in r.data
+
+        # Valid submission
+        u = User.query.filter_by(username=pg.dummy_name).first()
+        if u:
+            pg.delete_account(u.userID)
+
+        r = test_client.post(url_for('auth.signup'), data={
+            'email': pg.dummy_email,
+            'username': pg.dummy_name,
+            'password': pg.dummy_password,
+            'confirm_pswd': pg.dummy_password,
+            'optin_terms': True,
+            'optin_news': False
+            }, follow_redirects=True)
+        assert b'Account registered successfully. Please login.' in r.data
+
+        # Clean up: Delete dummy account
+        u = User.query.filter_by(username=pg.dummy_name).first()
+        if u:
+            pg.delete_account(u.userID)
 
     def test_signin(self, test_client):
         """ Endpoint check, failed credentials check """
