@@ -535,7 +535,7 @@ class TestRoutesAuth:
         # We are not logged in
         logout(test_client)
         r = test_client.post(url_for('auth.signup'), follow_redirects=True)
-        assert route_meta_tag(r) == 'main.signup'
+        assert route_meta_tag(r) == 'auth.signup'
 
         # Username already exists
         r = test_client.post(url_for('auth.signup'), data={
