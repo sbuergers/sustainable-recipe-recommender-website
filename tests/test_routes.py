@@ -588,7 +588,8 @@ class TestRoutesAuth:
 
         # Valid submission
         u = User.query.filter_by(username=pg.dummy_name).first()
-        pg.delete_account(u.userID)
+        if u:
+            pg.delete_account(u.userID)
 
         r = test_client.post(url_for('auth.signup'), data={
             'email': pg.dummy_email,
