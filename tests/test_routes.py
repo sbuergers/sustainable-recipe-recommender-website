@@ -607,10 +607,10 @@ class TestRoutesAuth:
             pg.delete_account(u.userID)
 
     def test_signin(self, test_client):
-        """ Endpoint check, failed credentials check """
 
         r = test_client.get(url_for('auth.signin'), follow_redirects=True)
         assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.signin'
 
         r = login(test_client, user.name + 'x290fdsjkl', user.pw)
         assert b'Username or password is incorrect' in r.data
@@ -619,10 +619,10 @@ class TestRoutesAuth:
         assert b'Username or password is incorrect' in r.data
 
     def test_logout(self, test_client, user):
-        """ Enpoint check """
 
         r = logout(test_client)
         assert r.status_code == 200
+        assert route_meta_tag(r) == 'auth.signin'
 
     def test_login_logout(self, test_client, user):
         """ Test navbar changes appropriate to login status """
