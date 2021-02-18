@@ -25,18 +25,18 @@ def invalid_credentials(form, field):
 class RegistrationForm(FlaskForm):
     username = StringField('username', validators=[
                     InputRequired(message="Username required"),
-                    Length(min=4, max=25, message="Username must \
+                    Length(min=4, max=35, message="Username must \
                         be between 4 and 25 characters")
                     ])
     email = StringField('email', validators=[
                     InputRequired(message="Email required"),
                     Email(message="Please enter a valid email address"),
-                    Length(min=4, max=35, message="Please \
+                    Length(min=4, max=50, message="Please \
                         enter a valid email address")
                     ])
     password = PasswordField('password', validators=[
                     InputRequired(message="Password required"),
-                    Length(min=8, max=25, message="Password must be \
+                    Length(min=8, max=35, message="Password must be \
                         between 8 and 25 characters")
                     ])
     confirm_pswd = PasswordField('confirm_pswd', validators=[
