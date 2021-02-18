@@ -62,7 +62,9 @@ def signup():
                    verify your email address. A verification email \
                    has been sent to your address.')
 
-        flash('Account registered successfully. Please login.', 'success')
+        # Log user in automatically
+        login_user(user, remember=False)
+        flash('Account registered successfully.', 'success')
         return redirect(url_for('auth.signin'))
 
     return render_template('signup.html', reg_form=reg_form)
