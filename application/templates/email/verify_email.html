@@ -1,8 +1,8 @@
 <p>Dear {{ user.username }},</p>
 <p>
-    To verify your email address, please click on the following link:
+    To verify your email address:
     <a href="{{ url_for('auth.verify_email', token=token, _external=True) }}">
-        click here
+        Click here
     </a>.
 </p>
 <p>Alternatively, you can paste the following link in your browser's address bar:</p>
