@@ -133,10 +133,11 @@ def reset_password(token):
 def verify_email(token):
     if current_user.is_authenticated:
         user = User.verify_verify_email_token(token)
-        if current_user.email == user.email:
+        if user:
             user.confirmed = True
             db.session.commit()
             flash('Thank you. Your email has been verified.')
+            return redirect(url_for('main.profile'))
         else:
             flash('Oh oh! Email verification failed. \
                    Maybe the verificaiton link has expired. \
