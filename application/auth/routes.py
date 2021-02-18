@@ -56,7 +56,8 @@ def signup():
             db.session.commit()
 
             # email verification needed for newsletter
-            # TODO flash msg + send verification email
+            send_verification_email(user)
+            flash('A verification email has been sent to your address.')
 
         flash('Account registered successfully. Please login.', 'success')
         return redirect(url_for('auth.signin'))
@@ -121,6 +122,22 @@ def reset_password(token):
         flash('Your password has been reset.')
         return redirect(url_for('auth.signin'))
     return render_template('reset-password.html', form=form)
+
+
+@bp.route('/verify_email/<token>', methods=['GET', 'POST'])
+def verify_email(token):
+    if current_user.is_authenticated:
+        user = User.verify_verify_email_token(token)
+        if current_user.email == user.email:
+            user.confirmed = True
+            db.session.commit()
+            flash('Thank you. Your email has been verified.')
+        else:
+            flash('Oh oh! Email verification failed.\
+                   Maybe the verificaiton link has expired.\
+                   You can try again using your profile page.')
+        return redirect(url_for('main.profile'))
+    return redirect(url_for('main.home'))
 
 
 # eof
