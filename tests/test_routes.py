@@ -745,5 +745,51 @@ class TestRoutesAuth:
         assert route_meta_tag(r) == 'auth.signin'
         assert b'Your password has been reset.' in r.data
 
+    def test_verify_email(self, test_client, user):
+        """
+        When given a valid verify email token, updates table
+        entry to user.confirmed = True
+        """
+        from application.models import User
+
+        u = User.query.filter_by(userID=user.userID).first()
+
+        # User is logged in, verification works
+        login(test_client, user.name, user.pw)
+        if u.confirmed:
+            u.confirmed = False
+            pg.session.commit()
+        r = test_client.post(url_for('auth.verify_email',
+                                     token=u.get_verify_email_token()),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.profile'
+        assert b'Thank you. Your email has been verified.' in r.data
+        assert u.confirmed is True
+
+        # User is not logged in, verification fails
+        logout(test_client)
+        if u.confirmed:
+            u.confirmed = False
+            pg.session.commit()
+        r = test_client.post(url_for('auth.verify_email',
+                                     token=u.get_verify_email_token()),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+        assert b'You need to be logged in in order to verify your email.'\
+            in r.data
+        assert u.confirmed is False
+
+        # Logged in, but invalid token, verification fails
+        login(test_client, user.name, user.pw)
+        if u.confirmed:
+            u.confirmed = False
+            pg.session.commit()
+        r = test_client.post(url_for('auth.verify_email',
+                                     token='bad_token'),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.profile'
+        assert b'Oh oh! Email verification failed.' in r.data
+        assert u.confirmed is False
+
 
 # eof
