@@ -599,7 +599,7 @@ class TestRoutesAuth:
             'optin_terms': True,
             'optin_news': False
             }, follow_redirects=True)
-        assert b'Account registered successfully. Please login.' in r.data
+        assert b'Account registered successfully.' in r.data
 
         # Clean up: Delete dummy account
         u = User.query.filter_by(username=pg.dummy_name).first()
@@ -745,7 +745,7 @@ class TestRoutesAuth:
         assert route_meta_tag(r) == 'auth.signin'
         assert b'Your password has been reset.' in r.data
 
-    def test_verify_email(self, test_client, user):
+    def test_verify_email(self, test_client, user, pg):
         """
         When given a valid verify email token, updates table
         entry to user.confirmed = True
