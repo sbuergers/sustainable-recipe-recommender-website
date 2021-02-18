@@ -131,17 +131,18 @@ def reset_password(token):
 
 @bp.route('/verify_email/<token>', methods=['GET', 'POST'])
 def verify_email(token):
-    user = User.verify_verify_email_token(token)
-    if current_user.email == user.email:
-        user.confirmed = True
-        db.session.commit()
-        flash('Thank you. Your email has been verified.')
-    else:
-        flash('Oh oh! Email verification failed.\
-                Maybe the verificaiton link has expired.\
-                You can try again using your profile page.')
     if current_user.is_authenticated:
-        return redirect(url_for('main.profile'))
+        user = User.verify_verify_email_token(token)
+        if current_user.email == user.email:
+            user.confirmed = True
+            db.session.commit()
+            flash('Thank you. Your email has been verified.')
+        else:
+            flash('Oh oh! Email verification failed. \
+                   Maybe the verificaiton link has expired. \
+                   You can try again using your profile page.')
+            return redirect(url_for('main.profile'))
+    flash('You need to be logged in in order to verify your email.')
     return redirect(url_for('main.home'))
 
 
