@@ -55,6 +55,9 @@ def signup():
             db.session.add(consent)
             db.session.commit()
 
+            # email verification needed for newsletter
+            # TODO flash msg + send verification email
+
         flash('Account registered successfully. Please login.', 'success')
         return redirect(url_for('auth.signin'))
 
