@@ -10,7 +10,7 @@ from passlib.hash import pbkdf2_sha512
 
 # User made modules
 from application.auth.forms import RegistrationForm, LoginForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
+    ResetPasswordRequestForm, ResetPasswordForm, VerifyEmailRequestForm
 
 # Database
 from application import db
@@ -127,6 +127,17 @@ def reset_password(token):
         flash('Your password has been reset.')
         return redirect(url_for('auth.signin'))
     return render_template('reset-password.html', form=form)
+
+
+@bp.route('/verify_email_request', methods=['GET', 'POST'])
+@login_required
+def verify_email_request():
+    form = VerifyEmailRequestForm()
+    if form.validate_on_submit():
+        send_password_reset_email(current_user)
+        flash('A verification link has been sent to your email.')
+        return redirect(url_for('main.home'))
+    return redirect(url_for('main.profile'))
 
 
 @bp.route('/verify_email/<token>', methods=['GET', 'POST'])
