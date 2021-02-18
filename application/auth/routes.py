@@ -58,7 +58,9 @@ def signup():
 
             # email verification needed for newsletter
             send_verification_email(user)
-            flash('A verification email has been sent to your address.')
+            flash('To receive newlsetter notifications you need to \
+                   verify your email address. A verification email \
+                   has been sent to your address.')
 
         flash('Account registered successfully. Please login.', 'success')
         return redirect(url_for('auth.signin'))
