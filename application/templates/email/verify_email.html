@@ -1,0 +1,16 @@
+<p>Dear {{ user.username }},</p>
+<p>
+    To verify your email address, please click on the following link:
+    <a href="{{ url_for('auth.verify_email', token=token, _external=True) }}">
+        click here
+    </a>.
+</p>
+<p>Alternatively, you can paste the following link in your browser's address bar:</p>
+<p>{{ url_for('auth.verify_email', token=token, _external=True) }}</p>
+<p>The link will expire in 10 minutes.</p>
+<p>If you have received this message by mistake you can simply ignore it.</p>
+<p>Sincerely,</p>
+<p>The Sustainable-recipe-recommender Team</p>
+
+
+<!-- eof -->
