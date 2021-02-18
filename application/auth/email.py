@@ -12,6 +12,7 @@ def send_password_reset_email(user):
                html_body=render_template('email/reset_password.html',
                                          user=user, token=token))
 
+
 def send_verification_email(user):
     token = user.get_verify_email_token()
     send_email('[Sustainable-recipe-recommender] Verify email address',
