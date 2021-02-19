@@ -215,9 +215,13 @@ class TestRoutesMain:
         u = User.query.filter_by(userID=user.userID).first()
         u.confirmed = False
         pg.session.commit()
-        r = test_client.post(url_for('main.profile'), follow_redirects=True)
+        r = test_client.post(url_for('main.profile'),
+                             data={'submit_verify_email': True},
+                             follow_redirects=True)
         assert b'Send verification email' in r.data
         assert b'Change newsletter subscription' not in r.data
+        assert b'A verification link has been sent to your email address.' \
+            in r.data
 
         # Access profile route with verified email
         u.confirmed = True
@@ -227,15 +231,16 @@ class TestRoutesMain:
         assert b'Change newsletter subscription' in r.data
 
         # Newsletter subscription form
-        old_status = User.query.filter_by(userID=user.userID).first() \
-                         .optin_news
-        r = test_client.post(url_for('main.profile'),
-                             data={'submit_newsletter': True},
-                             follow_redirects=True)
-        new_status = User.query.filter_by(userID=user.userID).first() \
-                         .optin_news
-        assert old_status != new_status
-        assert route_meta_tag(r) == 'main.profile'
+        for i in range(2):
+            old_status = User.query.filter_by(userID=user.userID).first() \
+                            .optin_news
+            r = test_client.post(url_for('main.profile'),
+                                 data={'submit_newsletter': True},
+                                 follow_redirects=True)
+            new_status = User.query.filter_by(userID=user.userID).first() \
+                             .optin_news
+            assert old_status != new_status
+            assert route_meta_tag(r) == 'main.profile'
 
         # Create and login dummy account
         logout(test_client)
