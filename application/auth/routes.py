@@ -10,7 +10,7 @@ from passlib.hash import pbkdf2_sha512
 
 # User made modules
 from application.auth.forms import RegistrationForm, LoginForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
+    ResetPasswordRequestForm, ResetPasswordForm, VerifyEmailRequestForm
 
 # Database
 from application import db
@@ -19,7 +19,8 @@ from application.auth import bp
 import datetime
 
 # Email
-from application.auth.email import send_password_reset_email
+from application.auth.email import send_password_reset_email, \
+    send_verification_email
 
 
 @bp.route('/signup', methods=['GET', 'POST'])
@@ -55,7 +56,15 @@ def signup():
             db.session.add(consent)
             db.session.commit()
 
-        flash('Account registered successfully. Please login.', 'success')
+            # email verification needed for newsletter
+            send_verification_email(user)
+            flash('To receive newlsetter notifications you need to \
+                   verify your email address. A verification email \
+                   has been sent to your address.')
+
+        # Log user in automatically
+        login_user(user, remember=False)
+        flash('Account registered successfully.', 'success')
         return redirect(url_for('auth.signin'))
 
     return render_template('signup.html', reg_form=reg_form)
@@ -118,6 +127,24 @@ def reset_password(token):
         flash('Your password has been reset.')
         return redirect(url_for('auth.signin'))
     return render_template('reset-password.html', form=form)
+
+
+@bp.route('/verify_email/<token>', methods=['GET', 'POST'])
+def verify_email(token):
+    if current_user.is_authenticated:
+        user = User.verify_verify_email_token(token)
+        if user:
+            user.confirmed = True
+            db.session.commit()
+            flash('Thank you. Your email has been verified.')
+            return redirect(url_for('main.profile'))
+        else:
+            flash('Oh oh! Email verification failed. \
+                   Maybe the verificaiton link has expired. \
+                   You can try again using your profile page.')
+            return redirect(url_for('main.profile'))
+    flash('You need to be logged in in order to verify your email.')
+    return redirect(url_for('main.home'))
 
 
 # eof

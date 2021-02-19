@@ -96,6 +96,11 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Request Password Reset')
 
 
+class VerifyEmailRequestForm(FlaskForm):
+    submit_verify_email = SubmitField('Send verification email',
+                                      validators=[])
+
+
 class NewsletterForm(FlaskForm):
     submit_newsletter = SubmitField('Change newsletter subscription',
                                     validators=[])

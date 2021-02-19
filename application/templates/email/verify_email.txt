@@ -1,0 +1,13 @@
+Dear {{ user.username }},
+
+To verify your email address, please click on the following link:
+
+{{ url_for('auth.verify_email', token=token, _external=True) }}
+
+The link will expire in 10 minutes.
+
+If you have received this message by mistake you can simply ignore it.
+
+Sincerely,
+
+The Sustainable-recipe-recommender Team

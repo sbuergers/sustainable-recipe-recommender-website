@@ -211,16 +211,36 @@ class TestRoutesMain:
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
 
-        # Newsletter subscription form
-        old_status = User.query.filter_by(userID=user.userID).first() \
-                         .optin_news
+        # Access profile route without verified email
+        u = User.query.filter_by(userID=user.userID).first()
+        u.confirmed = False
+        pg.session.commit()
         r = test_client.post(url_for('main.profile'),
-                             data={'submit_newsletter': True},
+                             data={'submit_verify_email': True},
                              follow_redirects=True)
-        new_status = User.query.filter_by(userID=user.userID).first() \
-                         .optin_news
-        assert old_status != new_status
-        assert route_meta_tag(r) == 'main.profile'
+        assert b'Send verification email' in r.data
+        assert b'Change newsletter subscription' not in r.data
+        assert b'A verification link has been sent to your email address.' \
+            in r.data
+
+        # Access profile route with verified email
+        u.confirmed = True
+        pg.session.commit()
+        r = test_client.post(url_for('main.profile'), follow_redirects=True)
+        assert b'Send verification email' not in r.data
+        assert b'Change newsletter subscription' in r.data
+
+        # Newsletter subscription form
+        for i in range(2):
+            old_status = User.query.filter_by(userID=user.userID).first() \
+                            .optin_news
+            r = test_client.post(url_for('main.profile'),
+                                 data={'submit_newsletter': True},
+                                 follow_redirects=True)
+            new_status = User.query.filter_by(userID=user.userID).first() \
+                             .optin_news
+            assert old_status != new_status
+            assert route_meta_tag(r) == 'main.profile'
 
         # Create and login dummy account
         logout(test_client)
@@ -599,7 +619,7 @@ class TestRoutesAuth:
             'optin_terms': True,
             'optin_news': False
             }, follow_redirects=True)
-        assert b'Account registered successfully. Please login.' in r.data
+        assert b'Account registered successfully.' in r.data
 
         # Clean up: Delete dummy account
         u = User.query.filter_by(username=pg.dummy_name).first()
@@ -744,6 +764,52 @@ class TestRoutesAuth:
                              follow_redirects=True)
         assert route_meta_tag(r) == 'auth.signin'
         assert b'Your password has been reset.' in r.data
+
+    def test_verify_email(self, test_client, user, pg):
+        """
+        When given a valid verify email token, updates table
+        entry to user.confirmed = True
+        """
+        from application.models import User
+
+        u = User.query.filter_by(userID=user.userID).first()
+
+        # User is logged in, verification works
+        login(test_client, user.name, user.pw)
+        if u.confirmed:
+            u.confirmed = False
+            pg.session.commit()
+        r = test_client.post(url_for('auth.verify_email',
+                                     token=u.get_verify_email_token()),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.profile'
+        assert b'Thank you. Your email has been verified.' in r.data
+        assert u.confirmed is True
+
+        # User is not logged in, verification fails
+        logout(test_client)
+        if u.confirmed:
+            u.confirmed = False
+            pg.session.commit()
+        r = test_client.post(url_for('auth.verify_email',
+                                     token=u.get_verify_email_token()),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.home'
+        assert b'You need to be logged in in order to verify your email.'\
+            in r.data
+        assert u.confirmed is False
+
+        # Logged in, but invalid token, verification fails
+        login(test_client, user.name, user.pw)
+        if u.confirmed:
+            u.confirmed = False
+            pg.session.commit()
+        r = test_client.post(url_for('auth.verify_email',
+                                     token='bad_token'),
+                             follow_redirects=True)
+        assert route_meta_tag(r) == 'main.profile'
+        assert b'Oh oh! Email verification failed.' in r.data
+        assert u.confirmed is False
 
 
 # eof
