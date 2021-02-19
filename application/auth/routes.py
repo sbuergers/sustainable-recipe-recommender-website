@@ -129,17 +129,6 @@ def reset_password(token):
     return render_template('reset-password.html', form=form)
 
 
-@bp.route('/verify_email_request', methods=['GET', 'POST'])
-@login_required
-def verify_email_request():
-    form = VerifyEmailRequestForm()
-    if form.validate_on_submit():
-        send_password_reset_email(current_user)
-        flash('A verification link has been sent to your email.')
-        return redirect(url_for('main.home'))
-    return redirect(url_for('main.profile'))
-
-
 @bp.route('/verify_email/<token>', methods=['GET', 'POST'])
 def verify_email(token):
     if current_user.is_authenticated:
