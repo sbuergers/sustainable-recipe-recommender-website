@@ -211,6 +211,21 @@ class TestRoutesMain:
         assert r.status_code == 200
         assert b'Search for sustainable recipes' not in r.data
 
+        # Access profile route without verified email
+        u = User.query.filter_by(userID=user.userID).first()
+        u.confirmed = False
+        pg.session.commit()
+        r = test_client.post(url_for('main.profile'), follow_redirects=True)
+        assert b'Send verification email' in r.data
+        assert b'Change newsletter subscription' not in r.data
+
+        # Access profile route with verified email
+        u.confirmed = True
+        pg.session.commit()
+        r = test_client.post(url_for('main.profile'), follow_redirects=True)
+        assert b'Send verification email' not in r.data
+        assert b'Change newsletter subscription' in r.data
+
         # Newsletter subscription form
         old_status = User.query.filter_by(userID=user.userID).first() \
                          .optin_news
