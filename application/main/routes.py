@@ -9,8 +9,10 @@ from flask_login import login_required, current_user
 import application.main.helper_functions as hf
 import application.main.altair_plots as ap
 from application.main.forms import SearchForm, EmptyForm
-from application.auth.forms import DeleteAccountForm, NewsletterForm
+from application.auth.forms import DeleteAccountForm, NewsletterForm,\
+    VerifyEmailRequestForm
 from application.sql_queries import Sql_queries
+from application.auth.email import send_verification_email
 
 # Database
 from application import db
@@ -237,6 +239,13 @@ def profile():
     search_form = SearchForm()
     delete_account_form = DeleteAccountForm()
     newsletter_form = NewsletterForm()
+    verify_email_form = VerifyEmailRequestForm()
+
+    # verifying email address
+    if verify_email_form.validate_on_submit():
+        send_verification_email(current_user)
+        flash('A verification link has been sent to your email address.')
+        return redirect(url_for('main.profile'))
 
     # subscribing / unsubscribing
     if newsletter_form.submit_newsletter.data and \
@@ -263,7 +272,8 @@ def profile():
     return render_template('profile.html',
                            search_form=search_form,
                            newsletter_form=newsletter_form,
-                           delete_account_form=delete_account_form)
+                           delete_account_form=delete_account_form,
+                           verify_email_form=verify_email_form)
 
 
 @bp.route('/about')
