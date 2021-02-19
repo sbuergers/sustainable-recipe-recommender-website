@@ -242,7 +242,8 @@ def profile():
     verify_email_form = VerifyEmailRequestForm()
 
     # verifying email address
-    if verify_email_form.validate_on_submit():
+    if verify_email_form.submit_verify_email.data and \
+       verify_email_form.validate_on_submit():
         send_verification_email(current_user)
         flash('A verification link has been sent to your email address.')
         return redirect(url_for('main.profile'))

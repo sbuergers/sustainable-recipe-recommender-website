@@ -47,15 +47,10 @@
 
                 <!-- Send verification email -->
                 <form action="{{ url_for('main.profile') }}", method="POST">
-                    <h5>Newsletter subscription</h5>
-                    {% if current_user.optin_news %}
-                        <p>Unsubscribe from email newsletter (you can re-subscribe anytime).</p>
-                        {{ newsletter_form.submit_newsletter(class_="btn btn-warning") }}
-                    {% else %}
-                        <p>Subscribe to email newsletter (you can unsubscribe anytime).</p>
-                        {{ newsletter_form.submit_newsletter(class_="btn btn-success") }}
-                    {% endif %}
-                    {{ newsletter_form.csrf_token }}
+                    <h5>Verify email address</h5>
+                    <p>Verify your email address (required for receiving newsletters).</p>
+                    {{ verify_email_form.submit_verify_email(class_="btn btn-success") }}
+                    {{ verify_email_form.csrf_token }}
                 </form> 
             {% endif %}
 
