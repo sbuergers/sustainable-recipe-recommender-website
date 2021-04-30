@@ -44,7 +44,7 @@ Pillow==8.1.1
 plotly==4.9.0
 pluggy==0.13.1
 psycopg2-binary==2.8.5
-py==1.9.0
+py==1.10.0
 pyasn1==0.4.8
 pycparser==2.20
 PyJWT==2.0.0
