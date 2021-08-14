@@ -7,44 +7,49 @@ import jwt
 
 
 class User(UserMixin, db.Model):
-    __table__ = db.Model.metadata.tables['users']
-    likes = db.relationship('Like', backref='user', lazy='dynamic')
+    __table__ = db.Model.metadata.tables["users"]
+    likes = db.relationship("Like", backref="user", lazy="dynamic")
 
     def get_id(self):
-        return (self.userID)
+        return self.userID
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return "<User {}>".format(self.username)
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
-            {'reset_password': self.get_id(), 'exp': time() + expires_in},
-            current_app.config['SECRET_KEY'], algorithm='HS256'
+            {"reset_password": self.get_id(), "exp": time() + expires_in},
+            current_app.config["SECRET_KEY"],
+            algorithm="HS256",
         )
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, current_app.config['SECRET_KEY'],
-                            algorithms=['HS256'])['reset_password']
+            id = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            )["reset_password"]
         except:
             return
         return User.query.get(id)
 
     def get_verify_email_token(self, expires_in=600):
         return jwt.encode(
-            {'verify_email': self.email, 'exp': time() + expires_in},
-            current_app.config['SECRET_KEY'], algorithm='HS256'
+            {"verify_email": self.email, "exp": time() + expires_in},
+            current_app.config["SECRET_KEY"],
+            algorithm="HS256",
         )
 
     @staticmethod
     def verify_verify_email_token(token):
         try:
-            email = jwt.decode(token, current_app.config['SECRET_KEY'],
-                               algorithms=['HS256'])['verify_email']
+            email = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            )["verify_email"]
         except:
             return
         return User.query.filter_by(email=email).first()
+
 
 @login.user_loader
 def load_user(userID):
@@ -52,38 +57,38 @@ def load_user(userID):
 
 
 class Recipe(db.Model):
-    __table__ = db.Model.metadata.tables['recipes']
+    __table__ = db.Model.metadata.tables["recipes"]
 
     def __repr__(self):
-        return '<Recipe {}>'.format(self.title)
+        return "<Recipe {}>".format(self.title)
 
 
 class Like(db.Model):
-    __table__ = db.Model.metadata.tables['likes']
+    __table__ = db.Model.metadata.tables["likes"]
 
     def __repr__(self):
-        return '<Like {}>'.format(self.likeID)
+        return "<Like {}>".format(self.likeID)
 
 
 class Consent(db.Model):
-    __table__ = db.Model.metadata.tables['consent']
+    __table__ = db.Model.metadata.tables["consent"]
 
     def __repr__(self):
-        return '<Consent {}>'.format(self.consentID)
+        return "<Consent {}>".format(self.consentID)
 
 
 class ContentSimilarity(db.Model):
-    __table__ = db.Model.metadata.tables['content_similarity200']
+    __table__ = db.Model.metadata.tables["content_similarity200"]
 
     def __repr__(self):
-        return '<ContentSimilarity {}>'.format(self.recipeID)
+        return "<ContentSimilarity {}>".format(self.recipeID)
 
 
 class ContentSimilarityID(db.Model):
-    __table__ = db.Model.metadata.tables['content_similarity200_ids']
+    __table__ = db.Model.metadata.tables["content_similarity200_ids"]
 
     def __repr__(self):
-        return '<ContentSimilarityID {}>'.format(self.recipeID)
+        return "<ContentSimilarityID {}>".format(self.recipeID)
 
 
 # eof
