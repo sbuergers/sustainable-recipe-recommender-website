@@ -18,14 +18,14 @@ talisman = Talisman()
 
 # Login Manager
 login = LoginManager()
-login.login_view = 'auth.signin'
+login.login_view = "auth.signin"
 
 # Mail
 mail = Mail()
 
 
 def create_app(testing=True, debug=True):
-    """ App factory """
+    """App factory"""
 
     # Initialize application
     app = Flask(__name__)
@@ -42,15 +42,15 @@ def create_app(testing=True, debug=True):
         talisman.init_app(
             app,
             content_security_policy=csp,
-            content_security_policy_nonce_in=['script-src'],
-            force_https=False
+            content_security_policy_nonce_in=["script-src"],
+            force_https=False,
         )
     else:
         talisman.init_app(
             app,
             content_security_policy=csp,
-            content_security_policy_nonce_in=['script-src'],
-            force_https=True
+            content_security_policy_nonce_in=["script-src"],
+            force_https=True,
         )
     login.init_app(app)
     mail.init_app(app)
@@ -62,10 +62,12 @@ def create_app(testing=True, debug=True):
 
         # Create Routes
         from application.main import bp as main_bp
+
         app.register_blueprint(main_bp)
 
         from application.auth import bp as auth_bp
-        app.register_blueprint(auth_bp, url_prefix='/auth')
+
+        app.register_blueprint(auth_bp, url_prefix="/auth")
 
         return app
 

@@ -4,13 +4,12 @@ from wtforms import StringField, SubmitField
 
 
 class SearchForm(FlaskForm):
-    search = StringField('search')
-    submit = SubmitField('Search',
-                         render_kw={'class': 'btn btn-success btn-block'})
+    search = StringField("search")
+    submit = SubmitField("Search", render_kw={"class": "btn btn-success btn-block"})
 
 
 class EmptyForm(FlaskForm):
-    submit = SubmitField('Submit')
+    submit = SubmitField("Submit")
 
 
 # eof

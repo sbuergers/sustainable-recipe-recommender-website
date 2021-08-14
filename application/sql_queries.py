@@ -5,8 +5,7 @@ from application.models import User, Recipe, Like, Consent
 import datetime
 
 
-class Sql_queries():
-
+class Sql_queries:
     def __init__(self, session):
         """
         Make DB connection via session object available to all queries
@@ -41,11 +40,12 @@ class Sql_queries():
             LIMIT :N
             """,
             bindparams=[
-                bindparam('search_term', value=search_term, type_=String),
-                bindparam('search_term_like', value='%'+search_term+'%',
-                          type_=String),
-                bindparam('N', value=N, type_=Integer)
-            ]
+                bindparam("search_term", value=search_term, type_=String),
+                bindparam(
+                    "search_term_like", value="%" + search_term + "%", type_=String
+                ),
+                bindparam("N", value=N, type_=Integer),
+            ],
         )
         results = self.session.execute(query).fetchall()
 
@@ -62,9 +62,9 @@ class Sql_queries():
                 LIMIT :N
                 """,
                 bindparams=[
-                    bindparam('search_term', value=search_term, type_=String),
-                    bindparam('N', value=N, type_=Integer)
-                ]
+                    bindparam("search_term", value=search_term, type_=String),
+                    bindparam("N", value=N, type_=Integer),
+                ],
             )
             results = self.session.execute(query).fetchall()
         return results
@@ -94,9 +94,9 @@ class Sql_queries():
             LIMIT :N
             """,
             bindparams=[
-                bindparam('search_term', value=search_term, type_=String),
-                bindparam('N', value=N, type_=Integer)
-            ]
+                bindparam("search_term", value=search_term, type_=String),
+                bindparam("N", value=N, type_=Integer),
+            ],
         )
         results = self.session.execute(query).fetchall()
         return results
@@ -118,7 +118,7 @@ class Sql_queries():
         """
         results = self.phrase_search(search_term, N=N)
         if not results:
-            results = self.fuzzy_search(search_term, N=N-len(results))
+            results = self.fuzzy_search(search_term, N=N - len(results))
         return results
 
     def query_content_similarity_ids(self, search_term):
@@ -140,9 +140,7 @@ class Sql_queries():
                 SELECT "recipesID" FROM public.recipes
                 WHERE "url" = :search_term)
             """,
-            bindparams=[
-                bindparam('search_term', value=search_term, type_=String)
-            ]
+            bindparams=[bindparam("search_term", value=search_term, type_=String)],
         )
         CS_ids = self.session.execute(query).fetchall()[0][1::]
         CS_ids = tuple([abs(int(CSid)) for CSid in CS_ids])
@@ -166,9 +164,7 @@ class Sql_queries():
                 SELECT "recipesID" FROM public.recipes
                 WHERE url = :search_term)
             """,
-            bindparams=[
-                bindparam('search_term', value=search_term, type_=String)
-            ]
+            bindparams=[bindparam("search_term", value=search_term, type_=String)],
         )
         CS = self.session.execute(query).fetchall()[0][1::]
         CS = tuple([abs(float(s)) for s in CS])
@@ -195,27 +191,23 @@ class Sql_queries():
             FROM public.recipes
             WHERE "recipesID" IN :CS_ids
             """,
-            bindparams=[
-                bindparam('CS_ids', value=CS_ids, type_=Numeric)
-            ]
+            bindparams=[bindparam("CS_ids", value=CS_ids, type_=Numeric)],
         )
         recipes_sql = self.session.execute(query).fetchall()
         return recipes_sql
 
     def exact_recipe_match(self, search_term):
-        '''
+        """
         DESCRIPTION:
             Return True if search_term is in recipes table of
             cur database, False otherwise.
-        '''
+        """
         query = text(
             """
             SELECT * FROM public.recipes
             WHERE "url" = :search_term
             """,
-            bindparams=[
-                bindparam('search_term', value=search_term, type_=String)
-            ]
+            bindparams=[bindparam("search_term", value=search_term, type_=String)],
         )
         if self.session.execute(query).fetchall():
             return True
@@ -223,7 +215,7 @@ class Sql_queries():
             return False
 
     def content_based_search(self, search_term):
-        '''
+        """
         DESCRIPTION:
             return the 200 most similar recipes to the url defined
             in <search term> based on cosine similarity in the "categories"
@@ -234,7 +226,7 @@ class Sql_queries():
             results (dataframe): Recipe dataframe similar to recipes, but
                 containing only the Nsim most similar recipes to the input.
                 Also contains additional column "similarity".
-        '''
+        """
         # Select recipe IDs of 200 most similar recipes to reference
         CS_ids = self.query_content_similarity_ids(search_term)
 
@@ -247,35 +239,62 @@ class Sql_queries():
         # So if you want to adjust this, adjust both!
         # TODO: Make column names similar in pandas and sql!
         col_sel = [
-                'recipesID', 'title', 'ingredients', 'rating', 'calories',
-                'sodium', 'fat', 'protein', 'emissions', 'prop_ing',
-                'emissions_log10', 'url', 'servings', 'index', 'image_url',
-                'perc_rating', 'perc_sustainability', 'review_count'
-                    ]
+            "recipesID",
+            "title",
+            "ingredients",
+            "rating",
+            "calories",
+            "sodium",
+            "fat",
+            "protein",
+            "emissions",
+            "prop_ing",
+            "emissions_log10",
+            "url",
+            "servings",
+            "index",
+            "image_url",
+            "perc_rating",
+            "perc_sustainability",
+            "review_count",
+        ]
         recipes_sql = self.query_similar_recipes(CS_ids)
 
         # Obtain a dataframe for further processing
         results = pd.DataFrame(recipes_sql, columns=col_sel)
 
         # Add similarity scores to correct recipes (using recipesID again)
-        temp = pd.DataFrame({'CS_ids': CS_ids, 'similarity': CS})
-        results = results.merge(temp, left_on='recipesID',
-                                right_on='CS_ids', how='left')
+        temp = pd.DataFrame({"CS_ids": CS_ids, "similarity": CS})
+        results = results.merge(
+            temp, left_on="recipesID", right_on="CS_ids", how="left"
+        )
 
         # Assign data types (sql output might be decimal, should
         # be float!)
-        numerics = ['recipesID', 'rating', 'calories', 'sodium',
-                    'fat', 'protein', 'emissions', 'prop_ing',
-                    'emissions_log10', 'index', 'perc_rating',
-                    'perc_sustainability', 'similarity', 'review_count']
-        strings = ['title', 'ingredients', 'url', 'servings', 'image_url']
+        numerics = [
+            "recipesID",
+            "rating",
+            "calories",
+            "sodium",
+            "fat",
+            "protein",
+            "emissions",
+            "prop_ing",
+            "emissions_log10",
+            "index",
+            "perc_rating",
+            "perc_sustainability",
+            "similarity",
+            "review_count",
+        ]
+        strings = ["title", "ingredients", "url", "servings", "image_url"]
         for num in numerics:
             results[num] = pd.to_numeric(results[num])
         for s in strings:
-            results[s] = results[s].astype('str')
+            results[s] = results[s].astype("str")
 
         # Order results by similarity
-        results = results.sort_values(by='similarity', ascending=False)
+        results = results.sort_values(by="similarity", ascending=False)
 
         return results
 
@@ -296,24 +315,40 @@ class Sql_queries():
         if outp[0][2] == search_term:
             return self.content_based_search(search_term)
 
-        col_names = ["recipesID", "title", "url", "perc_rating",
-                     "perc_sustainability", "review_count", "image_url",
-                     "ghg", "prop_ingredients", "rank"]
+        col_names = [
+            "recipesID",
+            "title",
+            "url",
+            "perc_rating",
+            "perc_sustainability",
+            "review_count",
+            "image_url",
+            "ghg",
+            "prop_ingredients",
+            "rank",
+        ]
 
         results = pd.DataFrame(outp, columns=col_names)
 
         # Assign data types (sql output might be decimal, should
         # be float!)
-        numerics = ['recipesID', 'perc_rating', 'ghg', 'prop_ingredients',
-                    'perc_rating', 'perc_sustainability', 'review_count']
-        strings = ['title', 'url', 'image_url']
+        numerics = [
+            "recipesID",
+            "perc_rating",
+            "ghg",
+            "prop_ingredients",
+            "perc_rating",
+            "perc_sustainability",
+            "review_count",
+        ]
+        strings = ["title", "url", "image_url"]
         for num in numerics:
             results[num] = pd.to_numeric(results[num])
         for s in strings:
-            results[s] = results[s].astype('str')
+            results[s] = results[s].astype("str")
 
         # Order results by rank / edit_dist
-        results = results.sort_values(by='rank', ascending=False)
+        results = results.sort_values(by="rank", ascending=False)
         return results
 
     def query_all_recipe_emissions(self):
@@ -326,11 +361,13 @@ class Sql_queries():
             df (pandas.DataFrame): With columns "recipesID", "emissions",
                                    "emissions_log10", "url", "title"
         """
-        query = self.session.query(Recipe.recipesID,
-                                   Recipe.emissions,
-                                   Recipe.emissions_log10,
-                                   Recipe.url,
-                                   Recipe.title)
+        query = self.session.query(
+            Recipe.recipesID,
+            Recipe.emissions,
+            Recipe.emissions_log10,
+            Recipe.url,
+            Recipe.title,
+        )
         return pd.read_sql(query.statement, self.session.bind)
 
     def query_cookbook(self, userID):
@@ -356,31 +393,45 @@ class Sql_queries():
             WHERE u."userID" = :userID
             ORDER BY l.rating
             """,
-            bindparams=[
-                bindparam('userID', value=userID, type_=Integer)
-            ]
+            bindparams=[bindparam("userID", value=userID, type_=Integer)],
         )
         recipes = self.session.execute(query).fetchall()
 
         # Convert to DataFrame
-        colsel = ["userID", "username", "created", "user_rating",
-                  "title", "url", "perc_rating", "perc_sustainability",
-                  "review_count", "image_url", "emissions", "prop_ingredients",
-                  "categories"]
+        colsel = [
+            "userID",
+            "username",
+            "created",
+            "user_rating",
+            "title",
+            "url",
+            "perc_rating",
+            "perc_sustainability",
+            "review_count",
+            "image_url",
+            "emissions",
+            "prop_ingredients",
+            "categories",
+        ]
         results = pd.DataFrame(recipes, columns=colsel)
 
         # Assign data types
-        numerics = ['userID', 'user_rating', 'perc_rating',
-                    'perc_sustainability', 'review_count', 'emissions',
-                    'prop_ingredients']
-        strings = ['username', 'title', 'url', 'image_url',
-                   'categories']
-        datetimes = ['created']
+        numerics = [
+            "userID",
+            "user_rating",
+            "perc_rating",
+            "perc_sustainability",
+            "review_count",
+            "emissions",
+            "prop_ingredients",
+        ]
+        strings = ["username", "title", "url", "image_url", "categories"]
+        datetimes = ["created"]
 
         for num in numerics:
             results[num] = pd.to_numeric(results[num])
         for s in strings:
-            results[s] = results[s].astype('str')
+            results[s] = results[s].astype("str")
         for dt in datetimes:
             results[dt] = pd.to_datetime(results[dt])
 
@@ -397,19 +448,16 @@ class Sql_queries():
         OUTPUT:
             Pandas DataFrame with columns 'recipesID' and 'bookmarked'
         """
-        sql_query = self.session.query(
-            Recipe, Like
-        ).join(
-            Like, Like.recipesID == Recipe.recipesID, isouter=True
-        ).filter(
-            Like.userID == userID,
-            Recipe.url.in_(urls)
+        sql_query = (
+            self.session.query(Recipe, Like)
+            .join(Like, Like.recipesID == Recipe.recipesID, isouter=True)
+            .filter(Like.userID == userID, Recipe.url.in_(urls))
         )
         df = pd.read_sql(sql_query.statement, self.session.bind)
 
         # I got 2 recipeID columns, keep only one!
         df = df.loc[:, ~df.columns.duplicated()]
-        return df[['recipesID', 'bookmarked']]
+        return df[["recipesID", "bookmarked"]]
 
     def is_in_cookbook(self, userID, url):
         """
@@ -428,8 +476,7 @@ class Sql_queries():
             return False
 
         # Query like entries
-        like = Like.query.filter_by(userID=userID,
-                                    recipesID=recipe.recipesID).first()
+        like = Like.query.filter_by(userID=userID, recipesID=recipe.recipesID).first()
         if like:
             return True
         return False
@@ -446,22 +493,24 @@ class Sql_queries():
             None
         """
         if self.is_in_cookbook(userID, url):
-            return 'Cookbook entry already exists'
+            return "Cookbook entry already exists"
         # Get username and recipesID
         user = User.query.filter_by(userID=userID).first()
         recipe = Recipe.query.filter_by(url=url).first()
 
         # Create new like entry
         if user and recipe:
-            like = Like(username=user.username,
-                        bookmarked=True,
-                        userID=userID,
-                        recipesID=recipe.recipesID,
-                        created=datetime.datetime.utcnow())
+            like = Like(
+                username=user.username,
+                bookmarked=True,
+                userID=userID,
+                recipesID=recipe.recipesID,
+                created=datetime.datetime.utcnow(),
+            )
             self.session.add(like)
             self.session.commit()
-            return 'Cookbook entry added successfully'
-        return 'UserID or recipe url invalid'
+            return "Cookbook entry added successfully"
+        return "UserID or recipe url invalid"
 
     def remove_from_cookbook(self, userID, url):
         """
@@ -476,12 +525,13 @@ class Sql_queries():
         """
         if self.is_in_cookbook(userID, url):
             recipe = Recipe.query.filter_by(url=url).first()
-            like = Like.query.filter_by(userID=userID,
-                                        recipesID=recipe.recipesID).first()
+            like = Like.query.filter_by(
+                userID=userID, recipesID=recipe.recipesID
+            ).first()
             self.session.delete(like)
             self.session.commit()
-            return 'Removed recipe from cookbook successfully'
-        return 'Recipe was not bookmarked to begin with'
+            return "Removed recipe from cookbook successfully"
+        return "Recipe was not bookmarked to begin with"
 
     def query_user_ratings(self, userID, urls):
         """
@@ -498,13 +548,14 @@ class Sql_queries():
             A like entry may exist even if the user has not explicitly
             rated a recipe - it may only have been bookmarked
         """
-        recipesIDs = self.session.query(Recipe.recipesID).filter(
-                        Recipe.url.in_(urls)).all()
+        recipesIDs = (
+            self.session.query(Recipe.recipesID).filter(Recipe.url.in_(urls)).all()
+        )
         likes_query = self.session.query(Like).filter(
-                        Like.userID == userID,
-                        Like.recipesID.in_(recipesIDs))
+            Like.userID == userID, Like.recipesID.in_(recipesIDs)
+        )
         df = pd.read_sql(likes_query.statement, self.session.bind)
-        df.rename(columns={'rating': 'user_rating'}, inplace=True)
+        df.rename(columns={"rating": "user_rating"}, inplace=True)
         return df
 
     def rate_recipe(self, userID, url, rating):
@@ -518,12 +569,12 @@ class Sql_queries():
             None
         """
         # Get recipeID
-        recipeID = self.session.query(Recipe.recipesID).\
-            filter(Recipe.url == url).first()
+        recipeID = (
+            self.session.query(Recipe.recipesID).filter(Recipe.url == url).first()
+        )
 
         # Find relevant likes row
-        like = Like.query.filter_by(userID=userID,
-                                    recipesID=recipeID).first()
+        like = Like.query.filter_by(userID=userID, recipesID=recipeID).first()
 
         # Like row found, modify
         if like:
@@ -535,12 +586,14 @@ class Sql_queries():
             user = User.query.filter_by(userID=userID).first()
             recipe = Recipe.query.filter_by(url=url).first()
             if user and recipe:
-                like = Like(username=user.username,
-                            bookmarked=False,
-                            userID=userID,
-                            recipesID=recipe.recipesID,
-                            created=datetime.datetime.utcnow(),
-                            rating=rating)
+                like = Like(
+                    username=user.username,
+                    bookmarked=False,
+                    userID=userID,
+                    recipesID=recipe.recipesID,
+                    created=datetime.datetime.utcnow(),
+                    rating=rating,
+                )
                 self.session.add(like)
                 self.session.commit()
 
@@ -566,8 +619,8 @@ class Sql_queries():
             # delete user (in users table)
             self.session.delete(user)
             self.session.commit()
-            return 'Removed user account successfully'
-        return 'User not found. Nothing was removed.'
+            return "Removed user account successfully"
+        return "User not found. Nothing was removed."
 
     def change_newsletter_subscription(self, userID):
         """
@@ -588,7 +641,7 @@ class Sql_queries():
             if new_subscription_status:
                 return 'Changed newsletter subscription to "subscribed"'
             return 'Changed newsletter subscription to "unsubscribed"'
-        return 'User not found'
+        return "User not found"
 
 
 # eof
