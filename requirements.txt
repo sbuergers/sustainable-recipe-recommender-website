@@ -2,6 +2,7 @@ altair==4.1.0
 attrs==19.3.0
 awscli==1.19.62
 beautifulsoup4==4.9.3
+black==21.7b0
 blinker==1.4
 bokeh==2.1.1
 boto3==1.17.62
