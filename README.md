@@ -2,6 +2,9 @@
 [![codecov](https://codecov.io/gh/sbuergers/sustainable-recipe-recommender-website/branch/master/graph/badge.svg?token=4FGOT90LCE)](https://codecov.io/gh/sbuergers/sustainable-recipe-recommender-website)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+# Down until further notice.
+I have taken the website offline for the moment, because I have exceeded the time of aws's free tier and did not want to pay 15 $ a month anymore. To make the website usable I would in the end have had to get legal advise about i. using the recipes from epicurious.com and ii. maintaining user account data.
+
 # Sustainable-recipe-recommender
 A recipe recommendation engine suggesting similar recipes that are more sustainable. This is the repository for the website. If you are interested in fetching and preprocessing of the data have a look at [this repo](https://github.com/sbuergers/sustainable-recipe-recommender). 
 
